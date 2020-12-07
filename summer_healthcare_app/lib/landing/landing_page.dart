@@ -79,7 +79,7 @@ class _LandingPageState extends State<LandingPage> {
                     ),
                   ),
                   UserButton(
-                    text: 'Sign In As User',
+                    text: 'Sign Up As User',
                     height: Dimensions.buttonHeight,
                     color: Colours.secondaryColour,
                     padding: EdgeInsets.symmetric(horizontal: Dimensions.d_5),
@@ -87,7 +87,7 @@ class _LandingPageState extends State<LandingPage> {
                     },
                   ),
                   UserButton(
-                    text: 'Sign In As Pharmacist',
+                    text: 'Sign Up As Pharmacist',
                     height: Dimensions.buttonHeight,
                     color: Colours.tertiaryColour,
                     onClick: () {

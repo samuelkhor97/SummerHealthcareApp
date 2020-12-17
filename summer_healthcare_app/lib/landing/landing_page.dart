@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
+import 'package:summer_healthcare_app/landing/user_signup_page_1.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
+import 'package:summer_healthcare_app/landing/login_page.dart';
 
 class LandingPage extends StatefulWidget {
   @override
@@ -16,7 +18,7 @@ class _LandingPageState extends State<LandingPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Colours.white,
         body: ListView(
           children: <Widget>[
             Padding(
@@ -42,6 +44,10 @@ class _LandingPageState extends State<LandingPage> {
                     height: Dimensions.d_65,
                     color: Colours.lightGrey,
                     onClick: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
                     },
                   ),
                   SizedBox(
@@ -78,12 +84,20 @@ class _LandingPageState extends State<LandingPage> {
                       ],
                     ),
                   ),
+                  SizedBox(
+                    height: Dimensions.d_5,
+                  ),
                   UserButton(
                     text: 'Sign Up As User',
                     height: Dimensions.buttonHeight,
                     color: Colours.secondaryColour,
                     padding: EdgeInsets.symmetric(horizontal: Dimensions.d_5),
                     onClick: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) =>
+                              UserSignUpPage1()
+                          ));
                     },
                   ),
                   UserButton(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/landing/user_details.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
+import 'package:summer_healthcare_app/landing/user_signup_page_2.dart';
 
 class UserSignUpPage1 extends StatefulWidget {
   @override
@@ -62,7 +63,7 @@ class _UserSignUpPage1State extends State<UserSignUpPage1> {
               },
             ),
             title: Text(
-              'Participant Sign Up',
+              'Registration',
             ),
             centerTitle: true,
             elevation: 0.0,
@@ -180,7 +181,12 @@ class _UserSignUpPage1State extends State<UserSignUpPage1> {
                       text: 'Continue',
                       color: Colours.secondaryColour,
                       padding: EdgeInsets.symmetric(horizontal: Dimensions.d_45),
-                      onClick: isButtonDisabled ? null : () {},
+                      onClick: isButtonDisabled ? null : () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) =>
+                            UserSignUpPage2(passUserDetails: userDetails)
+                        ));
+                      },
                     ),
                   ],
                 ),

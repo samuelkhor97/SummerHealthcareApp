@@ -9,6 +9,15 @@ class UserDetails {
   TextEditingController age = TextEditingController();
   TextEditingController weight = TextEditingController();
   TextEditingController height = TextEditingController();
+  TextEditingController bmi = TextEditingController();
+  TextEditingController bodyFat = TextEditingController();
+  TextEditingController ethnicity = TextEditingController();
+  TextEditingController educationStatus = TextEditingController();
+  String employmentStatus;
+  TextEditingController occupation = TextEditingController();
+  TextEditingController maritalStatus = TextEditingController();
+  String smoke;
+  TextEditingController smokePerDay = TextEditingController();
 
   void disposeTexts() {
     fullName.dispose();
@@ -16,6 +25,13 @@ class UserDetails {
     age.dispose();
     weight.dispose();
     height.dispose();
+    bmi.dispose();
+    bodyFat.dispose();
+    ethnicity.dispose();
+    educationStatus.dispose();
+    occupation.dispose();
+    maritalStatus.dispose();
+    smokePerDay.dispose();
   }
 
   void setIsLogin({bool isLogin}) {

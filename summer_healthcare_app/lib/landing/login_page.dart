@@ -90,6 +90,7 @@ class _LoginPageState extends State<LoginPage> {
   void pushVerificationPage() {
     userDetails.setIsLogin(isLogin: true);
     Navigator.pop(context);
+    Navigator.pop(context);
     Navigator.push(
         context,
         MaterialPageRoute(builder: (context) =>

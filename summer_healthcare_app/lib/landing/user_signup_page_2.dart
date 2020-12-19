@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/landing/user_details.dart';
+import 'package:summer_healthcare_app/landing/verification_page.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
 
 
@@ -27,18 +28,44 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
         .termsAndConditions);
   }
 
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  //   userDetails.disposeTextsSignUpPage2();
-  //   print('Disposed text editor');
-  // }
-
   @override
   void setState(fn) {
     if (mounted) {
       super.setState(fn);
     }
+  }
+  
+  void showSignUpSuccess() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext alertContext) {
+        return AlertDialog(
+          title: Text('Notice'),
+          content: Text(
+            'Sign Up Successful! Press OK to Proceed onto the Verification Page',
+            textAlign: TextAlign.left,
+            style: TextStyle(
+                color: Colours.black),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('OK'),
+              onPressed: () async {
+                Navigator.of(alertContext).pop();
+                Navigator.pop(context);
+                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) =>
+                        VerificationPage(verificationId: 'example', userDetails: userDetails,)
+                    ));
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   bool allFieldsFilled() {
@@ -149,7 +176,7 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                         flex: 22,
                         child: RadioListTile(
                             title: Text(
-                              'Not employed',
+                              'Employed',
                             ),
                             value: 'Not employed',
                             groupValue: userDetails.employmentStatus,
@@ -166,7 +193,7 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                         child: RadioListTile(
                           // dense: true,
                             title: Text(
-                              'Employed',
+                              'Not Employed',
                             ),
                             value: 'Employed',
                             groupValue: userDetails.employmentStatus,
@@ -268,8 +295,7 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                     onClick: isButtonDisabled ? null : () {
                       print(userDetails.fullName.text);
                       print(userDetails.smokePerDay.text);
-                      Navigator.pop(context);
-                      Navigator.pop(context);
+                      showSignUpSuccess();
                     },
                   ),
                 ],

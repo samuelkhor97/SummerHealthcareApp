@@ -63,7 +63,6 @@ class _VerificationPageState extends State<VerificationPage> {
                 icon: Icon(Icons.arrow_back_ios, color: Colors.black),
                 onPressed: () {
                   Navigator.pop(context);
-                  Navigator.pop(context);
                 },
               ),
               title: Text(
@@ -109,7 +108,6 @@ class _VerificationPageState extends State<VerificationPage> {
                             Timer(new Duration(seconds: 2), () async {
                               Navigator.pop(context);
                               if (verificationNumberController.text == '123456') {
-                                Navigator.pop(context);
                                 Navigator.pop(context);
                                 Navigator.pop(context);
                                 Navigator.push(

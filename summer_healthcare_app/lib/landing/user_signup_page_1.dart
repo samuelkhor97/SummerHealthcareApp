@@ -182,6 +182,7 @@ class _UserSignUpPage1State extends State<UserSignUpPage1> {
                       color: Colours.secondaryColour,
                       padding: EdgeInsets.symmetric(horizontal: Dimensions.d_45),
                       onClick: isButtonDisabled ? null : () {
+                        userDetails.calcBMI(weight: int.parse(userDetails.weight.text), height: int.parse(userDetails.height.text));
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) =>
                             UserSignUpPage2(passUserDetails: userDetails)

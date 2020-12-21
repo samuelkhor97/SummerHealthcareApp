@@ -10,7 +10,6 @@ class UserDetails {
   TextEditingController weight = TextEditingController();
   TextEditingController height = TextEditingController();
   TextEditingController bmi = TextEditingController();
-  TextEditingController bodyFat = TextEditingController();
   TextEditingController ethnicity = TextEditingController();
   TextEditingController educationStatus = TextEditingController();
   String employmentStatus;
@@ -26,7 +25,6 @@ class UserDetails {
     weight.dispose();
     height.dispose();
     bmi.dispose();
-    bodyFat.dispose();
     ethnicity.dispose();
     educationStatus.dispose();
     occupation.dispose();
@@ -36,5 +34,11 @@ class UserDetails {
 
   void setIsLogin({bool isLogin}) {
     this.isLogin = isLogin;
+  }
+
+  void calcBMI({int weight, int height}) {
+    double bmiValue = weight/((height/100) * (height/100));
+    String bmiString = bmiValue.toStringAsFixed(1);
+    this.bmi = new TextEditingController(text: bmiString);
   }
 }

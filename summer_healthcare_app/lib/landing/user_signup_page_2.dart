@@ -70,7 +70,6 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
 
   bool allFieldsFilled() {
     bool fieldCheck = userDetails.bmi.text.isNotEmpty &&
-        userDetails.bodyFat.text.isNotEmpty &&
         userDetails.ethnicity.text.isNotEmpty &&
         userDetails.educationStatus.text.isNotEmpty &&
         userDetails.employmentStatus != null &&
@@ -119,19 +118,7 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                   InputField(
                     controller: userDetails.bmi,
                     labelText: 'Body Mass Index (BMI)',
-                    keyboardType: TextInputType.phone,
-                    onChanged: (String text) {
-                      setState(() {
-                        checkAllInformationFilled(checkBox: userDetails
-                            .termsAndConditions);
-                      });
-                    },
-                  ),
-                  InputField(
-                    hintText: '25',
-                    controller: userDetails.bodyFat,
-                    labelText: 'Body fat percentage',
-                    keyboardType: TextInputType.phone,
+                    readOnly: true,
                     onChanged: (String text) {
                       setState(() {
                         checkAllInformationFilled(checkBox: userDetails

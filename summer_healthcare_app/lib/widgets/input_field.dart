@@ -11,8 +11,9 @@ class InputField extends StatelessWidget {
   final bool moreLines;
   final TextEditingController controller;
   final Function onChanged;
+  final readOnly;
 
-  InputField({this.isPassword = false, this.moreLines = false, this.labelText = '', this.hintText = '', this.keyboardType, this.isShortInput = false, this.backgroundColour, @required this.controller, this.onChanged});
+  InputField({this.isPassword = false, this.moreLines = false, this.labelText = '', this.hintText = '', this.keyboardType, this.isShortInput = false, this.backgroundColour, this.readOnly = false, @required this.controller, this.onChanged});
 
   Widget build(BuildContext context) {
     return Padding(
@@ -20,6 +21,7 @@ class InputField extends StatelessWidget {
         child: Material(
           color: backgroundColour == null ? Colours.white : backgroundColour,
           child: TextField(
+              readOnly: readOnly,
               controller: controller,
               obscureText: isPassword,
               keyboardType: keyboardType,

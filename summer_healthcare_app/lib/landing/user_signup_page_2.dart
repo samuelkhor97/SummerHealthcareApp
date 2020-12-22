@@ -3,7 +3,7 @@ import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/landing/user_details.dart';
 import 'package:summer_healthcare_app/landing/verification_page.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
-
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 class UserSignUpPage2 extends StatefulWidget {
   final UserDetails passUserDetails;
@@ -34,39 +34,6 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
       super.setState(fn);
     }
   }
-  
-  void showSignUpSuccess() {
-    showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext alertContext) {
-        return AlertDialog(
-          title: Text('Notice'),
-          content: Text(
-            'Sign Up Successful! Press OK to Proceed onto the Verification Page',
-            textAlign: TextAlign.left,
-            style: TextStyle(
-                color: Colours.black),
-          ),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('OK'),
-              onPressed: () async {
-                Navigator.of(alertContext).pop();
-                Navigator.pop(context);
-                Navigator.pop(context);
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) =>
-                        VerificationPage(verificationId: 'example', userDetails: userDetails,)
-                    ));
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   bool allFieldsFilled() {
     bool fieldCheck = userDetails.bmi.text.isNotEmpty &&
@@ -86,6 +53,90 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
       isButtonDisabled = false;
     else
       isButtonDisabled = true;
+  }
+
+  void popUpAlert({String title, String body, List<Widget> actions, bool canDismiss = true}) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: canDismiss,
+      builder: (BuildContext alertContext) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(body,
+            textAlign: TextAlign.left,
+            style: TextStyle(
+                color: Colours.black),
+          ),
+          actions: actions
+        );
+      },
+    );
+  }
+
+  Future<void> verifyPhone(phoneNo) async {
+    final auth.PhoneVerificationCompleted verified = (auth.AuthCredential authResult) async {
+    };
+
+    final auth.PhoneVerificationFailed verificationFailed =
+        (auth.FirebaseAuthException authException) {
+      debugPrint('${authException.message}');
+      popUpAlert(
+        title: 'Notice',
+        body: 'Phone Number Entered is Invalid. Please Fill in a Valid Phone Number',
+        canDismiss: false,
+        actions: [
+          FlatButton(
+            child: Text('OK'),
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+          ),
+        ]
+      );
+    };
+
+    final auth.PhoneCodeSent smsSent = (String verId, [int forceResend]) {
+      this.verificationId = verId;
+      setState(() {
+        this.codeSent = true;
+      });
+
+      popUpAlert(
+          title: 'Notice',
+          body: 'Sign Up Successful! Press OK to Proceed onto the Verification Page',
+          canDismiss: false,
+          actions: [
+            FlatButton(
+              child: Text('OK'),
+              onPressed: () async {
+                Navigator.pop(context);
+                Navigator.pop(context);
+                Navigator.pop(context);
+                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) =>
+                        VerificationPage(verificationId: 'example', userDetails: userDetails,)
+                    ));
+              },
+            ),
+          ],
+      );
+    };
+
+    final auth.PhoneCodeAutoRetrievalTimeout autoTimeout = (String verId) {
+      this.verificationId = verId;
+      this.codeSent = true;
+    };
+
+    await auth.FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: phoneNo,
+        timeout: const Duration(seconds: 5),
+        verificationCompleted: verified,
+        verificationFailed: verificationFailed,
+        codeSent: smsSent,
+        codeAutoRetrievalTimeout: autoTimeout);
   }
 
   @override
@@ -160,12 +211,13 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                   Row(
                     children: <Widget>[
                       Flexible(
-                        flex: 22,
+                        flex: 50,
                         child: RadioListTile(
+                            dense: true,
                             title: Text(
                               'Employed',
                             ),
-                            value: 'Not employed',
+                            value: 'Employed',
                             groupValue: userDetails.employmentStatus,
                             onChanged: (String value) {
                               setState(() {
@@ -176,13 +228,13 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                             }),
                       ),
                       Flexible(
-                        flex: 26,
+                        flex: 52,
                         child: RadioListTile(
-                          // dense: true,
+                            dense: true,
                             title: Text(
                               'Not Employed',
                             ),
-                            value: 'Employed',
+                            value: 'Not Employed',
                             groupValue: userDetails.employmentStatus,
                             onChanged: (String value) {
                               setState(() {
@@ -279,10 +331,11 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                     text: 'Sign Up',
                     color: Colours.secondaryColour,
                     padding: EdgeInsets.symmetric(horizontal: Dimensions.d_45),
-                    onClick: isButtonDisabled ? null : () {
+                    onClick: isButtonDisabled ? null : () async {
                       print(userDetails.fullName.text);
                       print(userDetails.smokePerDay.text);
-                      showSignUpSuccess();
+                      showLoadingAnimation(context: context);
+                      verifyPhone(userDetails.phoneNumber.text);
                     },
                   ),
                 ],

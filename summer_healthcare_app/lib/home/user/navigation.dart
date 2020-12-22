@@ -28,6 +28,20 @@ class _UserNavigationState extends State<UserNavigation> {
 //    initializeUser();
   }
 
+  @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    pageController.dispose();
+    print('Disposed page controller in navigation page');
+  }
+
 //  void initializeUser() async {
 //    String token = await AuthService.getToken();
 //    print('Auth Token: $token');

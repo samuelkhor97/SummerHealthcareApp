@@ -74,8 +74,7 @@ class _LoginPageState extends State<LoginPage> {
                         padding: EdgeInsets.symmetric(horizontal: Dimensions.d_45),
                         onClick: isButtonDisabled ? null : () async {
                           showLoadingAnimation(context: context);
-                          pushVerificationPage();
-//                          await verifyPhone(userDetails.phoneNumber.text);
+                          await verifyPhone(userDetails.phoneNumber.text);
                         },
                       ),
                     ],
@@ -105,22 +104,29 @@ class _LoginPageState extends State<LoginPage> {
     final auth.PhoneVerificationFailed verificationFailed =
         (auth.FirebaseAuthException authException) {
       debugPrint('${authException.message}');
-      AlertDialog(
-        title: Text('Notice'),
-        content: Text(
-          'The Phone Number Entered is Invalid. Please Try Again.',
-          textAlign: TextAlign.left,
-          style: TextStyle(
-              color: Colours.black),
-        ),
-        actions: <Widget>[
-          FlatButton(
-            child: Text('OK'),
-            onPressed: () async {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext alertContext) {
+          return AlertDialog(
+            title: Text('Notice'),
+            content: Text(
+              'The Phone Number Entered is Invalid. Please Try Again.',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                  color: Colours.black),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('OK'),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
       );
     };
 

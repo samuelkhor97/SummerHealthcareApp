@@ -117,7 +117,7 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) =>
-                        VerificationPage(verificationId: 'example', userDetails: userDetails,)
+                        VerificationPage(verificationId: verificationId, userDetails: userDetails,)
                     ));
               },
             ),

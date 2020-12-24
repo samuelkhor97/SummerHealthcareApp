@@ -8,26 +8,44 @@ class MonitoringPage extends StatefulWidget {
 }
 
 class _MonitoringPageState extends State<MonitoringPage> {
+  List<SugarContainer> sugarContainerList = [
+    SugarContainer(
+      day: 'SAT',
+      date: '5/12/20',
+    ),
+    SugarContainer(
+      day: 'SUN',
+      date: '6/12/20',
+    ),
+  ];
   @override
   void initState() {
     super.initState();
   }
 
-
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Scaffold (
+        child: Scaffold(
           backgroundColor: Colours.primaryColour,
-          body: Column (
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
+          body: ListView(
             children: <Widget>[
-              sugar_container(
-                day: 'SAT',
-                date: '5/12/20',
-                avg: '3',
+              ListView.builder(
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: this.sugarContainerList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return this.sugarContainerList[index];
+                },
               )
             ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            mini: true,
+            tooltip: 'Monitoring Summary',
+            child: Icon(
+              Icons.stacked_bar_chart
+            ),
+            onPressed: () {},
           ),
         ),
     );

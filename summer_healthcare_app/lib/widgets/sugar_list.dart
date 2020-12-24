@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
 
-
-class sugar_list extends StatelessWidget {
-  final readings;
+class SugarList extends StatelessWidget {
+  final double readings;
   final readingTitle;
   final readingTime;
 
-
-
-
-
-
-  sugar_list({Key key, this.readings = '', this.readingTitle, this.readingTime}) : super(key: key);
+  SugarList({Key key, this.readings = 0, this.readingTitle, this.readingTime}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +14,8 @@ class sugar_list extends StatelessWidget {
         leading: Column(
           children: <Widget>[
             Text(
-              this.readings,
-              style: TextStyle(fontSize: 30, color: Colours.green),
+              this.readings.toString(),
+              style: TextStyle(fontSize: 30, color: readings > 7.8 ? Colours.red : readings < 4.0 ? Colours.blue : Colours.green),
             ),
             Text("mmo/L")
           ],

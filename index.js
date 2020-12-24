@@ -32,7 +32,7 @@ initialize();
 
 async function initialize() {
     if (process.env.DB_SYNC === 'true')
-        await sequelize.sync();
+        await sequelize.sync({force:true});
     app.listen(port, () => {
         console.log(`Listening at port: ${port}`)
     }); 

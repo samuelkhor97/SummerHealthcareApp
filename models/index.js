@@ -13,10 +13,14 @@ const sequelize = new Sequelize(
 
 const models = {
     User: require('./user')(sequelize, Sequelize),
-    Message: require('./message')(sequelize, Sequelize),
+    Pharmacist: require('./pharmacist')(sequelize, Sequelize),
+    Pharmacy: require('./pharmacy')(sequelize, Sequelize),
+    User_Pharmacist: require('./user_pharmacist')(sequelize, Sequelize),
+    Sugar_Level: require('./sugar_level')(sequelize, Sequelize),
+    Weight: require('./weight')(sequelize, Sequelize),
 };
 
-testConnection();
+// testConnection();
 
 Object.keys(models).forEach(key => {
     if ('associate' in models[key]) {

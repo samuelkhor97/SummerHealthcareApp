@@ -90,9 +90,6 @@ class _ChatScreenState extends State<ChatScreen> {
   final int _limitIncrement = 20;
   SharedPreferences preferences;
 
-  File imageFile;
-  String imageUrl;
-
   final Map<String, String> sendersAvatars = {};
   final Map<String, String> sendersNames = {};
 
@@ -132,7 +129,6 @@ class _ChatScreenState extends State<ChatScreen> {
       sendersAvatars[id] = details['photoUrl'];
       sendersNames[id] = details['displayName'] ?? '';
     });
-    imageUrl = '';
   }
 
   @override
@@ -172,20 +168,21 @@ class _ChatScreenState extends State<ChatScreen> {
     pickedFile = await imagePicker.getImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      imageFile = File(pickedFile.path);
+      String fileName = 'images/$id/${DateTime.now().toString()}';
+
+      File imageFile = File(pickedFile.path);
       showLoadingAnimation(context: context);
-      await uploadFile();
+      await uploadFile(file: imageFile, fileName: fileName);
       Navigator.pop(context);
     }
   }
 
-  Future uploadFile() async {
-    String fileName = DateTime.now().toString();
+  Future uploadFile({File file, String fileName}) async {
     StorageReference reference = _firestorage.ref().child(fileName);
-    StorageUploadTask uploadTask = reference.putFile(imageFile);
+    StorageUploadTask uploadTask = reference.putFile(file);
     StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
     storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
-      imageUrl = downloadUrl;
+      String imageUrl = downloadUrl;
       onSendMessage(content: imageUrl, type: Type.image);
     }, onError: (err) {
       Fluttertoast.showToast(msg: 'File upload failed.');
@@ -246,7 +243,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
                 style: TextStyle(
                   color: Colours.black,
-                  fontSize: 15.0,
+                  fontSize: FontSizes.normalText,
                 ),
                 controller: textEditingController,
                 decoration: InputDecoration.collapsed(

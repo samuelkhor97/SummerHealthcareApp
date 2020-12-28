@@ -8,6 +8,7 @@ class Paddings {
   static EdgeInsetsGeometry vertical_5 = EdgeInsets.symmetric(vertical: 5.0);
   static EdgeInsetsGeometry vertical_15 = EdgeInsets.symmetric(vertical: 15.0);
   static EdgeInsetsGeometry vertical_35 = EdgeInsets.symmetric(vertical: 35.0);
+  static EdgeInsetsGeometry all_10 = EdgeInsets.all(10.0);
 }
 
 class Dimensions {
@@ -55,8 +56,14 @@ class Colours {
   static Color grey = Color(0xFF707070);
   static Color black = Color(0xFF333333);
   static Color white = Colors.white;
+  static Color midGrey = Colors.grey[300];
   static Color lightGrey = Colors.grey[200];
   static Color green = Color(0xFF0AC350);
   static Color red = Colors.redAccent;
   static Color blue = Color(0xFF4dd7fa);
+}
+
+class BordersRadius {
+  static BorderRadius rightChatBubble = BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10), bottomLeft: Radius.circular(10));
+  static BorderRadius leftChatBubble = BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10), bottomRight: Radius.circular(10));
 }

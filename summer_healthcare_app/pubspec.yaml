@@ -23,6 +23,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  image_picker: ^0.6.7+17
+  cached_network_image: ^2.5.0
+  fluttertoast: ^7.1.6
+  intl: ^0.16.1
+  photo_view: ^0.10.3
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -53,6 +58,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - images/medical_logo_new.png
+    - images/img_not_available.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -37,6 +37,7 @@ class Dimensions {
   static double d_140 = 140.0;
   static double d_160 = 160.0 ;
   static double d_200 = 200.0 ;
+  static double d_250 = 250.0;
   static double d_280 = 280.0;
 }
 
@@ -46,6 +47,7 @@ class FontSizes {
   static double buttonText = 17.0;
   static double biggerText = 18.0;
   static double normalText = 15.0;
+  static double smallText = 12.00;
   static double tinyText = 10.0;
 }
 
@@ -66,4 +68,6 @@ class Colours {
 class BordersRadius {
   static BorderRadius rightChatBubble = BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10), bottomLeft: Radius.circular(10));
   static BorderRadius leftChatBubble = BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10), bottomRight: Radius.circular(10));
+  static BorderRadius chatImage = BorderRadius.all(Radius.circular(8.0));
+  static BorderRadius chatAvatar = BorderRadius.all(Radius.circular(18.0));
 }

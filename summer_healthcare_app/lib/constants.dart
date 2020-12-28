@@ -4,6 +4,7 @@ class Paddings {
   static EdgeInsetsGeometry startupMain = EdgeInsets.symmetric(vertical: 40.0, horizontal: 30.0);
   static EdgeInsetsGeometry signUpPage = EdgeInsets.only(bottom: 35.0, left: 30.0, right: 30.0);
   static EdgeInsetsGeometry horizontal_5 = EdgeInsets.symmetric(horizontal: 5.0);
+  static EdgeInsetsGeometry horizontal_10 = EdgeInsets.symmetric(horizontal: 10.0);
   static EdgeInsetsGeometry horizontal_20 = EdgeInsets.symmetric(horizontal: 20.0);
   static EdgeInsetsGeometry vertical_5 = EdgeInsets.symmetric(vertical: 5.0);
   static EdgeInsetsGeometry vertical_15 = EdgeInsets.symmetric(vertical: 15.0);
@@ -70,4 +71,5 @@ class BordersRadius {
   static BorderRadius leftChatBubble = BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10), bottomRight: Radius.circular(10));
   static BorderRadius chatImage = BorderRadius.all(Radius.circular(8.0));
   static BorderRadius chatAvatar = BorderRadius.all(Radius.circular(18.0));
+  static BorderRadius profileAvatar = BorderRadius.all(Radius.circular(45.0));
 }

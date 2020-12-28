@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart' show CupertinoNavigationBar;
 import 'package:photo_view/photo_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -16,9 +15,10 @@ class FullPhoto extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: CupertinoNavigationBar(
+        appBar: AppBar(
           automaticallyImplyLeading: true,
-          middle: Text(
+          centerTitle: true,
+          title: Text(
             title,
             style: TextStyle(
               color: Colours.black,

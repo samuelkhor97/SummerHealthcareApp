@@ -11,7 +11,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:summer_healthcare_app/home/user/chatroom/loading_circle.dart';
+import 'package:summer_healthcare_app/widgets/show_loading_animation.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/home/user/chatroom/full_photo.dart';
 
@@ -90,7 +90,6 @@ class _ChatScreenState extends State<ChatScreen> {
   SharedPreferences preferences;
 
   File imageFile;
-  bool isLoading;
   String imageUrl;
 
   final Map<String, String> sendersAvatars = {};
@@ -139,11 +138,10 @@ class _ChatScreenState extends State<ChatScreen> {
       sendersAvatars[id] = details['photoUrl'];
       sendersNames[id] = details['displayName'] ?? '';
     });
-    isLoading = false;
     imageUrl = '';
   }
 
-  Future getImage() async {
+  Future getImage({BuildContext context}) async {
     ImagePicker imagePicker = ImagePicker();
     PickedFile pickedFile;
 
@@ -151,10 +149,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (pickedFile != null) {
       imageFile = File(pickedFile.path);
-      setState(() {
-        isLoading = true;
-      });
-      uploadFile();
+      showLoadingAnimation(context: context);
+      await uploadFile();
+      Navigator.pop(context);
     }
   }
 
@@ -165,14 +162,8 @@ class _ChatScreenState extends State<ChatScreen> {
     StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
     storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
       imageUrl = downloadUrl;
-      setState(() {
-        isLoading = false;
-        onSendMessage(content: imageUrl, type: Type.image);
-      });
+      onSendMessage(content: imageUrl, type: Type.image);
     }, onError: (err) {
-      setState(() {
-        isLoading = false;
-      });
       Fluttertoast.showToast(msg: 'This file is not an image');
     });
   }
@@ -502,24 +493,16 @@ class _ChatScreenState extends State<ChatScreen> {
               // List of messages
               buildListMessage(),
               // Input content
-              buildInput(),
+              buildInput(context: context),
             ],
           ),
-          // Loading
-          buildLoading()
         ],
       ),
       onWillPop: onBackPress,
     );
   }
 
-  Widget buildLoading() {
-    return Positioned(
-      child: isLoading ? LoadingCircle() : Container(),
-    );
-  }
-
-  Widget buildInput() {
+  Widget buildInput({BuildContext context}) {
     return Container(
       child: Row(
         children: <Widget>[
@@ -529,7 +512,9 @@ class _ChatScreenState extends State<ChatScreen> {
               margin: EdgeInsets.symmetric(horizontal: 1.0),
               child: IconButton(
                 icon: Icon(Icons.image),
-                onPressed: getImage,
+                onPressed: () {
+                  getImage(context: context);
+                },
                 color: Colours.secondaryColour,
               ),
             ),

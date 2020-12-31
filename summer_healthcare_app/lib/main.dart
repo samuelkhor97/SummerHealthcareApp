@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
+import 'package:summer_healthcare_app/home/user/navigation.dart';
 import 'package:summer_healthcare_app/landing/landing_page.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,6 +12,14 @@ void main() async {
 }
 
 class App extends StatelessWidget {
+  bool isSignedIn() {
+    auth.User firebaseUser = auth.FirebaseAuth.instance.currentUser;
+    if (firebaseUser != null) {
+      return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -18,7 +28,7 @@ class App extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      home: LandingPage(),
+      home: isSignedIn() ? UserNavigation() : LandingPage(),
     );
   }
 }

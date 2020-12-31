@@ -1,8 +1,7 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
-import 'package:summer_healthcare_app/home/user/navigation.dart';
 import 'package:summer_healthcare_app/landing/user_details.dart';
+import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
 
@@ -105,44 +104,15 @@ class _VerificationPageState extends State<VerificationPage> {
                           padding: EdgeInsets.symmetric(horizontal: Dimensions.d_65, vertical: Dimensions.d_20),
                           onClick: isButtonDisabled ? null : () async {
                             showLoadingAnimation(context: context);
-                            Timer(new Duration(seconds: 2), () async {
+                            String token = await AuthService().signInWithOTP(
+                                context: context,
+                                userDetails: widget.userDetails,
+                                smsCode: verificationNumberController.text,
+                                verId: widget.verificationId);
+                            if (token == null) {
                               Navigator.pop(context);
-                              if (verificationNumberController.text == '123456') {
-                                Navigator.pop(context);
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) =>
-                                      UserNavigation()
-                                  ));
-                              }
-                              else {
-                                showSmsCodeError();
-                              }
-                            });
-//                            String token = await AuthService().signInWithOTP(
-//                                context: context,
-//                                userDetails: widget.userDetails,
-//                                smsCode: verificationNumberController.text,
-//                                verId: widget.verificationId);
-//
-//                            if (token != null) {
-//                              if (token == 'wrongLogin') {
-//                                showWrongLoginError();
-//                              }
-//                              else {
-//                                SharedPreferences preferences = await SharedPreferences
-//                                    .getInstance();
-//                                preferences.setBool('isSLI',
-//                                    widget.userDetails.isSLI);
-//                                print('preference for isSLI: ${preferences
-//                                    .getBool('isSLI')}');
-//                              }
-//                            }
-//                            else {
-//                              Navigator.pop(context);
-//                              showSmsCodeError();
-//                            }
+                              showSmsCodeError();
+                            }
                           },
                         ),
                       ],

@@ -10,10 +10,11 @@ class InputField extends StatelessWidget {
   final Color backgroundColour;
   final bool moreLines;
   final TextEditingController controller;
+  final FocusNode focusNode;
   final Function onChanged;
   final readOnly;
 
-  InputField({this.isPassword = false, this.moreLines = false, this.labelText = '', this.hintText = '', this.keyboardType, this.isShortInput = false, this.backgroundColour, this.readOnly = false, @required this.controller, this.onChanged});
+  InputField({this.isPassword = false, this.moreLines = false, this.labelText = '', this.hintText = '', this.keyboardType, this.isShortInput = false, this.backgroundColour, this.readOnly = false, @required this.controller, this.onChanged, this.focusNode});
 
   Widget build(BuildContext context) {
     return Padding(
@@ -23,6 +24,7 @@ class InputField extends StatelessWidget {
           child: TextField(
               readOnly: readOnly,
               controller: controller,
+              focusNode: focusNode,
               obscureText: isPassword,
               keyboardType: keyboardType,
               onChanged: onChanged,

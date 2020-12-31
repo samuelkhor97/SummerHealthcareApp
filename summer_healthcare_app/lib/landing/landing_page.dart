@@ -15,6 +15,13 @@ class _LandingPageState extends State<LandingPage> {
     super.initState();
   }
 
+  @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
+  }
+
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(

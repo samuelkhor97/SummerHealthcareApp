@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
+import 'package:summer_healthcare_app/home/user/monitoring/monitoring_page.dart';
 import 'package:summer_healthcare_app/widgets/show_loading_animation.dart';
 import 'package:summer_healthcare_app/home/user/chatroom/chatroom_page.dart';
 import 'package:summer_healthcare_app/home/user/diary/diary_page.dart';
-import 'package:summer_healthcare_app/home/user/monitoring/monitoring_page.dart';
 import 'package:summer_healthcare_app/home/user/profile/profile_page.dart';
 import 'package:summer_healthcare_app/home/user/readings/readings_page.dart';
 

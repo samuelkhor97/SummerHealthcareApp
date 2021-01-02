@@ -14,6 +14,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:summer_healthcare_app/widgets/show_loading_animation.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/home/user/chatroom/full_photo.dart';
+import 'package:summer_healthcare_app/home/user/chatroom/chatlist_page.dart'
+    show GroupType;
 
 enum Type { text, image, video, voice }
 enum Position { left, right }
@@ -21,8 +23,9 @@ enum Position { left, right }
 class ChatRoom extends StatelessWidget {
   final String id;
   final Map<String, dynamic> groupDetails;
+  final String title;
 
-  ChatRoom({this.id, this.groupDetails});
+  ChatRoom({this.id, this.groupDetails, this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +43,7 @@ class ChatRoom extends StatelessWidget {
           ),
           centerTitle: true,
           title: Text(
-            groupDetails['name'],
+            title,
             style: TextStyle(
               color: Colours.secondaryColour,
               fontWeight: FontWeight.bold,
@@ -82,6 +85,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   String groupId;
   String id;
+  String groupType;
 
   bool isSendDisabled = true;
 
@@ -129,6 +133,7 @@ class _ChatScreenState extends State<ChatScreen> {
       sendersAvatars[id] = details['photoUrl'];
       sendersNames[id] = details['displayName'] ?? '';
     });
+    groupType = this.widget.groupDetails['type'];
   }
 
   @override
@@ -193,11 +198,16 @@ class _ChatScreenState extends State<ChatScreen> {
     if (content.trim() != '') {
       textEditingController.clear();
 
+      String lastMessage =
+          (type == Type.text) ? content : "[${describeEnum(type)}]";
+      String lastSentBy = widget.groupDetails['members'][id]['displayName'];
+
       var documentReference = _firestore
           .collection('messages')
           .doc(groupId)
           .collection('messages')
           .doc();
+      var groupReference = _firestore.collection('groups').doc(groupId);
 
       _firestore.runTransaction((transaction) async {
         transaction.set(
@@ -209,6 +219,11 @@ class _ChatScreenState extends State<ChatScreen> {
             'type': describeEnum(type)
           },
         );
+        transaction.update(groupReference, {
+          'lastChatAt': DateTime.now(),
+          'lastMessage': lastMessage,
+          'lastSentBy': lastSentBy
+        });
       });
       listScrollController.animateTo(0.0,
           duration: Duration(milliseconds: 300), curve: Curves.easeOut);
@@ -318,24 +333,31 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget buildItem({int index, DocumentSnapshot document}) {
-    String senderAvatar = sendersAvatars[document.data()['sentBy']];
+    Map<String, dynamic> docData = document.data();
+    String senderName = sendersNames[docData['sentBy']];
+    String senderAvatar = sendersAvatars[docData['sentBy']];
+    String messageType = docData['type'];
+    String content = docData['content'];
+    String senderRole = docData['role'];
+    Timestamp sentAt = docData['sentAt'];
+    bool isPersonal = groupType == describeEnum(GroupType.personal);
 
-    if (document.data()['sentBy'] == id) {
+    if (docData['sentBy'] == id) {
       // Right (my message)
       return Row(
         children: <Widget>[
-          document.data()['type'] == describeEnum(Type.text)
+          messageType == describeEnum(Type.text)
               // Text
               ? buildMessageBubble(
-                  text: document.data()['content'],
+                  text: content,
                   textColor: Colours.white,
                   bubbleColor: Colours.secondaryColour,
                   position: Position.right,
                   index: index)
-              : document.data()['type'] == describeEnum(Type.image)
+              : messageType == describeEnum(Type.image)
                   // Image
                   ? buildImageBubble(
-                      imageUrl: document.data()['content'],
+                      imageUrl: content,
                       position: Position.right,
                       index: index,
                       textFocusNode: focusNode)
@@ -349,25 +371,28 @@ class _ChatScreenState extends State<ChatScreen> {
       return Container(
         child: Column(
           children: <Widget>[
-            buildSenderLabel(
-              sender: sendersNames[document.data()['sentBy']],
-              role: document.data()['role'],
-            ),
+            isPersonal
+                ? Container()
+                : buildSenderLabel(
+                    sender: senderName,
+                    role: senderRole,
+                  ),
             Row(
               children: <Widget>[
-                isLastMessageLeft(index: index)
-                    ? buildSenderAvatar(senderAvatar: senderAvatar)
-                    : Container(width: 35.0),
-                document.data()['type'] == describeEnum(Type.text)
+                isLastMessageLeft(index: index) && !isPersonal
+                    ? buildSenderAvatar(
+                        senderAvatar: senderAvatar, senderName: senderName)
+                    : Container(width: !isPersonal ? 35.0 : 0),
+                messageType == describeEnum(Type.text)
                     ? buildMessageBubble(
-                        text: document.data()['content'],
+                        text: content,
                         textColor: Colours.black,
                         bubbleColor: Colours.midGrey,
                         position: Position.left,
                         index: index)
-                    : document.data()['type'] == describeEnum(Type.image)
+                    : messageType == describeEnum(Type.image)
                         ? buildImageBubble(
-                            imageUrl: document.data()['content'],
+                            imageUrl: content,
                             position: Position.left,
                             index: index,
                             textFocusNode: focusNode)
@@ -378,7 +403,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
             // Time
             isLastMessageLeft(index: index)
-                ? buildTimeSent(datetime: document.data()['sentAt'].toDate())
+                ? buildTimeSent(datetime: sentAt.toDate())
                 : Container()
           ],
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,30 +413,43 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Material buildSenderAvatar({String senderAvatar}) {
+  Material buildSenderAvatar({String senderAvatar, String senderName}) {
     return Material(
-      child: senderAvatar == null || senderAvatar == ''
-          ? Icon(
-              Icons.account_circle,
-              size: Dimensions.d_35,
-              color: Colours.grey,
-            )
-          : CachedNetworkImage(
-              placeholder: (context, url) => Container(
-                child: CircularProgressIndicator(
-                  strokeWidth: Dimensions.d_1,
-                  valueColor:
-                      AlwaysStoppedAnimation<Color>(Colours.secondaryColour),
+      child: InkWell(
+        onTap: () {
+          focusNode.unfocus();
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  content: onPressAvatarList(
+                      avatarUserName: senderName, imageUrl: senderAvatar),
+                );
+              });
+        },
+        child: senderAvatar == null || senderAvatar == ''
+            ? Icon(
+                Icons.account_circle,
+                size: Dimensions.d_35,
+                color: Colours.grey,
+              )
+            : CachedNetworkImage(
+                placeholder: (context, url) => Container(
+                  child: CircularProgressIndicator(
+                    strokeWidth: Dimensions.d_1,
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Colours.secondaryColour),
+                  ),
+                  width: Dimensions.d_35,
+                  height: Dimensions.d_35,
+                  padding: Paddings.all_10,
                 ),
+                imageUrl: senderAvatar,
                 width: Dimensions.d_35,
                 height: Dimensions.d_35,
-                padding: Paddings.all_10,
+                fit: BoxFit.cover,
               ),
-              imageUrl: senderAvatar,
-              width: Dimensions.d_35,
-              height: Dimensions.d_35,
-              fit: BoxFit.cover,
-            ),
+      ),
       borderRadius: BordersRadius.chatAvatar,
       clipBehavior: Clip.hardEdge,
     );
@@ -535,6 +573,45 @@ class _ChatScreenState extends State<ChatScreen> {
               ? BordersRadius.leftChatBubble
               : BordersRadius.rightChatBubble),
       margin: margin,
+    );
+  }
+
+  Widget onPressAvatarList({String avatarUserName, String imageUrl}) {
+    return Container(
+      height: Dimensions.d_100,
+      width: Dimensions.d_55,
+      child: ListView(
+        children: <Widget>[
+          ListTile(
+            title: Text('View Profile Picture'),
+            onTap: () {
+              focusNode.unfocus();
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        FullPhoto(title: avatarUserName, url: imageUrl),
+                  ));
+            },
+          ),
+          ListTile(
+            title: Text('Message $avatarUserName'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatRoom(
+                    id: id,
+                    groupDetails: null,
+                    title: avatarUserName,
+                  ),
+                ),
+              );
+            },
+          )
+        ],
+      ),
     );
   }
 

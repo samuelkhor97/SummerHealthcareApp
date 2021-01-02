@@ -95,7 +95,7 @@ class AuthService {
             'role': 'normal', // will be modified accordingly after pharmacist signup implemented
             'id': firebaseUser.uid,
             'createdAt': store.FieldValue.serverTimestamp(),
-            'groupId': null
+            'groups': []
           });
 
           await preferences.setString('id', firebaseUser.uid);

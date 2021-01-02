@@ -8,18 +8,7 @@ class SugarLevelPage extends StatefulWidget {
 }
 
 class _SugarLevelPageState extends State<SugarLevelPage> {
-  List<SugarList> sugarLevelList = [
-    SugarList(
-      readings: 7,
-      day: 'SAT',
-      date: '5/12/20',
-    ),
-    SugarList(
-      readings: 8.9,
-      day: 'SUN',
-      date: '6/12/20',
-    ),
-  ];
+  List<SugarList> sugarLevelList;
 
   @override
   void initState() {
@@ -27,6 +16,20 @@ class _SugarLevelPageState extends State<SugarLevelPage> {
   }
 
   Widget build(BuildContext context) {
+    if (sugarLevelList == null) {
+      sugarLevelList = [
+        SugarList(
+          readings: 7,
+          day: 'SAT',
+          date: '5/12/20',
+        ),
+        SugarList(
+          readings: 8.9,
+          day: 'SUN',
+          date: '6/12/20',
+        ),
+      ];
+    }
     return SafeArea(
         child: Scaffold(
           backgroundColor: Colours.primaryColour,

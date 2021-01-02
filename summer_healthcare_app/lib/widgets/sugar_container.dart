@@ -6,15 +6,12 @@ class SugarContainer extends StatelessWidget {
   final List<SugarList> tiles = <SugarList>[
     SugarList(
       readings: 7,
-      readingTitle: "Wake up",
     ),
     SugarList(
       readings: 3.5,
-      readingTitle: "Afternoon",
     ),
     SugarList(
       readings: 12,
-      readingTitle: "Afternoon",
     ),
   ];
   final sugarLevel;

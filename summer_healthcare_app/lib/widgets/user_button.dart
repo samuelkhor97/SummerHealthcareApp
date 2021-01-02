@@ -8,7 +8,8 @@ class UserButton extends StatelessWidget {
   final Function onClick;
   final double height;
   final EdgeInsetsGeometry padding;
-  UserButton({this.text, this.textColour, this.color, this.onClick, this.height, this.padding});
+  final BorderRadiusGeometry buttonRadius;
+  UserButton({this.text, this.textColour, this.color, this.onClick, this.height, this.padding, this.buttonRadius});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class UserButton extends StatelessWidget {
                 fontSize: FontSizes.buttonText, fontWeight: FontWeight.bold, color: textColour == null ? Colours.white : textColour),
           ),
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(Dimensions.buttonRadius)),
+              borderRadius: buttonRadius == null ? BorderRadius.circular(Dimensions.buttonRadius) : buttonRadius),
         ),
       ),
     );

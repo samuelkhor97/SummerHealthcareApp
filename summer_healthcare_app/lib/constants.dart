@@ -28,6 +28,7 @@ class Dimensions {
   static double d_30 = 30.0;
   static double d_35 = 35.0;
   static double d_45 = 45.0;
+  static double d_50 = 50.0;
   static double d_55 = 55.0;
   static double d_65 = 65.0;
   static double d_85 = 85.0;

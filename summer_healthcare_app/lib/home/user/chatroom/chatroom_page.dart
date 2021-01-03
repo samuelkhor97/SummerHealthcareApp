@@ -19,6 +19,7 @@ import 'package:summer_healthcare_app/home/user/chatroom/chatlist_page.dart'
 
 enum Type { text, image, video, voice }
 enum Position { left, right }
+enum Role { normal, pharmacist }
 
 class ChatRoom extends StatelessWidget {
   final String id;
@@ -83,6 +84,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  Map<String, dynamic> groupDetails;
   String groupId;
   String id;
   String groupType;
@@ -127,13 +129,14 @@ class _ChatScreenState extends State<ChatScreen> {
     listScrollController.addListener(_scrollListener);
     textEditingController.addListener(_textEditingListener);
 
+    groupDetails = this.widget.groupDetails;
     id = this.widget.id;
-    groupId = this.widget.groupDetails['id'];
-    this.widget.groupDetails['members'].forEach((id, details) {
+    groupId = groupDetails['id'];
+    groupDetails['members'].forEach((id, details) {
       sendersAvatars[id] = details['photoUrl'];
       sendersNames[id] = details['displayName'] ?? '';
     });
-    groupType = this.widget.groupDetails['type'];
+    groupType = groupDetails['type'];
   }
 
   @override
@@ -200,7 +203,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       String lastMessage =
           (type == Type.text) ? content : "[${describeEnum(type)}]";
-      String lastSentBy = widget.groupDetails['members'][id]['displayName'];
+      String lastSentBy = sendersNames[id];
 
       var documentReference = _firestore
           .collection('messages')
@@ -213,6 +216,7 @@ class _ChatScreenState extends State<ChatScreen> {
         transaction.set(
           documentReference,
           {
+            'id': documentReference.id,
             'sentBy': id,
             'sentAt': DateTime.now(),
             'content': content,
@@ -334,11 +338,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget buildItem({int index, DocumentSnapshot document}) {
     Map<String, dynamic> docData = document.data();
+    String senderId = docData['sentBy'];
     String senderName = sendersNames[docData['sentBy']];
     String senderAvatar = sendersAvatars[docData['sentBy']];
     String messageType = docData['type'];
     String content = docData['content'];
-    String senderRole = docData['role'];
+    String senderRole = groupDetails['members'][senderId]['role'];
     Timestamp sentAt = docData['sentAt'];
     bool isPersonal = groupType == describeEnum(GroupType.personal);
 
@@ -381,8 +386,11 @@ class _ChatScreenState extends State<ChatScreen> {
               children: <Widget>[
                 isLastMessageLeft(index: index) && !isPersonal
                     ? buildSenderAvatar(
-                        senderAvatar: senderAvatar, senderName: senderName)
-                    : Container(width: !isPersonal ? 35.0 : 0),
+                        senderId: senderId,
+                        senderAvatar: senderAvatar,
+                        senderName: senderName)
+                    : Container(
+                        width: !isPersonal ? Dimensions.d_35 : Dimensions.d_0),
                 messageType == describeEnum(Type.text)
                     ? buildMessageBubble(
                         text: content,
@@ -408,12 +416,13 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
           crossAxisAlignment: CrossAxisAlignment.start,
         ),
-        margin: EdgeInsets.only(bottom: 10.0),
+        margin: EdgeInsets.only(bottom: Dimensions.d_10),
       );
     }
   }
 
-  Material buildSenderAvatar({String senderAvatar, String senderName}) {
+  Material buildSenderAvatar(
+      {String senderId, String senderAvatar, String senderName}) {
     return Material(
       child: InkWell(
         onTap: () {
@@ -423,7 +432,9 @@ class _ChatScreenState extends State<ChatScreen> {
               builder: (BuildContext context) {
                 return AlertDialog(
                   content: onPressAvatarList(
-                      avatarUserName: senderName, imageUrl: senderAvatar),
+                      avatarUserId: senderId,
+                      avatarUserName: senderName,
+                      imageUrl: senderAvatar),
                 );
               });
         },
@@ -465,16 +476,21 @@ class _ChatScreenState extends State<ChatScreen> {
           fontStyle: FontStyle.italic,
         ),
       ),
-      margin: EdgeInsets.only(left: 50.0, top: 5.0, bottom: 5.0),
+      margin: EdgeInsets.only(
+          left: (groupType == describeEnum(GroupType.personal))
+              ? Dimensions.d_10
+              : Dimensions.d_50,
+          top: Dimensions.d_5,
+          bottom: Dimensions.d_5),
     );
   }
 
   Row buildSenderLabel({String sender, String role}) {
     return Row(
       children: <Widget>[
-        Container(width: 50.0),
+        Container(width: Dimensions.d_50),
         Container(
-          width: 125,
+          width: Dimensions.d_120,
           child: Text(
             sender,
             overflow: TextOverflow.ellipsis,
@@ -492,10 +508,13 @@ class _ChatScreenState extends State<ChatScreen> {
     EdgeInsetsGeometry margin;
 
     if (position == Position.left) {
-      margin = EdgeInsets.only(left: 10.0);
+      margin = EdgeInsets.only(left: Dimensions.d_10);
     } else {
       margin = EdgeInsets.only(
-          bottom: isLastMessageRight(index: index) ? 20.0 : 10.0, right: 10.0);
+          bottom: isLastMessageRight(index: index)
+              ? Dimensions.d_20
+              : Dimensions.d_10,
+          right: Dimensions.d_10);
     }
     return Container(
       child: FlatButton(
@@ -540,7 +559,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 builder: (context) => FullPhoto(url: imageUrl),
               ));
         },
-        padding: EdgeInsets.all(0),
+        padding: EdgeInsets.all(Dimensions.d_0),
       ),
       margin: margin,
     );
@@ -555,17 +574,21 @@ class _ChatScreenState extends State<ChatScreen> {
     EdgeInsetsGeometry margin;
 
     if (position == Position.left) {
-      margin = EdgeInsets.only(left: 10.0);
+      margin = EdgeInsets.only(left: Dimensions.d_10);
     } else {
       margin = EdgeInsets.only(
-          bottom: isLastMessageRight(index: index) ? 20.0 : 10.0, right: 10.0);
+          bottom: isLastMessageRight(index: index)
+              ? Dimensions.d_20
+              : Dimensions.d_10,
+          right: Dimensions.d_10);
     }
     return Container(
       child: Text(
         text,
         style: TextStyle(color: textColor),
       ),
-      padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+      padding: EdgeInsets.fromLTRB(
+          Dimensions.d_15, Dimensions.d_10, Dimensions.d_15, Dimensions.d_10),
       width: Dimensions.d_250,
       decoration: BoxDecoration(
           color: bubbleColor,
@@ -576,7 +599,14 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget onPressAvatarList({String avatarUserName, String imageUrl}) {
+  Widget onPressAvatarList(
+      {String avatarUserId, String avatarUserName, String imageUrl}) {
+    String avatarRole = groupDetails['members'][avatarUserId]['role'];
+    String myRole = groupDetails['members'][id]['role'];
+    // personal message is allowed only if either one is paharmacist
+    bool isMessageAllowed = (avatarRole == describeEnum(Role.pharmacist)) ||
+        (myRole == describeEnum(Role.pharmacist));
+
     return Container(
       height: Dimensions.d_100,
       width: Dimensions.d_55,
@@ -589,30 +619,103 @@ class _ChatScreenState extends State<ChatScreen> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        FullPhoto(title: avatarUserName, url: imageUrl),
+                    builder: (context) => FullPhoto(
+                      title: avatarUserName,
+                      url: imageUrl,
+                    ),
                   ));
             },
           ),
-          ListTile(
-            title: Text('Message $avatarUserName'),
+          InkWell(
             onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChatRoom(
-                    id: id,
-                    groupDetails: null,
-                    title: avatarUserName,
-                  ),
-                ),
-              );
+              if (!isMessageAllowed) {
+                Fluttertoast.showToast(
+                    msg: 'You can only have private message with pharmacist.');
+              }
             },
+            child: ListTile(
+              title: Text('Message $avatarUserName'),
+              enabled: isMessageAllowed,
+              onTap: () async {
+                showLoadingAnimation(context: context);
+                Map<String, dynamic> personalGroupDetails =
+                    await getPersonalGroupDetails(id: id, peerId: avatarUserId);
+                // pop loading animation
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChatRoom(
+                      id: id,
+                      groupDetails: personalGroupDetails,
+                      title: avatarUserName,
+                    ),
+                  ),
+                );
+              },
+            ),
           )
         ],
       ),
     );
+  }
+
+  Future<Map<String, dynamic>> getPersonalGroupDetails(
+      {String id, String peerId}) async {
+    Map<String, dynamic> personalGroupDetails;
+
+    String personalGroupId =
+        (id.hashCode < peerId.hashCode) ? '$id-$peerId' : '$peerId-$id';
+
+    var groupReference = _firestore.collection('groups').doc(personalGroupId);
+    var groupSnapshot = await groupReference.get();
+
+    if (!groupSnapshot.exists) {
+      var myUserRefrence = _firestore.collection('users').doc(id);
+      var peerUserRefrence = _firestore.collection('users').doc(peerId);
+
+      String newGroupType = describeEnum(GroupType.personal);
+      List<String> members = List.from([id, peerId]);
+
+      personalGroupDetails = {
+        'id': groupReference.id,
+        'createdAt': DateTime.now(),
+        'modifiedAt': DateTime.now(),
+        'type': newGroupType,
+        'members': members,
+        'lastChatAt': null,
+        'lastMessage': null,
+        'lastSentBy': null,
+        'photoUrl': null
+      };
+
+      await _firestore.runTransaction((transaction) async {
+        transaction.set(
+          groupReference,
+          personalGroupDetails,
+          SetOptions(merge: true),
+        );
+        transaction.update(myUserRefrence, {
+          'groups': FieldValue.arrayUnion([personalGroupId]),
+        });
+        transaction.update(peerUserRefrence, {
+          'groups': FieldValue.arrayUnion([personalGroupId]),
+        });
+      });
+    } else {
+      personalGroupDetails = groupSnapshot.data();
+    }
+
+    personalGroupDetails['members'] = {};
+    var userSnapshot = await _firestore
+        .collection('users')
+        .where('groups', arrayContains: personalGroupId)
+        .get();
+    userSnapshot.docs.forEach((doc) {
+      personalGroupDetails['members'][doc['id']] = doc.data();
+    });
+
+    return personalGroupDetails;
   }
 
   DateTime getLocalDateTime(DateTime datetime) {
@@ -658,7 +761,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<bool> onBackPress() {
-    Navigator.pop(context);
+    Navigator.popUntil(context, (route) => route.settings.name == "ChatList");
 
     return Future.value(false);
   }

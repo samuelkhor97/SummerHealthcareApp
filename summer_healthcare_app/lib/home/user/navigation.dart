@@ -124,6 +124,7 @@ class _UserNavigationState extends State<UserNavigation> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ChatList(id: id),
+                      settings: RouteSettings(name: "ChatList"),
                     ),
                   );
                 },

@@ -57,12 +57,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
   final _firestore = FirebaseFirestore.instance;
 
   String id;
-  Future<Map<String, Map<String, dynamic>>> groupsDetailsFuture;
 
   @override
   void initState() {
     super.initState();
-    groupsDetailsFuture = getGroupsDetailsAsync();
 
     id = widget.id;
   }
@@ -114,7 +112,12 @@ class _ChatListScreenState extends State<ChatListScreen> {
                               groupSnapshot.data.documents[index];
                           Map<String, dynamic> groupDetails =
                               groupsDetails[document.data()['id']];
-                          return buildChatTile(groupDetails: groupDetails);
+
+                          if (groupDetails['lastMessage'] == null || groupDetails['lastMessage'] == '') {
+                            return null;
+                          } else {
+                            return buildChatTile(groupDetails: groupDetails);
+                          }
                         },
                         itemCount: groupSnapshot.data.documents.length,
                       );
@@ -131,42 +134,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
         }
       },
     );
-  }
-
-  Future<Map<String, Map<String, dynamic>>> getGroupsDetailsAsync() async {
-    Map<String, Map<String, dynamic>> groupsDetails = {};
-    try {
-      QuerySnapshot groupSnapshot = await _firestore
-          .collection('groups')
-          .where('members', arrayContains: id)
-          .get();
-
-      List<QueryDocumentSnapshot> groupSnapshots = groupSnapshot.docs;
-
-      List<String> groupIds = groupSnapshots
-          .map((group) => group.data()['id'])
-          .toList()
-          .cast<String>();
-
-      QuerySnapshot userSnapshot = await _firestore
-          .collection('users')
-          .where('groups', arrayContainsAny: groupIds)
-          .get();
-
-      groupSnapshots.forEach((doc) {
-        // key=groupId, value=group details
-        groupsDetails[doc['id']] = doc.data();
-        groupsDetails[doc['id']]['members'] = {};
-      });
-      userSnapshot.docs.forEach((doc) {
-        doc.data()['groups'].forEach((groupId) =>
-            groupsDetails[groupId]['members'][doc['id']] = doc.data());
-      });
-    } catch (e) {
-      Fluttertoast.showToast(msg: 'Error retrieving group details.');
-      groupsDetails = {};
-    }
-    return groupsDetails;
   }
 
   Map<String, Map<String, dynamic>> getGroupsDetails(
@@ -197,31 +164,42 @@ class _ChatListScreenState extends State<ChatListScreen> {
     String groupType = groupDetails['type'];
     String groupId = groupDetails['id'];
     String groupName = groupDetails['name'];
-    String lastMessage = groupDetails['lastMessage'];
+    String lastMessage = groupDetails['lastMessage'] ?? '';
     String lastSentBy = groupDetails['lastSentBy'];
-    
+    String avatarUrl = '';
 
     String title = '';
     if (groupType == describeEnum(GroupType.personal)) {
       // for personal group, it is one-to-one group so set title
       // equals to another conversation participant
       members.forEach((memberId, details) {
-        title = (memberId.toString() != id) ? memberId.toString() : title;
+        title = (memberId.toString() != id) ? details['displayName'] : title;
+        lastSentBy = (memberId.toString() == id) ? 'You: ' : '';
       });
-      lastSentBy = '';
     } else {
       title = groupName;
       String selfName = members[id]['displayName'];
-      lastSentBy = (lastSentBy == selfName) ? '' : '$lastSentBy: ';
+      lastSentBy = (lastSentBy == selfName) ? 'You: ' : '$lastSentBy: ';
+    }
+
+    if (groupType == describeEnum(GroupType.personal)) {
+      // for personal group, it is one-to-one group so set avatarUrl
+      // equals to another conversation participant's avatarUrl
+      groupDetails['members'].forEach((memberId, details) {
+        avatarUrl = (memberId != id) ? details['photoUrl'] : avatarUrl;
+      });
+    } else {
+      avatarUrl = groupDetails['photoUrl'];
     }
 
     return Column(
       children: [
         ListTile(
-          leading: buildAvatar(groupId: groupId, groupType: groupType),
+          leading: buildAvatar(
+              groupId: groupId, groupType: groupType, avatarUrl: avatarUrl),
           title: Text(title),
           subtitle: Text(
-            lastSentBy + lastMessage,
+            '$lastSentBy$lastMessage',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -246,57 +224,33 @@ class _ChatListScreenState extends State<ChatListScreen> {
     );
   }
 
-  Container buildAvatar({String groupId, String groupType}) {
-    String avatarUrl = '';
-
-    return Container(
-      width: Dimensions.d_35,
-      height: Dimensions.d_35,
-      child: FutureBuilder(
-          future: groupsDetailsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data.length != 0) {
-              if (groupType == describeEnum(GroupType.personal)) {
-                // for personal group, it is one-to-one group so set avatarUrl
-                // equals to another conversation participant's avatarUrl
-                snapshot.data[groupId]['members'].forEach((member) {
-                  avatarUrl =
-                      (member['id'] != id) ? member['photoUrl'] : avatarUrl;
-                });
-              } else {
-                avatarUrl = snapshot.data[groupId]['photoUrl'];
-              }
-            }
-
-            return Material(
-              child: avatarUrl == null || avatarUrl == ''
-                  ? Icon(
-                      groupType == describeEnum(GroupType.pharmacy)
-                          ? Icons.group_rounded
-                          : Icons.account_circle,
-                      size: Dimensions.d_35,
-                      color: Colours.grey,
-                    )
-                  : CachedNetworkImage(
-                      placeholder: (context, url) => Container(
-                        child: CircularProgressIndicator(
-                          strokeWidth: Dimensions.d_1,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                              Colours.secondaryColour),
-                        ),
-                        width: Dimensions.d_35,
-                        height: Dimensions.d_35,
-                        padding: Paddings.all_10,
-                      ),
-                      imageUrl: avatarUrl,
-                      width: Dimensions.d_35,
-                      height: Dimensions.d_35,
-                      fit: BoxFit.cover,
-                    ),
-              borderRadius: BordersRadius.chatAvatar,
-              clipBehavior: Clip.hardEdge,
-            );
-          }),
+  Material buildAvatar({String groupId, String groupType, String avatarUrl}) {
+    return Material(
+      child: avatarUrl == null || avatarUrl == ''
+          ? Icon(
+              groupType == describeEnum(GroupType.pharmacy)
+                  ? Icons.group_rounded
+                  : Icons.account_circle,
+              size: Dimensions.d_35,
+              color: Colours.grey,
+            )
+          : CachedNetworkImage(
+              placeholder: (context, url) => Container(
+                child: CircularProgressIndicator(
+                  strokeWidth: Dimensions.d_1,
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(Colours.secondaryColour),
+                ),
+                width: Dimensions.d_35,
+                height: Dimensions.d_35,
+              ),
+              imageUrl: avatarUrl,
+              width: Dimensions.d_35,
+              height: Dimensions.d_35,
+              fit: BoxFit.cover,
+            ),
+      borderRadius: BordersRadius.chatAvatar,
+      clipBehavior: Clip.hardEdge,
     );
   }
 }

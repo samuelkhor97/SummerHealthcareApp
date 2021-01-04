@@ -190,7 +190,7 @@ class _ProfilePageState extends State<ProfilePage> {
     pickedFile = await imagePicker.getImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      String fileName = 'images/$id/avatars/${DateTime.now().toString()}';
+      String fileName = 'images/users/$id/avatars/${DateTime.now().toString()}';
 
       File imageFile = File(pickedFile.path);
       showLoadingAnimation(context: context);
@@ -230,7 +230,7 @@ class _ProfilePageState extends State<ProfilePage> {
       await preferences.setString('photoUrl', photoUrl);
 
       Navigator.pop(context);
-      Fluttertoast.showToast(msg: "Update success");
+      Fluttertoast.showToast(msg: 'Update success');
     }).catchError((err) {
       Navigator.pop(context);
       Fluttertoast.showToast(msg: err.toString());

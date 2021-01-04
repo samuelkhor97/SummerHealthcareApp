@@ -117,7 +117,7 @@ class _UserNavigationState extends State<UserNavigation> {
               padding: EdgeInsets.symmetric(horizontal: Dimensions.d_10),
               child: IconButton(
                 icon: Icon(Icons.message,
-                color: Colours.grey),
+                color: Colours.secondaryColour),
                 iconSize: Dimensions.d_30,
                 onPressed: () {
                   Navigator.push(

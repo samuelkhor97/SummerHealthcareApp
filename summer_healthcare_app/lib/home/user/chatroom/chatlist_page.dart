@@ -113,7 +113,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
                           Map<String, dynamic> groupDetails =
                               groupsDetails[document.data()['id']];
 
-                          if (groupDetails['lastMessage'] == null || groupDetails['lastMessage'] == '') {
+                          if ((groupDetails['lastMessage'] == null ||
+                                  groupDetails['lastMessage'] == '') &&
+                              groupDetails['type'] ==
+                                  describeEnum(GroupType.personal)) {
                             return null;
                           } else {
                             return buildChatTile(groupDetails: groupDetails);
@@ -149,8 +152,12 @@ class _ChatListScreenState extends State<ChatListScreen> {
         groupsDetails[doc['id']]['members'] = {};
       });
       userSnapshot.data.docs.forEach((doc) {
-        doc.data()['groups'].forEach((groupId) =>
-            groupsDetails[groupId]['members'][doc['id']] = doc.data());
+        doc.data()['groups'].forEach((groupId) {
+          // other users might have other groups which current user does not have
+          // groupsDetails map only contains groups that the current user have
+          if (groupsDetails[groupId] != null)
+            groupsDetails[groupId]['members'][doc['id']] = doc.data();
+        });
       });
     } catch (e) {
       Fluttertoast.showToast(msg: 'Error retrieving group details.');
@@ -162,7 +169,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
   Widget buildChatTile({Map<String, dynamic> groupDetails}) {
     Map members = groupDetails['members'];
     String groupType = groupDetails['type'];
-    String groupId = groupDetails['id'];
     String groupName = groupDetails['name'];
     String lastMessage = groupDetails['lastMessage'] ?? '';
     String lastSentBy = groupDetails['lastSentBy'];
@@ -195,8 +201,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
     return Column(
       children: [
         ListTile(
-          leading: buildAvatar(
-              groupId: groupId, groupType: groupType, avatarUrl: avatarUrl),
+          leading: buildAvatar(groupType: groupType, avatarUrl: avatarUrl),
           title: Text(title),
           subtitle: Text(
             '$lastSentBy$lastMessage',
@@ -217,40 +222,39 @@ class _ChatListScreenState extends State<ChatListScreen> {
           },
         ),
         Divider(
-          height: Dimensions.d_1,
-          indent: Dimensions.d_1,
+          thickness: Dimensions.d_1,
         ),
       ],
     );
   }
+}
 
-  Material buildAvatar({String groupId, String groupType, String avatarUrl}) {
-    return Material(
-      child: avatarUrl == null || avatarUrl == ''
-          ? Icon(
-              groupType == describeEnum(GroupType.pharmacy)
-                  ? Icons.group_rounded
-                  : Icons.account_circle,
-              size: Dimensions.d_35,
-              color: Colours.grey,
-            )
-          : CachedNetworkImage(
-              placeholder: (context, url) => Container(
-                child: CircularProgressIndicator(
-                  strokeWidth: Dimensions.d_1,
-                  valueColor:
-                      AlwaysStoppedAnimation<Color>(Colours.secondaryColour),
-                ),
-                width: Dimensions.d_35,
-                height: Dimensions.d_35,
+Material buildAvatar({String groupType, String avatarUrl}) {
+  return Material(
+    child: avatarUrl == null || avatarUrl == ''
+        ? Icon(
+            groupType == describeEnum(GroupType.pharmacy)
+                ? Icons.group_rounded
+                : Icons.account_circle,
+            size: Dimensions.d_35,
+            color: Colours.grey,
+          )
+        : CachedNetworkImage(
+            placeholder: (context, url) => Container(
+              child: CircularProgressIndicator(
+                strokeWidth: Dimensions.d_1,
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(Colours.secondaryColour),
               ),
-              imageUrl: avatarUrl,
               width: Dimensions.d_35,
               height: Dimensions.d_35,
-              fit: BoxFit.cover,
             ),
-      borderRadius: BordersRadius.chatAvatar,
-      clipBehavior: Clip.hardEdge,
-    );
-  }
+            imageUrl: avatarUrl,
+            width: Dimensions.d_35,
+            height: Dimensions.d_35,
+            fit: BoxFit.cover,
+          ),
+    borderRadius: BordersRadius.chatAvatar,
+    clipBehavior: Clip.hardEdge,
+  );
 }

@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:summer_healthcare_app/widgets/show_loading_animation.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/home/user/chatroom/full_photo.dart';
+import 'package:summer_healthcare_app/home/user/chatroom/groupinfo_page.dart';
 import 'package:summer_healthcare_app/home/user/chatroom/chatlist_page.dart'
     show GroupType;
 
@@ -21,12 +22,28 @@ enum Type { text, image, video, voice }
 enum Position { left, right }
 enum Role { normal, pharmacist }
 
-class ChatRoom extends StatelessWidget {
+final _firestore = FirebaseFirestore.instance;
+final _firestorage = FirebaseStorage.instance;
+
+class ChatRoom extends StatefulWidget {
   final String id;
   final Map<String, dynamic> groupDetails;
   final String title;
 
   ChatRoom({this.id, this.groupDetails, this.title});
+
+  @override
+  _ChatRoomState createState() => _ChatRoomState();
+}
+
+class _ChatRoomState extends State<ChatRoom> {
+  String groupName;
+
+  @override
+  void initState() {
+    super.initState();
+    groupName = widget.title;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,32 +61,50 @@ class ChatRoom extends StatelessWidget {
           ),
           centerTitle: true,
           title: Text(
-            title,
+            groupName,
             style: TextStyle(
               color: Colours.secondaryColour,
               fontWeight: FontWeight.bold,
             ),
           ),
           actions: <Widget>[
-            Padding(
-              padding: Paddings.horizontal_5,
-              child: IconButton(
-                icon: Icon(
-                  Icons.info_outline_rounded,
-                  color: Colours.secondaryColour,
-                ),
-                iconSize: Dimensions.d_30,
-                onPressed: () {},
-              ),
-            ),
+            widget.groupDetails['type'] == describeEnum(GroupType.personal)
+                ? Container()
+                : Padding(
+                    padding: Paddings.horizontal_5,
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.info_outline_rounded,
+                        color: Colours.secondaryColour,
+                      ),
+                      iconSize: Dimensions.d_30,
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GroupInfo(
+                                id: widget.id,
+                                groupDetails: widget.groupDetails,
+                                setGroupNameCallback: setGroupNameCallback,
+                              ),
+                            ));
+                      },
+                    ),
+                  ),
           ],
         ),
         body: ChatScreen(
-          id: id,
-          groupDetails: groupDetails,
+          id: widget.id,
+          groupDetails: widget.groupDetails,
         ),
       ),
     );
+  }
+
+  void setGroupNameCallback({String newGroupName}) {
+    setState(() {
+      groupName = newGroupName;
+    });
   }
 }
 
@@ -98,9 +133,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   final Map<String, String> sendersAvatars = {};
   final Map<String, String> sendersNames = {};
-
-  final _firestore = FirebaseFirestore.instance;
-  final _firestorage = FirebaseStorage.instance;
 
   final TextEditingController textEditingController = TextEditingController();
   final ScrollController listScrollController = ScrollController();
@@ -176,7 +208,8 @@ class _ChatScreenState extends State<ChatScreen> {
     pickedFile = await imagePicker.getImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      String fileName = 'images/$id/${DateTime.now().toString()}';
+      String fileName =
+          'images/groups/$groupId/users/$id/${DateTime.now().toString()}';
 
       File imageFile = File(pickedFile.path);
       showLoadingAnimation(context: context);
@@ -378,24 +411,25 @@ class _ChatScreenState extends State<ChatScreen> {
           children: <Widget>[
             isPersonal
                 ? Container()
-                : buildSenderLabel(
-                    sender: senderName,
-                    role: senderRole,
-                  ),
+                : isTopMessageLeft(index: index, senderId: senderId)
+                    ? buildSenderLabel(
+                        sender: senderName,
+                        role: senderRole,
+                      )
+                    : Container(),
             Row(
               children: <Widget>[
-                isLastMessageLeft(index: index) && !isPersonal
+                isLastMessageLeft(index: index, senderId: senderId)
                     ? buildSenderAvatar(
                         senderId: senderId,
                         senderAvatar: senderAvatar,
                         senderName: senderName)
-                    : Container(
-                        width: !isPersonal ? Dimensions.d_35 : Dimensions.d_0),
+                    : Container(width: Dimensions.d_35),
                 messageType == describeEnum(Type.text)
                     ? buildMessageBubble(
                         text: content,
                         textColor: Colours.black,
-                        bubbleColor: Colours.midGrey,
+                        bubbleColor: Colours.lighterGrey,
                         position: Position.left,
                         index: index)
                     : messageType == describeEnum(Type.image)
@@ -410,7 +444,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
 
             // Time
-            isLastMessageLeft(index: index)
+            isLastMessageLeft(index: index, senderId: senderId)
                 ? buildTimeSent(datetime: sentAt.toDate())
                 : Container()
           ],
@@ -477,11 +511,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
       margin: EdgeInsets.only(
-          left: (groupType == describeEnum(GroupType.personal))
-              ? Dimensions.d_10
-              : Dimensions.d_50,
-          top: Dimensions.d_5,
-          bottom: Dimensions.d_5),
+          left: Dimensions.d_50, top: Dimensions.d_5, bottom: Dimensions.d_5),
     );
   }
 
@@ -606,9 +636,10 @@ class _ChatScreenState extends State<ChatScreen> {
     // personal message is allowed only if either one is paharmacist
     bool isMessageAllowed = (avatarRole == describeEnum(Role.pharmacist)) ||
         (myRole == describeEnum(Role.pharmacist));
+    bool isPersonal = groupType == describeEnum(GroupType.personal);
 
     return Container(
-      height: Dimensions.d_100,
+      height: isPersonal ? Dimensions.d_50 : Dimensions.d_100,
       width: Dimensions.d_55,
       child: ListView(
         children: <Widget>[
@@ -626,96 +657,42 @@ class _ChatScreenState extends State<ChatScreen> {
                   ));
             },
           ),
-          InkWell(
-            onTap: () {
-              if (!isMessageAllowed) {
-                Fluttertoast.showToast(
-                    msg: 'You can only have private message with pharmacist.');
-              }
-            },
-            child: ListTile(
-              title: Text('Message $avatarUserName'),
-              enabled: isMessageAllowed,
-              onTap: () async {
-                showLoadingAnimation(context: context);
-                Map<String, dynamic> personalGroupDetails =
-                    await getPersonalGroupDetails(id: id, peerId: avatarUserId);
-                // pop loading animation
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChatRoom(
-                      id: id,
-                      groupDetails: personalGroupDetails,
-                      title: avatarUserName,
-                    ),
+          isPersonal
+              ? Container()
+              : InkWell(
+                  onTap: () {
+                    if (!isMessageAllowed) {
+                      Fluttertoast.showToast(
+                          msg:
+                              'You can only have private message with pharmacist.');
+                    }
+                  },
+                  child: ListTile(
+                    title: Text('Message $avatarUserName'),
+                    enabled: isMessageAllowed,
+                    onTap: () async {
+                      showLoadingAnimation(context: context);
+                      Map<String, dynamic> personalGroupDetails =
+                          await getPersonalGroupDetails(
+                              id: id, peerId: avatarUserId);
+                      // pop loading animation
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatRoom(
+                            id: id,
+                            groupDetails: personalGroupDetails,
+                            title: avatarUserName,
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-          )
+                )
         ],
       ),
     );
-  }
-
-  Future<Map<String, dynamic>> getPersonalGroupDetails(
-      {String id, String peerId}) async {
-    Map<String, dynamic> personalGroupDetails;
-
-    String personalGroupId =
-        (id.hashCode < peerId.hashCode) ? '$id-$peerId' : '$peerId-$id';
-
-    var groupReference = _firestore.collection('groups').doc(personalGroupId);
-    var groupSnapshot = await groupReference.get();
-
-    if (!groupSnapshot.exists) {
-      var myUserRefrence = _firestore.collection('users').doc(id);
-      var peerUserRefrence = _firestore.collection('users').doc(peerId);
-
-      String newGroupType = describeEnum(GroupType.personal);
-      List<String> members = List.from([id, peerId]);
-
-      personalGroupDetails = {
-        'id': groupReference.id,
-        'createdAt': DateTime.now(),
-        'modifiedAt': DateTime.now(),
-        'type': newGroupType,
-        'members': members,
-        'lastChatAt': null,
-        'lastMessage': null,
-        'lastSentBy': null,
-        'photoUrl': null
-      };
-
-      await _firestore.runTransaction((transaction) async {
-        transaction.set(
-          groupReference,
-          personalGroupDetails,
-          SetOptions(merge: true),
-        );
-        transaction.update(myUserRefrence, {
-          'groups': FieldValue.arrayUnion([personalGroupId]),
-        });
-        transaction.update(peerUserRefrence, {
-          'groups': FieldValue.arrayUnion([personalGroupId]),
-        });
-      });
-    } else {
-      personalGroupDetails = groupSnapshot.data();
-    }
-
-    personalGroupDetails['members'] = {};
-    var userSnapshot = await _firestore
-        .collection('users')
-        .where('groups', arrayContains: personalGroupId)
-        .get();
-    userSnapshot.docs.forEach((doc) {
-      personalGroupDetails['members'][doc['id']] = doc.data();
-    });
-
-    return personalGroupDetails;
   }
 
   DateTime getLocalDateTime(DateTime datetime) {
@@ -738,10 +715,10 @@ class _ChatScreenState extends State<ChatScreen> {
     return newLocalTime;
   }
 
-  bool isLastMessageLeft({int index}) {
+  bool isLastMessageLeft({int index, String senderId}) {
     if ((index > 0 &&
             listMessage != null &&
-            listMessage[index - 1].data()['sentBy'] == id) ||
+            listMessage[index - 1].data()['sentBy'] != senderId) ||
         index == 0) {
       return true;
     } else {
@@ -760,9 +737,78 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  bool isTopMessageLeft({int index, String senderId}) {
+    if (index == listMessage.length - 1 ||
+        (index > 0 &&
+            listMessage != null &&
+            listMessage[index + 1].data()['sentBy'] != senderId)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   Future<bool> onBackPress() {
     Navigator.popUntil(context, (route) => route.settings.name == "ChatList");
 
     return Future.value(false);
   }
+}
+
+Future<Map<String, dynamic>> getPersonalGroupDetails(
+    {String id, String peerId}) async {
+  Map<String, dynamic> personalGroupDetails;
+
+  String personalGroupId =
+      (id.hashCode < peerId.hashCode) ? '$id-$peerId' : '$peerId-$id';
+
+  var groupReference = _firestore.collection('groups').doc(personalGroupId);
+  var groupSnapshot = await groupReference.get();
+
+  if (!groupSnapshot.exists) {
+    var myUserRefrence = _firestore.collection('users').doc(id);
+    var peerUserRefrence = _firestore.collection('users').doc(peerId);
+
+    String newGroupType = describeEnum(GroupType.personal);
+    List<String> members = List.from([id, peerId]);
+
+    personalGroupDetails = {
+      'id': groupReference.id,
+      'createdAt': DateTime.now(),
+      'modifiedAt': DateTime.now(),
+      'type': newGroupType,
+      'members': members,
+      'lastChatAt': null,
+      'lastMessage': null,
+      'lastSentBy': null,
+      'photoUrl': null
+    };
+
+    await _firestore.runTransaction((transaction) async {
+      transaction.set(
+        groupReference,
+        personalGroupDetails,
+        SetOptions(merge: true),
+      );
+      transaction.update(myUserRefrence, {
+        'groups': FieldValue.arrayUnion([personalGroupId]),
+      });
+      transaction.update(peerUserRefrence, {
+        'groups': FieldValue.arrayUnion([personalGroupId]),
+      });
+    });
+  } else {
+    personalGroupDetails = groupSnapshot.data();
+  }
+
+  personalGroupDetails['members'] = {};
+  var userSnapshot = await _firestore
+      .collection('users')
+      .where('groups', arrayContains: personalGroupId)
+      .get();
+  userSnapshot.docs.forEach((doc) {
+    personalGroupDetails['members'][doc['id']] = doc.data();
+  });
+
+  return personalGroupDetails;
 }

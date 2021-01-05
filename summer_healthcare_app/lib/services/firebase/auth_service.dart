@@ -90,8 +90,8 @@ class AuthService {
         if (documents.length == 0) {
           // Update data to firestore if new user
           _firestore.collection('users').doc(firebaseUser.uid).set({
-            'displayName': firebaseUser.displayName,
-            'photoUrl': firebaseUser.photoURL,
+            'displayName': firebaseUser.displayName ?? '',
+            'photoUrl': firebaseUser.photoURL ?? '',
             'role': 'normal', // will be modified accordingly after pharmacist signup implemented
             'id': firebaseUser.uid,
             'createdAt': store.FieldValue.serverTimestamp(),

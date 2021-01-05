@@ -20,10 +20,11 @@ import 'package:summer_healthcare_app/widgets/show_loading_animation.dart';
 
 class GroupInfo extends StatefulWidget {
   final String id;
-  final Map<String, dynamic> groupDetails;
+  final String groupId;
   final Function setGroupNameCallback;
+  final Function getGroupDetailsCallback;
 
-  GroupInfo({this.id, this.groupDetails, this.setGroupNameCallback});
+  GroupInfo({this.id, this.groupId, this.setGroupNameCallback, this.getGroupDetailsCallback});
 
   @override
   _GroupInfoState createState() => _GroupInfoState();
@@ -39,7 +40,10 @@ class _GroupInfoState extends State<GroupInfo> {
   String groupName;
   String photoUrl;
 
+  Map<String, dynamic> groupDetails;
+
   Function setGroupNameCallback;
+  Function getGroupDetailsCallback;
 
   TextEditingController groupNameController;
 
@@ -48,11 +52,15 @@ class _GroupInfoState extends State<GroupInfo> {
     super.initState();
 
     id = widget.id;
-    myRole = widget.groupDetails['members'][id]['role'];
-    groupId = widget.groupDetails['id'];
-    groupName = widget.groupDetails['name'];
-    photoUrl = widget.groupDetails['photoUrl'];
+    groupId = widget.groupId;
+    groupDetails = widget.getGroupDetailsCallback(groupId: groupId);
+
+    myRole = groupDetails['members'][id]['role'];
+    groupId = groupDetails['id'];
+    groupName = groupDetails['name'];
+    photoUrl = groupDetails['photoUrl'];
     setGroupNameCallback = widget.setGroupNameCallback;
+    getGroupDetailsCallback = widget.getGroupDetailsCallback;
 
     groupNameController = TextEditingController(text: groupName);
   }
@@ -61,8 +69,6 @@ class _GroupInfoState extends State<GroupInfo> {
   void dispose() {
     super.dispose();
     groupNameController.dispose();
-
-    print('Disposed text editor in group info page');
   }
 
   @override
@@ -125,7 +131,7 @@ class _GroupInfoState extends State<GroupInfo> {
                                 ),
                               ),
                               imageUrl: photoUrl,
-                              fit: BoxFit.cover,
+                              fit: BoxFit.fill,
                             ),
                           ),
                   ),
@@ -192,7 +198,7 @@ class _GroupInfoState extends State<GroupInfo> {
                         userSnapshot.data.docs[index].data();
                     String groupType = describeEnum(GroupType.personal);
                     String userId = userDetails['id'];
-                    String userName = userDetails['displayName'];
+                    String userName = userDetails['displayName'] ?? '';
                     String avatarUrl = userDetails['photoUrl'];
                     String userRole = userDetails['role'];
 
@@ -235,6 +241,7 @@ class _GroupInfoState extends State<GroupInfo> {
                                       content: _onPressMemberList(
                                           memberId: userId,
                                           memberUserName: userName,
+                                          memberRole: userRole,
                                           imageUrl: avatarUrl),
                                     );
                                   });
@@ -309,8 +316,8 @@ class _GroupInfoState extends State<GroupInfo> {
                   MaterialPageRoute(
                     builder: (context) => ChatRoom(
                       id: id,
-                      groupDetails: personalGroupDetails,
-                      title: memberUserName,
+                      groupId: personalGroupDetails['id'],
+                      getGroupDetailsCallback: getGroupDetailsCallback,
                     ),
                   ),
                 );

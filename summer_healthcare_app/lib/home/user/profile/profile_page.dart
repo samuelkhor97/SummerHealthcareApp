@@ -142,6 +142,16 @@ class _ProfilePageState extends State<ProfilePage> {
                         height: Dimensions.d_95,
                         padding: Paddings.all_10,
                       ),
+                      errorWidget: (context, url, error) => Material(
+                        child: Image.asset(
+                          'images/img_not_available.jpeg',
+                          width: Dimensions.d_95,
+                          height: Dimensions.d_95,
+                          fit: BoxFit.cover,
+                        ),
+                        borderRadius: BordersRadius.chatImage,
+                        clipBehavior: Clip.hardEdge,
+                      ),
                       imageUrl: photoUrl,
                       width: Dimensions.d_95,
                       height: Dimensions.d_95,
@@ -219,12 +229,13 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void updateData({BuildContext context}) {
-
     displayNameFocusNode.unfocus();
     showLoadingAnimation(context: context);
 
-    _firestore.collection('users').doc(id).update(
-        {'displayName': displayNameController.text}).then((data) async {
+    _firestore
+        .collection('users')
+        .doc(id)
+        .update({'displayName': displayNameController.text}).then((data) async {
       displayName = displayNameController.text;
       await preferences.setString('displayName', displayName);
       await preferences.setString('photoUrl', photoUrl);

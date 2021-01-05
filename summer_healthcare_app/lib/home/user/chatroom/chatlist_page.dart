@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -57,6 +59,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
   final _firestore = FirebaseFirestore.instance;
 
   String id;
+  Map<String, Map<String, dynamic>> groupsDetails;
 
   @override
   void initState() {
@@ -100,10 +103,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
                         ),
                       );
                     } else {
-                      Map<String, Map<String, dynamic>> groupsDetails =
-                          getGroupsDetails(
-                              groupSnapshot: groupSnapshot,
-                              userSnapshot: userSnapshot);
+                      groupsDetails = getGroupsDetails(
+                        groupSnapshot: groupSnapshot,
+                        userSnapshot: userSnapshot,
+                      );
 
                       return ListView.builder(
                         padding: Paddings.all_10,
@@ -126,14 +129,16 @@ class _ChatListScreenState extends State<ChatListScreen> {
                       );
                     }
                   })
-              : Text(
-                  'You have not been added into any group. Please ask your pharmacist for assistance.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colours.grey,
-                    fontSize: FontSizes.normalText,
+              : Center(
+                child: Text(
+                    'You have not been added into any group. \nPlease ask your pharmacist for assistance.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colours.grey,
+                      fontSize: FontSizes.normalText,
+                    ),
                   ),
-                );
+              );
         }
       },
     );
@@ -166,8 +171,13 @@ class _ChatListScreenState extends State<ChatListScreen> {
     return groupsDetails;
   }
 
+  Map<String, dynamic> getGroupDetailsCallback({String groupId}) {
+    return UnmodifiableMapView(groupsDetails[groupId]);
+  }
+
   Widget buildChatTile({Map<String, dynamic> groupDetails}) {
     Map members = groupDetails['members'];
+    String groupId = groupDetails['id'];
     String groupType = groupDetails['type'];
     String groupName = groupDetails['name'];
     String lastMessage = groupDetails['lastMessage'] ?? '';
@@ -175,16 +185,16 @@ class _ChatListScreenState extends State<ChatListScreen> {
     String avatarUrl = '';
 
     String title = '';
+    String selfName = members[id]['displayName'];
     if (groupType == describeEnum(GroupType.personal)) {
       // for personal group, it is one-to-one group so set title
       // equals to another conversation participant
       members.forEach((memberId, details) {
         title = (memberId.toString() != id) ? details['displayName'] : title;
-        lastSentBy = (memberId.toString() == id) ? 'You: ' : '';
       });
+      lastSentBy = (lastSentBy == selfName) ? 'You: ' : '';
     } else {
       title = groupName;
-      String selfName = members[id]['displayName'];
       lastSentBy = (lastSentBy == selfName) ? 'You: ' : '$lastSentBy: ';
     }
 
@@ -214,8 +224,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
               MaterialPageRoute(
                 builder: (context) => ChatRoom(
                   id: id,
-                  groupDetails: groupDetails,
-                  title: title,
+                  groupId: groupId,
+                  getGroupDetailsCallback: getGroupDetailsCallback,
                 ),
               ),
             );

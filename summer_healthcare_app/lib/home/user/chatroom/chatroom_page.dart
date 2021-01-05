@@ -27,22 +27,32 @@ final _firestorage = FirebaseStorage.instance;
 
 class ChatRoom extends StatefulWidget {
   final String id;
-  final Map<String, dynamic> groupDetails;
-  final String title;
+  final String groupId;
+  final Function getGroupDetailsCallback;
 
-  ChatRoom({this.id, this.groupDetails, this.title});
+  ChatRoom({this.id, this.groupId, this.getGroupDetailsCallback});
 
   @override
   _ChatRoomState createState() => _ChatRoomState();
 }
 
 class _ChatRoomState extends State<ChatRoom> {
-  String groupName;
+  String groupName = '';
+  Map<String, dynamic> groupDetails;
 
   @override
   void initState() {
     super.initState();
-    groupName = widget.title;
+    groupDetails = widget.getGroupDetailsCallback(groupId: widget.groupId);
+    if (groupDetails['type'] == describeEnum(GroupType.personal)) {
+      // for personal group, it is one-to-one group so set title
+      // equals to another conversation participant
+      groupDetails['members'].forEach((memberId, details) {
+        groupName = (memberId.toString() != widget.id) ? details['displayName'] : groupName;
+      });
+    } else {
+      groupName = groupDetails['name'];
+    }
   }
 
   @override
@@ -56,7 +66,7 @@ class _ChatRoomState extends State<ChatRoom> {
               color: Colours.secondaryColour,
             ),
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.popUntil(context, (route) => route.settings.name == "ChatList");
             },
           ),
           centerTitle: true,
@@ -68,7 +78,7 @@ class _ChatRoomState extends State<ChatRoom> {
             ),
           ),
           actions: <Widget>[
-            widget.groupDetails['type'] == describeEnum(GroupType.personal)
+            groupDetails['type'] == describeEnum(GroupType.personal)
                 ? Container()
                 : Padding(
                     padding: Paddings.horizontal_5,
@@ -84,8 +94,10 @@ class _ChatRoomState extends State<ChatRoom> {
                             MaterialPageRoute(
                               builder: (context) => GroupInfo(
                                 id: widget.id,
-                                groupDetails: widget.groupDetails,
+                                groupId: widget.groupId,
                                 setGroupNameCallback: setGroupNameCallback,
+                                getGroupDetailsCallback:
+                                    widget.getGroupDetailsCallback,
                               ),
                             ));
                       },
@@ -95,7 +107,8 @@ class _ChatRoomState extends State<ChatRoom> {
         ),
         body: ChatScreen(
           id: widget.id,
-          groupDetails: widget.groupDetails,
+          groupId: widget.groupId,
+          getGroupDetailsCallback: widget.getGroupDetailsCallback,
         ),
       ),
     );
@@ -110,9 +123,10 @@ class _ChatRoomState extends State<ChatRoom> {
 
 class ChatScreen extends StatefulWidget {
   final String id;
-  final Map<String, dynamic> groupDetails;
+  final String groupId;
+  final Function getGroupDetailsCallback;
 
-  ChatScreen({this.id, this.groupDetails});
+  ChatScreen({this.id, this.groupId, this.getGroupDetailsCallback});
 
   @override
   State createState() => _ChatScreenState();
@@ -130,9 +144,6 @@ class _ChatScreenState extends State<ChatScreen> {
   int _limit = 20;
   final int _limitIncrement = 20;
   SharedPreferences preferences;
-
-  final Map<String, String> sendersAvatars = {};
-  final Map<String, String> sendersNames = {};
 
   final TextEditingController textEditingController = TextEditingController();
   final ScrollController listScrollController = ScrollController();
@@ -161,13 +172,9 @@ class _ChatScreenState extends State<ChatScreen> {
     listScrollController.addListener(_scrollListener);
     textEditingController.addListener(_textEditingListener);
 
-    groupDetails = this.widget.groupDetails;
-    id = this.widget.id;
-    groupId = groupDetails['id'];
-    groupDetails['members'].forEach((id, details) {
-      sendersAvatars[id] = details['photoUrl'];
-      sendersNames[id] = details['displayName'] ?? '';
-    });
+    id = widget.id;
+    groupId = widget.groupId;
+    groupDetails = widget.getGroupDetailsCallback(groupId: groupId);
     groupType = groupDetails['type'];
   }
 
@@ -177,9 +184,6 @@ class _ChatScreenState extends State<ChatScreen> {
     textEditingController.dispose();
     listScrollController.dispose();
     focusNode.dispose();
-
-    print(
-        'Disposed text editor, scroll editor and focus node in chatroom page');
   }
 
   @override
@@ -236,7 +240,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       String lastMessage =
           (type == Type.text) ? content : "[${describeEnum(type)}]";
-      String lastSentBy = sendersNames[id];
+      String lastSentBy = groupDetails['members'][id]['displayName'];
 
       var documentReference = _firestore
           .collection('messages')
@@ -353,6 +357,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             );
           } else {
+            groupDetails = widget.getGroupDetailsCallback(groupId: groupId);
             listMessage.clear();
             listMessage.addAll(snapshot.data.documents);
             return ListView.builder(
@@ -371,9 +376,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget buildItem({int index, DocumentSnapshot document}) {
     Map<String, dynamic> docData = document.data();
+
     String senderId = docData['sentBy'];
-    String senderName = sendersNames[docData['sentBy']];
-    String senderAvatar = sendersAvatars[docData['sentBy']];
+    String senderName = groupDetails['members'][senderId]['displayName'] ?? '';
+    String senderAvatar = groupDetails['members'][senderId]['photoUrl'];
     String messageType = docData['type'];
     String content = docData['content'];
     String senderRole = groupDetails['members'][senderId]['role'];
@@ -682,8 +688,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         MaterialPageRoute(
                           builder: (context) => ChatRoom(
                             id: id,
-                            groupDetails: personalGroupDetails,
-                            title: avatarUserName,
+                            groupId: personalGroupDetails['id'],
+                            getGroupDetailsCallback:
+                                widget.getGroupDetailsCallback,
                           ),
                         ),
                       );
@@ -739,8 +746,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   bool isTopMessageLeft({int index, String senderId}) {
     if (index == listMessage.length - 1 ||
-        (index > 0 &&
-            listMessage != null &&
+        (listMessage != null &&
             listMessage[index + 1].data()['sentBy'] != senderId)) {
       return true;
     } else {

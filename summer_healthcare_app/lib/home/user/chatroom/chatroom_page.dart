@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 import 'package:summer_healthcare_app/widgets/show_loading_animation.dart';
 import 'package:summer_healthcare_app/constants.dart';
@@ -48,7 +48,9 @@ class _ChatRoomState extends State<ChatRoom> {
       // for personal group, it is one-to-one group so set title
       // equals to another conversation participant
       groupDetails['members'].forEach((memberId, details) {
-        groupName = (memberId.toString() != widget.id) ? details['displayName'] : groupName;
+        groupName = (memberId.toString() != widget.id)
+            ? details['displayName']
+            : groupName;
       });
     } else {
       groupName = groupDetails['name'];
@@ -66,7 +68,8 @@ class _ChatRoomState extends State<ChatRoom> {
               color: Colours.secondaryColour,
             ),
             onPressed: () {
-              Navigator.popUntil(context, (route) => route.settings.name == "ChatList");
+              Navigator.popUntil(
+                  context, (route) => route.settings.name == "ChatList");
             },
           ),
           centerTitle: true,
@@ -143,7 +146,6 @@ class _ChatScreenState extends State<ChatScreen> {
   List<QueryDocumentSnapshot> listMessage = new List.from([]);
   int _limit = 20;
   final int _limitIncrement = 20;
-  SharedPreferences preferences;
 
   final TextEditingController textEditingController = TextEditingController();
   final ScrollController listScrollController = ScrollController();
@@ -205,11 +207,11 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future getImage({BuildContext context}) async {
+  Future getImage({BuildContext context, ImageSource imageSource}) async {
     ImagePicker imagePicker = ImagePicker();
     PickedFile pickedFile;
 
-    pickedFile = await imagePicker.getImage(source: ImageSource.gallery);
+    pickedFile = await imagePicker.getImage(source: imageSource);
 
     if (pickedFile != null) {
       String fileName =
@@ -217,9 +219,24 @@ class _ChatScreenState extends State<ChatScreen> {
 
       File imageFile = File(pickedFile.path);
       showLoadingAnimation(context: context);
-      await uploadFile(file: imageFile, fileName: fileName);
+      File compressedFile = await compressFile(file: imageFile);
+      await uploadFile(file: compressedFile ?? imageFile, fileName: fileName);
       Navigator.pop(context);
     }
+  }
+
+  Future<File> compressFile({File file}) async {
+    final filePath = file.absolute.path;
+    final lastIndex = filePath.lastIndexOf('.');
+    final splitted = filePath.substring(0, lastIndex);
+    final outPath = "${splitted}_compressed${filePath.substring(lastIndex)}";
+    File result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path,
+      outPath,
+      quality: 25,
+    );
+
+    return result;
   }
 
   Future uploadFile({File file, String fileName}) async {
@@ -276,22 +293,38 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Row(
         children: <Widget>[
           // Button send image
-          Material(
+          Flexible(
+            flex: 1,
             child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 1.0),
               child: IconButton(
-                icon: Icon(Icons.image),
+                icon: Icon(Icons.camera_alt),
                 onPressed: () {
-                  getImage(context: context);
+                  getImage(context: context, imageSource: ImageSource.camera);
                 },
                 color: Colours.secondaryColour,
               ),
+              color: Colors.white,
             ),
-            color: Colors.white,
+          ),
+          // Button send image from gallery
+          Flexible(
+            flex: 1,
+            child: Container(
+              child: IconButton(
+                icon: Icon(Icons.image),
+                onPressed: () {
+                  getImage(context: context, imageSource: ImageSource.gallery);
+                },
+                color: Colours.secondaryColour,
+              ),
+              color: Colors.white,
+            ),
           ),
           // Edit text
           Flexible(
+            flex: 8,
             child: Container(
+              padding: Paddings.horizontal_10,
               child: TextField(
                 onSubmitted: (value) {
                   onSendMessage(

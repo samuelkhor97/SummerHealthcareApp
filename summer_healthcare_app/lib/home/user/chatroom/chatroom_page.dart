@@ -140,7 +140,7 @@ class _ChatScreenState extends State<ChatScreen> {
   String groupId;
   String id;
   String groupType;
-
+  Stream messageStream;
   bool isSendDisabled = true;
 
   List<QueryDocumentSnapshot> listMessage = new List.from([]);
@@ -158,6 +158,13 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         // scolled to the topmost
         _limit += _limitIncrement;
+        messageStream = _firestore
+            .collection('messages')
+            .doc(groupId)
+            .collection('messages')
+            .orderBy('sentAt', descending: true)
+            .limit(_limit)
+            .snapshots();
       });
     }
   }
@@ -178,6 +185,14 @@ class _ChatScreenState extends State<ChatScreen> {
     groupId = widget.groupId;
     groupDetails = widget.getGroupDetailsCallback(groupId: groupId);
     groupType = groupDetails['type'];
+
+    messageStream = _firestore
+        .collection('messages')
+        .doc(groupId)
+        .collection('messages')
+        .orderBy('sentAt', descending: true)
+        .limit(_limit)
+        .snapshots();
   }
 
   @override
@@ -374,13 +389,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget buildListMessage() {
     return Flexible(
       child: StreamBuilder(
-        stream: _firestore
-            .collection('messages')
-            .doc(groupId)
-            .collection('messages')
-            .orderBy('sentAt', descending: true)
-            .limit(_limit)
-            .snapshots(),
+        stream: messageStream,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(

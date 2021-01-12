@@ -24,7 +24,11 @@ class GroupInfo extends StatefulWidget {
   final Function setGroupNameCallback;
   final Function getGroupDetailsCallback;
 
-  GroupInfo({this.id, this.groupId, this.setGroupNameCallback, this.getGroupDetailsCallback});
+  GroupInfo(
+      {this.id,
+      this.groupId,
+      this.setGroupNameCallback,
+      this.getGroupDetailsCallback});
 
   @override
   _GroupInfoState createState() => _GroupInfoState();
@@ -39,6 +43,8 @@ class _GroupInfoState extends State<GroupInfo> {
   String groupId;
   String groupName;
   String photoUrl;
+
+  Stream userStream;
 
   Map<String, dynamic> groupDetails;
 
@@ -63,6 +69,11 @@ class _GroupInfoState extends State<GroupInfo> {
     getGroupDetailsCallback = widget.getGroupDetailsCallback;
 
     groupNameController = TextEditingController(text: groupName);
+
+    userStream = _firestore
+        .collection('users')
+        .where('groups', arrayContains: groupId)
+        .snapshots();
   }
 
   @override
@@ -166,10 +177,7 @@ class _GroupInfoState extends State<GroupInfo> {
 
   Widget buildMembersList() {
     return StreamBuilder(
-      stream: _firestore
-          .collection('users')
-          .where('groups', arrayContains: groupId)
-          .snapshots(),
+      stream: userStream,
       builder: (context, userSnapshot) {
         if (!userSnapshot.hasData) {
           return Center(

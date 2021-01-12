@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:cloud_firestore/cloud_firestore.dart' as store;
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:summer_healthcare_app/home/user/navigation.dart';
 import 'package:summer_healthcare_app/landing/landing_page.dart';
 import 'package:summer_healthcare_app/landing/user_details.dart';
+import 'package:summer_healthcare_app/main.dart' show preferences;
 
 class AuthService {
   final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
@@ -69,7 +69,6 @@ class AuthService {
         String verId}) async {
     String token;
     try {
-      SharedPreferences preferences = await SharedPreferences.getInstance();
       auth.AuthCredential authCreds = auth.PhoneAuthProvider.credential(
           verificationId: verId, smsCode: smsCode);
 

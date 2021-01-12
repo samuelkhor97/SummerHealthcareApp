@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
+import 'package:summer_healthcare_app/main.dart' show preferences;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -20,7 +20,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  SharedPreferences preferences;
   String id;
   String displayName;
   String photoUrl;
@@ -108,8 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
     print('Disposed text editor and focus node in profile page');
   }
 
-  void readLocal() async {
-    preferences = await SharedPreferences.getInstance();
+  void readLocal() {
     // Force refresh avatar image and text field
     setState(() {
       id = preferences.getString('id') ?? '';

@@ -6,7 +6,7 @@ import 'package:summer_healthcare_app/home/user/monitoring/monitoring_page.dart'
 import 'package:summer_healthcare_app/home/user/profile/profile_page.dart';
 import 'package:summer_healthcare_app/home/user/readings/readings_page.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:summer_healthcare_app/main.dart' show preferences;
 
 class UserNavigation extends StatefulWidget {
   @override
@@ -24,6 +24,7 @@ class _UserNavigationState extends State<UserNavigation> {
   ];
   String authToken;
   String id;
+  String role;
 
   final pageController = PageController();
 
@@ -48,9 +49,9 @@ class _UserNavigationState extends State<UserNavigation> {
     print('Disposed page controller in navigation page');
   }
 
-  void readLocal() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
+  void readLocal() {
     id = preferences.getString('id');
+    role = preferences.getString('role');
   }
 //  void initializeUser() async {
 //    String token = await AuthService.getToken();

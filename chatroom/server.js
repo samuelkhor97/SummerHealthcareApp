@@ -1,8 +1,8 @@
 let express = require('express');
 
-let apiRoutes = express.Router();
+let router = express.Router();
 
-apiRoutes.get('/pingChat', validateUser, pingChat);
+router.get('/pingChat', validateUser, pingChat);
 
 function validateUser(req, res, next) {
     if (['127.0.0.1', 'localhost'].includes(req.hostname))
@@ -15,4 +15,4 @@ function pingChat(req, res, next) {
     });
 }
 
-module.exports = apiRoutes;
+module.exports = router;

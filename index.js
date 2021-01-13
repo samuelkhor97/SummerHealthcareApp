@@ -6,27 +6,56 @@ const cors = require('cors')
 const app = express();
 const port = process.env.PORT
 
+function verifyUser(req, res, next){
+    if (req.headers.authorization) {
+        // admin tokens for debugging
+        if (req.headers.authorization === 'adminuser') {
+            let uid = 1;
+            res.locals.id = uid.toString();
+            next();
+        } else if (req.headers.authorization === "adminpharmacist"){
+            let phar_id = 100;
+            res.locals.id = phar_id.toString();
+            next();
+        } else {
+            // firebase auth, stores user/pharmacist id into res.locals.id
+            firebaseAdmin.auth().verifyIdToken(req.headers.authorization)
+                .then(auth => {
+                    console.log('User id: ', auth.uid);
+                    res.locals.id = auth.uid;
+                    next();
+                })
+                .catch(() => {
+                    res.status(403).send('Unauthorized');
+                });
+        }
+    } else {
+        res.status(403).send('Unauthorized');
+    }
+}
+
 // api routes
-const adminRoutes = require('./admin/server');
+// const adminRoutes = require('./admin/server');
 const chatroomRoutes = require('./chatroom/server');
 const foodDiaryRoutes = require('./foodDiary/server');
-const healthProvRoutes = require('./healthcareProviders/server');
-const monitoringRoutes = require('./monitoring/server');
-const readingsRoutes = require('./readings/server');
+const pharmacistRoutes = require('./pharmacist/server');
+const weightRoutes = require('./weight/server');
+const sugarlevelRoutes = require('./sugarlevel/server');
+const mibandRoutes = require('./miband/server');
 const usersRoutes = require('./users/server');
 
 // enable cors everywhere, will configure later depending on needs
 app.use(cors())
 
-app.use('/api', adminRoutes);
-app.use('/api', chatroomRoutes);
-app.use('/api', foodDiaryRoutes);
-app.use('/api', healthProvRoutes);
-app.use('/api', monitoringRoutes);
-app.use('/api', readingsRoutes);
-app.use('/api', usersRoutes);
-
-app.get('/ping', (req, res) => res.status(200).send('OK'));
+app.use('/', verifyUser);
+// app.use('/admin', adminRoutes);
+app.use('/chat', chatroomRoutes);
+app.use('/food-diary', foodDiaryRoutes);
+app.use('/pharmacist', pharmacistRoutes);
+app.use('/weight', weightRoutes);
+app.use('/user', usersRoutes);
+app.use('/sugar-level', sugarlevelRoutes);
+app.use('/mi-band', mibandRoutes);
 
 initialize();
 

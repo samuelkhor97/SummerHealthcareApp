@@ -1,5 +1,5 @@
 let express = require('express');
 
-let apiRoutes = express.Router();
+let router = express.Router();
 
-module.exports = apiRoutes;
+module.exports = router;

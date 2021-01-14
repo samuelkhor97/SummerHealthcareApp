@@ -87,5 +87,6 @@ class _MiBandPageState extends State<MiBandPage> {
     }
   }
 
+  // signout function
   Future<void> _handleSignOut() => _googleSignIn.disconnect();
 }

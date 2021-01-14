@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
-import 'package:summer_healthcare_app/widgets/show_loading_animation.dart';
-import 'package:summer_healthcare_app/home/user/chatroom/chatroom_page.dart';
+import 'package:summer_healthcare_app/home/user/chatroom/chatlist_page.dart';
 import 'package:summer_healthcare_app/home/user/diary/diary_page.dart';
 import 'package:summer_healthcare_app/home/user/monitoring/monitoring_page.dart';
 import 'package:summer_healthcare_app/home/user/profile/profile_page.dart';
 import 'package:summer_healthcare_app/home/user/readings/readings_page.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:summer_healthcare_app/main.dart' show preferences;
 
 class UserNavigation extends StatefulWidget {
   @override
@@ -27,16 +24,15 @@ class _UserNavigationState extends State<UserNavigation> {
   ];
   String authToken;
   String id;
+  String role;
 
   final pageController = PageController();
-
-  final _firestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
     super.initState();
 //    initializeUser();
-    getLocal();
+    readLocal();
   }
 
   @override
@@ -53,9 +49,9 @@ class _UserNavigationState extends State<UserNavigation> {
     print('Disposed page controller in navigation page');
   }
 
-  void getLocal() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
+  void readLocal() {
     id = preferences.getString('id');
+    role = preferences.getString('role');
   }
 //  void initializeUser() async {
 //    String token = await AuthService.getToken();
@@ -81,25 +77,6 @@ class _UserNavigationState extends State<UserNavigation> {
 //      onDemandStatus = status;
 //    });
 //  }
-  Future<Map<String, dynamic>> getGroupDetailsByUID({String id}) async {
-    Map<String, dynamic> groupDetails;
-
-    try {
-      QuerySnapshot groupSnapshot = await _firestore.collection('groups').where('members', arrayContainsAny: [id]).get();
-      groupDetails = groupSnapshot.docs[0].data();
-
-      String groupId = groupDetails['id'];
-      QuerySnapshot userSnapshot = await _firestore.collection('users').where('groupId', isEqualTo: groupId).get();
-      groupDetails['members'] = {};
-      userSnapshot.docs.forEach((doc) {
-        groupDetails['members'][doc['id']] = doc.data();
-      });
-    } catch(e) {
-      print(e);
-      groupDetails = {};
-    }
-    return groupDetails;
-  }
 
   void onPageChanged(int index) {
     setState(() {
@@ -141,20 +118,14 @@ class _UserNavigationState extends State<UserNavigation> {
               padding: EdgeInsets.symmetric(horizontal: Dimensions.d_10),
               child: IconButton(
                 icon: Icon(Icons.message,
-                color: Colours.grey),
+                color: Colours.secondaryColour),
                 iconSize: Dimensions.d_30,
-                onPressed: () async {
-                  showLoadingAnimation(context: context);
-                  Map<String, dynamic> groupDetails = await getGroupDetailsByUID(id: id);
-                  Navigator.pop(context);
-                  if (groupDetails.isEmpty) {
-                    Fluttertoast.showToast(msg: 'You have not been added into any group. Please ask your pharmacist for help.');
-                    return;
-                  }
+                onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ChatRoom(id: id, groupDetails: groupDetails),
+                      builder: (context) => ChatList(id: id),
+                      settings: RouteSettings(name: "ChatList"),
                     ),
                   );
                 },

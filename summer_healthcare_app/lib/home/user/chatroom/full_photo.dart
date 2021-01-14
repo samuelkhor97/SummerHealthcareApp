@@ -4,12 +4,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:summer_healthcare_app/constants.dart';
 
-
 class FullPhoto extends StatelessWidget {
   final String url;
   final String title;
 
-  FullPhoto({this.title='Full Photo', @required this.url});
+  FullPhoto({this.title = 'Full Photo', @required this.url});
 
   @override
   Widget build(BuildContext context) {
@@ -53,9 +52,19 @@ class _FullPhotoScreenState extends State<FullPhotoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ImageProvider imageProvider;
+    if (url == null || url == '') {
+      imageProvider = Image.asset(
+        'images/img_not_available.jpeg',
+        fit: BoxFit.cover,
+      ).image;
+    } else {
+      imageProvider = CachedNetworkImageProvider(url);
+    }
+
     return Container(
       child: PhotoView(
-        imageProvider: CachedNetworkImageProvider(url),
+        imageProvider: imageProvider,
       ),
     );
   }

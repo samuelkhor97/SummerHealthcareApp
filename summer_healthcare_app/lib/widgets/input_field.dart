@@ -13,8 +13,9 @@ class InputField extends StatelessWidget {
   final FocusNode focusNode;
   final Function onChanged;
   final readOnly;
+  final autoFocus;
 
-  InputField({this.isPassword = false, this.moreLines = false, this.labelText = '', this.hintText = '', this.keyboardType, this.isShortInput = false, this.backgroundColour, this.readOnly = false, @required this.controller, this.onChanged, this.focusNode});
+  InputField({this.isPassword = false, this.moreLines = false, this.labelText = '', this.hintText = '', this.keyboardType, this.isShortInput = false, this.backgroundColour, this.readOnly = false, @required this.controller, this.onChanged, this.focusNode, this.autoFocus = false});
 
   Widget build(BuildContext context) {
     return Padding(
@@ -23,6 +24,7 @@ class InputField extends StatelessWidget {
           color: backgroundColour == null ? Colours.white : backgroundColour,
           child: TextField(
               readOnly: readOnly,
+              autofocus: autoFocus,
               controller: controller,
               focusNode: focusNode,
               obscureText: isPassword,

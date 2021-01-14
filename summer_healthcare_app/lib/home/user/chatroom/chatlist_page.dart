@@ -1,5 +1,4 @@
 import 'dart:collection';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -9,14 +8,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/home/user/chatroom/chatroom_page.dart';
+import 'package:summer_healthcare_app/main.dart';
 
 enum GroupType { personal, pharmacy, public }
 
 class ChatList extends StatelessWidget {
-  final String id;
-
-  ChatList({this.id});
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -40,16 +36,13 @@ class ChatList extends StatelessWidget {
             ),
           ),
         ),
-        body: ChatListScreen(id: id),
+        body: ChatListScreen(),
       ),
     );
   }
 }
 
 class ChatListScreen extends StatefulWidget {
-  final String id;
-
-  ChatListScreen({this.id});
 
   @override
   _ChatListScreenState createState() => _ChatListScreenState();
@@ -65,7 +58,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
   void initState() {
     super.initState();
 
-    id = widget.id;
+    id = preferences.getString('id');
   }
 
   @override

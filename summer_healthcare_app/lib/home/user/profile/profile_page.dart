@@ -236,7 +236,6 @@ class _ProfilePageState extends State<ProfilePage> {
         .update({'displayName': displayNameController.text}).then((data) async {
       displayName = displayNameController.text;
       await preferences.setString('displayName', displayName);
-      await preferences.setString('photoUrl', photoUrl);
 
       Navigator.pop(context);
       Fluttertoast.showToast(msg: 'Update success');

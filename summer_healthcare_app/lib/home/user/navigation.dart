@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/home/user/monitoring/monitoring_page.dart';
@@ -5,6 +6,9 @@ import 'package:summer_healthcare_app/home/user/chatroom/chatlist_page.dart';
 import 'package:summer_healthcare_app/home/user/diary/diary_page.dart';
 import 'package:summer_healthcare_app/home/user/profile/profile_page.dart';
 import 'package:summer_healthcare_app/home/user/readings/readings_page.dart';
+import 'package:summer_healthcare_app/home/user/pharmacist/patientlist_page.dart';
+import 'package:summer_healthcare_app/home/user/chatroom/chatroom_page.dart'
+    show Role;
 import 'package:summer_healthcare_app/main.dart' show preferences;
 import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
 
@@ -25,6 +29,7 @@ class _UserNavigationState extends State<UserNavigation> {
   String authToken;
   String id;
   String role;
+  bool isPharmacist;
 
   final pageController = PageController();
 
@@ -33,6 +38,10 @@ class _UserNavigationState extends State<UserNavigation> {
     super.initState();
     initializeUser();
     readLocal();
+    isPharmacist = (role == describeEnum(Role.pharmacist));
+    if (isPharmacist) {
+      _titles.insert(0, 'Patients');
+    }
   }
 
   @override
@@ -92,7 +101,40 @@ class _UserNavigationState extends State<UserNavigation> {
 //      widget.isSLI ? fcm.init("sli") : fcm.init("user");
 //    }
     if (_pages == null) {
-      _pages = [MonitoringPage(), DiaryPage(), ReadingsPage(), ProfilePage()];
+      _pages = [
+        MonitoringPage(),
+        DiaryPage(),
+        ReadingsPage(),
+        ProfilePage()
+      ];
+      if (isPharmacist) {
+        _pages.insert(0, PatientListPage());
+      }
+    }
+
+    List<BottomNavigationBarItem> items = [
+      BottomNavigationBarItem(
+          icon: Icon(Icons.monitor, size: Dimensions.d_30),
+          label: 'Monitoring'),
+      BottomNavigationBarItem(
+          icon: Icon(Icons.local_cafe_outlined, size: Dimensions.d_30),
+          label: 'Diary'),
+      BottomNavigationBarItem(
+          icon: Icon(Icons.menu_book_outlined, size: Dimensions.d_30),
+          label: 'Readings'),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.account_circle, size: Dimensions.d_30),
+        label: 'Profile',
+      )
+    ];
+
+    if (isPharmacist) {
+      items.insert(
+        0,
+        BottomNavigationBarItem(
+            icon: Icon(Icons.stacked_bar_chart, size: Dimensions.d_30),
+            label: 'Patients'),
+      );
     }
 
     return SafeArea(
@@ -119,7 +161,7 @@ class _UserNavigationState extends State<UserNavigation> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ChatList(id: id),
+                      builder: (context) => ChatList(),
                       settings: RouteSettings(name: "ChatList"),
                     ),
                   );
@@ -143,21 +185,7 @@ class _UserNavigationState extends State<UserNavigation> {
             backgroundColor: Colours.primaryColour,
             selectedItemColor: Colours.secondaryColour,
             unselectedItemColor: Colours.grey,
-            items: <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.monitor, size: Dimensions.d_30),
-                  label: 'Monitoring'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.local_cafe_outlined, size: Dimensions.d_30),
-                  label: 'Diary'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.menu_book_outlined, size: Dimensions.d_30),
-                  label: 'Readings'),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.account_circle, size: Dimensions.d_30),
-                label: 'Profile',
-              )
-            ]),
+            items: items),
       ),
     );
   }

@@ -266,7 +266,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void onSendMessage({String content, Type type}) {
+  void onSendMessage({String content, Type type}) async {
     if (content.trim() != '') {
       textEditingController.clear();
 
@@ -281,7 +281,7 @@ class _ChatScreenState extends State<ChatScreen> {
           .doc();
       var groupReference = _firestore.collection('groups').doc(groupId);
 
-      _firestore.runTransaction((transaction) async {
+      await _firestore.runTransaction((transaction) async {
         transaction.set(
           documentReference,
           {

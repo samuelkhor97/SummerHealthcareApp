@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:age/age.dart';
 
 class UserDetails {
   TextEditingController fullName = TextEditingController();
@@ -34,6 +35,13 @@ class UserDetails {
 
   void setIsLogin({bool isLogin}) {
     this.isLogin = isLogin;
+  }
+
+  void setAge({DateTime dateOfBirth}) {
+    DateTime today = DateTime.now();
+
+    this.age.text = Age.dateDifference(
+        fromDate: dateOfBirth, toDate: today, includeToDate: false).years.toString();
   }
 
   void calcBMI({int weight, int height}) {

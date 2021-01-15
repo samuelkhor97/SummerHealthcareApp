@@ -15,26 +15,20 @@ class _WeightPageState extends State<WeightPage> {
   }
 
   Widget addWeight(date, weight, lastWeight) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(0, Dimensions.d_10, 0, Dimensions.d_10),
-      child: Row(
-        children: <Widget>[
-          Text(
-            date.toString(),
-            style: TextStyle(fontSize: FontSizes.normalText),
-          ),
-          Text(
-            weight.toString() + ' kg',
-            style: TextStyle(
-                fontSize: FontSizes.biggerText,
-                color: weight > lastWeight
-                    ? Colours.red
-                    : weight < lastWeight
-                        ? Colours.green
-                        : Colours.grey),
-          )
-        ],
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return ListTile(
+      title: Text(
+        date.toString(),
+        style: TextStyle(fontSize: FontSizes.normalText),
+      ),
+      trailing: Text(
+        weight.toString() + ' kg',
+        style: TextStyle(
+            fontSize: FontSizes.biggerText,
+            color: weight > lastWeight
+                ? Colours.red
+                : weight < lastWeight
+                    ? Colours.green
+                    : Colours.grey),
       ),
     );
   }
@@ -88,7 +82,9 @@ class _WeightPageState extends State<WeightPage> {
                                   style:
                                       TextStyle(fontSize: FontSizes.biggerText),
                                 ),
-                                SizedBox(height: Dimensions.d_5,),
+                                SizedBox(
+                                  height: Dimensions.d_5,
+                                ),
                                 Text('Start Weight',
                                     style: TextStyle(
                                         fontSize: FontSizes.normalText))
@@ -100,9 +96,11 @@ class _WeightPageState extends State<WeightPage> {
                                 Text(
                                   '69 kg',
                                   style:
-                                  TextStyle(fontSize: FontSizes.biggerText),
+                                      TextStyle(fontSize: FontSizes.biggerText),
                                 ),
-                                SizedBox(height: Dimensions.d_5,),
+                                SizedBox(
+                                  height: Dimensions.d_5,
+                                ),
                                 Text('Current Weight',
                                     style: TextStyle(
                                         fontSize: FontSizes.normalText))
@@ -119,15 +117,17 @@ class _WeightPageState extends State<WeightPage> {
                         shrinkWrap: true,
                         itemCount: this.weightList.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return index == this.weightList.length - 1 ? this.weightList[index] : Column(
-                            children: [
-                              this.weightList[index],
-                              Divider(
-                                color: Colours.lighterGrey,
-                                thickness: Dimensions.d_1,
-                              )
-                            ],
-                          );
+                          return index == this.weightList.length - 1
+                              ? this.weightList[index]
+                              : Column(
+                                  children: [
+                                    this.weightList[index],
+                                    Divider(
+                                      color: Colours.lighterGrey,
+                                      thickness: Dimensions.d_1,
+                                    )
+                                  ],
+                                );
                         },
                       )
                     ],

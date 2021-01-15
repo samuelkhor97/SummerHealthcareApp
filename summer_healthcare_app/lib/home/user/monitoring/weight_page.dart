@@ -15,14 +15,61 @@ class _WeightPageState extends State<WeightPage> {
     super.initState();
   }
 
+  void showAddWeightPopUp() {
+    TextEditingController weight = TextEditingController();
+    String currentDate = DateTime.now().day.toString() + '/' + DateTime.now().month.toString() + '/' + DateTime.now().year.toString();
+        showDialog<void>(
+      context: context,
+      builder: (BuildContext alertContext) {
+        return AlertDialog(
+          title: Text('Weight Check In'),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  InputField(
+                    hintText: '69',
+                    controller: weight,
+                    labelText: 'Weight (kg)',
+                    keyboardType: TextInputType.number,
+                  ),
+                  Text(
+                    'Date: $currentDate',
+                    style: TextStyle(
+                        color: Colours.grey
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('ADD WEIGHT'),
+              onPressed: () async {
+                Navigator.of(alertContext).pop();
+                weightList.add(WeightList(currentDate: currentDate, weight: weight, lastWeight: '67',));
+                setState(() {
+
+                });
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (weightList == null) {
       weightList = [
-        WeightList(currentDate: '15/1/2021', weight: TextEditingController(text: '66'), lastWeight: '67',),
-        WeightList(currentDate: '14/1/2021', weight: TextEditingController(text: '67'), lastWeight: '70',),
-        WeightList(currentDate: '13/1/2021', weight: TextEditingController(text: '70'), lastWeight: '69',),
         WeightList(currentDate: '12/1/2021', weight: TextEditingController(text: '69'), lastWeight: '69',),
+        WeightList(currentDate: '13/1/2021', weight: TextEditingController(text: '70'), lastWeight: '69',),
+        WeightList(currentDate: '14/1/2021', weight: TextEditingController(text: '67'), lastWeight: '70',),
       ];
     }
 
@@ -96,10 +143,11 @@ class _WeightPageState extends State<WeightPage> {
                       ),
                       ListView.builder(
                         physics: NeverScrollableScrollPhysics(),
+                        reverse: true,
                         shrinkWrap: true,
                         itemCount: this.weightList.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return index == this.weightList.length - 1
+                          return index == 0
                               ? this.weightList[index]
                               : Column(
                                   children: [
@@ -125,7 +173,9 @@ class _WeightPageState extends State<WeightPage> {
             Icons.add,
             size: Dimensions.d_35,
           ),
-          onPressed: () {},
+          onPressed: () {
+            showAddWeightPopUp();
+          },
         ),
       ),
     );

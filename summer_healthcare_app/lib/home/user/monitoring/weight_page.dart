@@ -8,98 +8,21 @@ class WeightPage extends StatefulWidget {
 }
 
 class _WeightPageState extends State<WeightPage> {
-  List<Widget> weightList;
+  List<WeightList> weightList;
 
   @override
   void initState() {
     super.initState();
   }
 
-  Widget addWeight(String date, TextEditingController weight, String lastWeight) {
-    String w = weight.text;
-    return ListTile(
-      title: Text(
-        date.toString(),
-        style: TextStyle(fontSize: FontSizes.normalText),
-      ),
-      trailing: Text(
-        w + ' kg',
-        style: TextStyle(
-            fontSize: FontSizes.biggerText,
-            color: int.parse(weight.text) > int.parse(lastWeight)
-                ? Colours.red
-                : int.parse(weight.text) < int.parse(lastWeight)
-                    ? Colours.green
-                    : Colours.grey),
-      ),
-      onTap: () async {
-        TextEditingController newWeight = await showWeightChangePopUp(currentDate: date, weight: weight);
-        print('weight: ${newWeight.text}');
-        setState(() {
-          w = newWeight.text;
-        });
-      },
-    );
-  }
-
-  Future<TextEditingController> showWeightChangePopUp({String currentDate, TextEditingController weight}) async {
-    await showDialog<TextEditingController>(
-      context: context,
-      builder: (BuildContext alertContext) {
-        return AlertDialog(
-          title: Text('Change Weight'),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  InputField(
-                    hintText: '69',
-                    controller: weight,
-                    labelText: 'Weight (kg)',
-                    keyboardType: TextInputType.number,
-                    // onChanged: (String text) {
-                    //   setState(() {
-                    //     checkAllInformationFilled(checkBox: userDetails.termsAndConditions);
-                    //   });
-                    // },
-                  ),
-                  Text(
-                    'Date: $currentDate',
-                    style: TextStyle(
-                      color: Colours.grey
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('UPDATE'),
-              onPressed: () {
-                Navigator.of(alertContext).pop();
-                print('weight1: ${weight.text}');
-                return weight;
-              },
-            ),
-          ],
-        );
-      },
-    );
-    return weight;
-  }
-
   @override
   Widget build(BuildContext context) {
     if (weightList == null) {
       weightList = [
-        addWeight('15/1/2021', TextEditingController(text: '66'), '67'),
-        addWeight('14/1/2021', TextEditingController(text: '67'), '70'),
-        addWeight('13/1/2021', TextEditingController(text: '70'), '69'),
-        addWeight('12/1/2021', TextEditingController(text: '69'), '69')
+        WeightList(currentDate: '15/1/2021', weight: TextEditingController(text: '66'), lastWeight: '67',),
+        WeightList(currentDate: '14/1/2021', weight: TextEditingController(text: '67'), lastWeight: '70',),
+        WeightList(currentDate: '13/1/2021', weight: TextEditingController(text: '70'), lastWeight: '69',),
+        WeightList(currentDate: '12/1/2021', weight: TextEditingController(text: '69'), lastWeight: '69',),
       ];
     }
 
@@ -197,7 +120,6 @@ class _WeightPageState extends State<WeightPage> {
           ],
         ),
         floatingActionButton: FloatingActionButton(
-          // mini: true,
           tooltip: 'Add Weight',
           child: Icon(
             Icons.add,

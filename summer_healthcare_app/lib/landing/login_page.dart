@@ -55,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
                       InputField(
                         hintText: '+60123456789',
                         controller: userDetails.phoneNumber,
-                        labelText: 'Phone Number',
+                        labelText: 'Mobile Phone Number',
                         keyboardType: TextInputType.phone,
                         onChanged: (text) {
                           if (userDetails.phoneNumber.text.isNotEmpty) {

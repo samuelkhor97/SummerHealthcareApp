@@ -89,7 +89,7 @@ class _UserSignUpPage1State extends State<UserSignUpPage1> {
                     InputField(
                       hintText: '+60123456789',
                       controller: userDetails.phoneNumber,
-                      labelText: 'Phone Number',
+                      labelText: 'Mobile Phone Number',
                       keyboardType: TextInputType.phone,
                       onChanged: (String text) {
                         setState(() {

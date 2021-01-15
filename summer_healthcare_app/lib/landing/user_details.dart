@@ -17,6 +17,7 @@ class UserDetails {
   TextEditingController maritalStatus = TextEditingController();
   String smoke;
   TextEditingController smokePerDay = TextEditingController();
+  String e_cig;
 
   void disposeTexts() {
     fullName.dispose();

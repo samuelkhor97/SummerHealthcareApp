@@ -52,7 +52,7 @@ class _UserSignUpPage1State extends State<UserSignUpPage1> {
       isButtonDisabled = true;
   }
 
-  Future<DateTime> _pickDate({bool isStart = true}) async {
+  Future<DateTime> _pickDate() async {
     DateTime selectedDate =
     await showDatePicker(
         context: context,

@@ -14,26 +14,24 @@ class _WeightPageState extends State<WeightPage> {
     super.initState();
   }
 
-  Widget addWeight(date, weight, startWeight) {
+  Widget addWeight(date, weight, lastWeight) {
     return Padding(
       padding: EdgeInsets.fromLTRB(0, Dimensions.d_10, 0, Dimensions.d_10),
       child: Row(
         children: <Widget>[
           Text(
-              date.toString(),
-            style: TextStyle(
-              fontSize: 20
-            ),
+            date.toString(),
+            style: TextStyle(fontSize: FontSizes.normalText),
           ),
           Text(
-              weight.toString() + ' kg',
+            weight.toString() + ' kg',
             style: TextStyle(
-                fontSize: 22,
-                color: weight > startWeight
+                fontSize: FontSizes.biggerText,
+                color: weight > lastWeight
                     ? Colours.red
-                    : weight < startWeight
-                    ? Colours.green
-                    : Colours.grey),
+                    : weight < lastWeight
+                        ? Colours.green
+                        : Colours.grey),
           )
         ],
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -43,15 +41,15 @@ class _WeightPageState extends State<WeightPage> {
 
   @override
   Widget build(BuildContext context) {
-    
     if (weightList == null) {
       weightList = [
-        addWeight('15/1/2021', 66, 69),
-        addWeight('14/1/2021', 67, 69),
-        addWeight('13/1/2021', 70, 69)
+        addWeight('15/1/2021', 66, 67),
+        addWeight('14/1/2021', 67, 70),
+        addWeight('13/1/2021', 70, 69),
+        addWeight('12/1/2021', 69, 69)
       ];
     }
-    
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colours.primaryColour,
@@ -76,15 +74,60 @@ class _WeightPageState extends State<WeightPage> {
               child: Container(
                 color: Colours.white,
                 child: Padding(
-                  padding: EdgeInsets.all(Dimensions.d_30),
+                  padding: EdgeInsets.all(Dimensions.d_15),
                   child: Column(
                     children: <Widget>[
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '69 kg',
+                                  style:
+                                      TextStyle(fontSize: FontSizes.biggerText),
+                                ),
+                                SizedBox(height: Dimensions.d_5,),
+                                Text('Start Weight',
+                                    style: TextStyle(
+                                        fontSize: FontSizes.normalText))
+                              ],
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '69 kg',
+                                  style:
+                                  TextStyle(fontSize: FontSizes.biggerText),
+                                ),
+                                SizedBox(height: Dimensions.d_5,),
+                                Text('Current Weight',
+                                    style: TextStyle(
+                                        fontSize: FontSizes.normalText))
+                              ],
+                            )
+                          ]),
+                      SizedBox(height: Dimensions.d_10),
+                      Divider(
+                        color: Colours.grey,
+                        thickness: Dimensions.d_2,
+                      ),
                       ListView.builder(
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemCount: this.weightList.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return this.weightList[index];
+                          return index == this.weightList.length - 1 ? this.weightList[index] : Column(
+                            children: [
+                              this.weightList[index],
+                              Divider(
+                                color: Colours.lighterGrey,
+                                thickness: Dimensions.d_1,
+                              )
+                            ],
+                          );
                         },
                       )
                     ],

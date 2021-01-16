@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/cupertino.dart';
@@ -39,14 +41,38 @@ class _MiBandPageState extends State<MiBandPage> {
     _googleSignIn.signInSilently();
   }
 
+
+  /// Heart rate body
+  // {
+  // "aggregateBy": [
+  // {
+  // "dataTypeName": "com.google.heart_rate.bpm"
+  // }
+  // ],
+  // "endTimeMillis": 1610812800000,
+  // "startTimeMillis": 1609430400000
+  // }
+
+
   Future<void> _getFitData() async {
-    print('here');
+    var body = jsonEncode({
+      "aggregateBy": [{
+        "dataTypeName": "com.google.step_count.delta",
+        "dataSourceId": "derived:com.google.step_count.delta:com.google.android.gms:estimated_steps"
+      }],
+      "bucketByTime": { "durationMillis": 86400000 },
+      "startTimeMillis": 1609430400000,
+      "endTimeMillis": 1610812800000
+    });
+
     GoogleSignInAuthentication googlesigninauthentication = await _currentUser.authentication;
-    print(googlesigninauthentication.accessToken);
     var response = await http
-        .get('https://www.googleapis.com/fitness/v1/users/me/dataSources',
-    headers: {'auth': googlesigninauthentication.accessToken});
-    print(response.body);
+        .post('https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate',
+        headers: {'authorization': 'Bearer ' + googlesigninauthentication.accessToken},
+        body: body
+        );
+    var output = jsonDecode(response.body);
+    print(output["bucket"][5]);
   }
 
   Widget build(BuildContext context) {

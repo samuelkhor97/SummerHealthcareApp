@@ -1,9 +1,8 @@
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
         uid: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             primaryKey:  true,
-            autoIncrement: true
         },
         full_name: {
             type: DataTypes.STRING,
@@ -52,15 +51,14 @@ module.exports = (sequelize, DataTypes) => {
         cigs_per_day: {
             type: DataTypes.INTEGER,
             allowNull: false
+        },
+        e_cig: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false
         }
     }, {timestamps: false,});
 
     User.associate = models => {
-        User.belongsToMany(models.Pharmacist, {
-            onDelete: 'CASCADE', 
-            through: models.User_Pharmacist,
-            foreignKey: 'uid'
-        });
         User.hasMany(models.Sugar_Level, {
             onDelete: 'CASCADE',
             foreignKey: {
@@ -76,20 +74,6 @@ module.exports = (sequelize, DataTypes) => {
             }
         });
     };
-
-    // User.findByLogin = async login => {
-    //     let user = await User.findOne({
-    //         where: { username: login },
-    //     });
-
-    //     if (!user) {
-    //         user = await User.findOne({
-    //             where: { email: login },
-    //         });
-    //     }
-
-    //     return user;
-    // };
 
     return User;
 };

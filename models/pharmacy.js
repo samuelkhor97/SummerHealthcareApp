@@ -1,9 +1,8 @@
 module.exports = (sequelize, DataTypes) => {
     const Pharmacy = sequelize.define('Pharmacy', {
         pharmacy_id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true
+            type: DataTypes.STRING,
+            primaryKey: true
         },
         location: {
             type: DataTypes.STRING,
@@ -17,12 +16,14 @@ module.exports = (sequelize, DataTypes) => {
     }, {timestamps: false,});
 
     Pharmacy.associate = models => {
-        Pharmacy.hasMany(models.Pharmacist, {
+        Pharmacy.hasMany(models.User, {
+            onDelete: 'CASCADE',
             foreignKey: {
-                name:  'pharmacy_id',
-                allowNull: false
+                name: 'pharmacy_id',
+                allowNull: true
             }
         });
+
     };
 
     return Pharmacy;

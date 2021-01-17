@@ -5,8 +5,8 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true
         },
-        datetime: {
-            type: DataTypes.DATE,
+        date: {
+            type: DataTypes.DATEONLY,
         },
         sugar_level: {
             type: DataTypes.DECIMAL,

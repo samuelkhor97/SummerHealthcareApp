@@ -5,8 +5,8 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true
         },
-        datetime: {
-            type: DataTypes.DATE,
+        date: {
+            type: DataTypes.DATEONLY,
         },
         weight: {
             type: DataTypes.DECIMAL,

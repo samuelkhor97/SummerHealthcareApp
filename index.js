@@ -4,6 +4,7 @@ const {models, sequelize} = require('./models/index');
 const express = require('express')
 const cors = require('cors')
 const app = express();
+const bodyParser = require('body-parser');
 const port = process.env.PORT
 
 function verifyUser(req, res, next){
@@ -44,8 +45,12 @@ const sugarlevelRoutes = require('./sugarlevel/server');
 const mibandRoutes = require('./miband/server');
 const usersRoutes = require('./users/server');
 
-// enable cors everywhere, will configure later depending on needs
-app.use(cors())
+// middleware
+app.use(cors()) // enable cors everywhere, will configure later depending on needs// enable cors everywhere, will configure later depending on needs
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/', verifyUser);
 // app.use('/admin', adminRoutes);
@@ -61,7 +66,7 @@ initialize();
 
 async function initialize() {
     if (process.env.DB_SYNC === 'true')
-        await sequelize.sync({force:true});
+        await sequelize.sync();
     app.listen(port, () => {
         console.log(`Listening at port: ${port}`)
     }); 

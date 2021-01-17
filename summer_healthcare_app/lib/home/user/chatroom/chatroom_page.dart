@@ -420,13 +420,22 @@ class _ChatScreenState extends State<ChatScreen> {
     Map<String, dynamic> docData = document.data();
 
     String senderId = docData['sentBy'];
-    String senderName = groupDetails['members'][senderId]['displayName'] ?? '';
-    String senderAvatar = groupDetails['members'][senderId]['photoUrl'];
+    dynamic sender;
+    // if user is removed while still in the chatroom page
+    if (groupDetails.isEmpty) {
+      return Container();
+    } else {
+      sender = groupDetails['members'][senderId];
+    }
+    // if message is sent by a user who has been removed from group
+    String senderName = sender != null ? sender['displayName'] : 'User removed';
+    String senderAvatar = sender != null ? sender['photoUrl'] : '';
     String messageType = docData['type'];
     String content = docData['content'];
-    String senderRole = groupDetails['members'][senderId]['role'];
+    String senderRole = sender != null ? sender['role'] : 'normal';
     Timestamp sentAt = docData['sentAt'];
     bool isPersonal = groupType == describeEnum(GroupType.personal);
+    bool isremoved = sender == null;
 
     if (docData['sentBy'] == id) {
       // Right (my message)
@@ -463,6 +472,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ? buildSenderLabel(
                         sender: senderName,
                         role: senderRole,
+                        isRemoved: isremoved,
                       )
                     : Container(),
             Row(
@@ -563,7 +573,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Row buildSenderLabel({String sender, String role}) {
+  Row buildSenderLabel({String sender, String role, bool isRemoved}) {
     return Row(
       children: <Widget>[
         Container(width: Dimensions.d_50),
@@ -572,6 +582,9 @@ class _ChatScreenState extends State<ChatScreen> {
           child: Text(
             sender,
             overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontStyle: isRemoved ? FontStyle.italic : FontStyle.normal,
+            ),
           ),
         ),
       ],

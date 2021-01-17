@@ -289,6 +289,7 @@ class _PatientListPageState extends State<PatientListPage> {
         },
       );
     });
+    patientMobileNumController.clear();
     Fluttertoast.showToast(msg: 'Patient added successfully.');
     Navigator.of(alertContext).pop();
   }

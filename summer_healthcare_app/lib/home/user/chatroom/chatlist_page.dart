@@ -165,7 +165,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
   }
 
   Map<String, dynamic> getGroupDetailsCallback({String groupId}) {
-    return UnmodifiableMapView(groupsDetails[groupId]);
+    if (groupsDetails[groupId] != null)
+      return UnmodifiableMapView(groupsDetails[groupId]);
+    else
+      return UnmodifiableMapView(Map());
   }
 
   Widget buildChatTile({Map<String, dynamic> groupDetails}) {
@@ -178,7 +181,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
     String avatarUrl = '';
 
     String title = '';
-    String selfName = members[id]['displayName'];
+    String selfName = members[id] != null ? members[id]['displayName'] : '';
     if (groupType == describeEnum(GroupType.personal)) {
       // for personal group, it is one-to-one group so set title
       // equals to another conversation participant

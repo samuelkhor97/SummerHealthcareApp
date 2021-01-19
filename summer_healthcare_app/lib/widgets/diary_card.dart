@@ -55,7 +55,7 @@ class _DiaryCardState extends State<DiaryCard> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(Dimensions.d_15),
+      padding: EdgeInsets.fromLTRB(Dimensions.d_15, Dimensions.d_15, Dimensions.d_15, Dimensions.d_0),
       child: Card(
         child: Padding(
           padding: EdgeInsets.all(Dimensions.d_15),

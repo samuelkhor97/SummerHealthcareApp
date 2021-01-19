@@ -78,18 +78,21 @@ class _DiaryPageState extends State<DiaryPage> {
       ];
     }
 
-    return ListView(
-      children: <Widget>[
-        _datePickerField(),
-        ListView.builder(
-          physics: NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: this.cardList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return this.cardList[index];
-          },
-        )
-      ],
+    return Scaffold(
+      backgroundColor: Colours.primaryColour,
+      body: ListView(
+        children: <Widget>[
+          _datePickerField(),
+          ListView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: this.cardList.length,
+            itemBuilder: (BuildContext context, int index) {
+              return this.cardList[index];
+            },
+          )
+        ],
+      ),
     );
   }
 }

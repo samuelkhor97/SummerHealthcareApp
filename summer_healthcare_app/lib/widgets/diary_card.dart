@@ -18,37 +18,57 @@ class DiaryCard extends StatefulWidget {
 class _DiaryCardState extends State<DiaryCard> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colours.white,
-      child: Column(
-        children: <Widget>[
-          Row(
-            children: [
-              InkWell(
-                child: Row(
-                  children: <Widget>[
-                    Text(
-                      widget.title,
+    return Padding(
+      padding: EdgeInsets.only(left: Dimensions.d_15, top: Dimensions.d_15, right: Dimensions.d_15),
+      child: Card(
+        child: Padding(
+          padding: EdgeInsets.all(Dimensions.d_10),
+          child: ListView(
+            shrinkWrap: true,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    child: Row(
+                      children: <Widget>[
+                        Text(
+                          widget.title,
+                          style: TextStyle(
+                            color: Colours.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: FontSizes.biggerText
+                          ),
+                        ),
+                        SizedBox(width: Dimensions.d_10)
+                        ,
+                        Icon(
+                          Icons.create,
+                          color: Colours.black,
+                          size: Dimensions.d_20,
+                        )
+                      ],
+                    ),
+                    onTap: () {},
+                  ),
+                  InkWell(
+                    child: Text(
+                      'Add Item',
                       style: TextStyle(
-                        color: Colours.black,
+                        color: Colours.secondaryColour,
                         fontWeight: FontWeight.bold,
-                        fontSize: FontSizes.biggerText
+                        decoration: TextDecoration.underline
                       ),
                     ),
-                    SizedBox(width: Dimensions.d_10)
-                    ,
-                    Icon(
-                      Icons.create,
-                      color: Colours.black,
-                    )
-
-                  ],
-                ),
-                onTap: () {},
+                    onTap: () {
+                      print('add item');
+                    },
+                  )
+                ],
               )
             ],
-          )
-        ],
+          ),
+        ),
       ),
     );
   }

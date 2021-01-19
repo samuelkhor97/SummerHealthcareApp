@@ -3,7 +3,7 @@ import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
 
 class DiaryCard extends StatefulWidget {
-  final String title;
+  final TextEditingController title;
 
   DiaryCard({
     Key key,
@@ -29,6 +29,34 @@ class _DiaryCardState extends State<DiaryCard> {
     ),
   ];
 
+  void editTitlePopUp() {
+    showDialog<TextEditingController>(
+      context: context,
+      builder: (BuildContext alertContext) {
+        return AlertDialog(
+          title: Text('Change Title'),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return InputField(
+                hintText: 'Breakfast',
+                controller: widget.title,
+              );
+            },
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('UPDATE'),
+              onPressed: () async {
+                Navigator.of(alertContext).pop();
+                setState(() {});
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -47,7 +75,7 @@ class _DiaryCardState extends State<DiaryCard> {
                     child: Row(
                       children: <Widget>[
                         Text(
-                          widget.title,
+                          widget.title.text,
                           style: TextStyle(
                               color: Colours.black,
                               fontWeight: FontWeight.bold,
@@ -61,7 +89,9 @@ class _DiaryCardState extends State<DiaryCard> {
                         )
                       ],
                     ),
-                    onTap: () {},
+                    onTap: () {
+                      editTitlePopUp();
+                    },
                   ),
                   InkWell(
                     child: Text(

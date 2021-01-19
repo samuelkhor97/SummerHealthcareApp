@@ -15,17 +15,12 @@ class DiaryCard extends StatefulWidget {
 }
 
 class _DiaryCardState extends State<DiaryCard> {
-  int totalCalories = 0;
+  int totalCalories = 200;
   List<FoodDiaryItem> foodDiaryItems = [
     FoodDiaryItem(
       name: 'Sandwich',
       calories: '200',
       picture: 'bitch',
-    ),
-    FoodDiaryItem(
-      name: 'Coffee',
-      calories: '69',
-      picture: 'bitches',
     ),
   ];
 
@@ -56,7 +51,7 @@ class _DiaryCardState extends State<DiaryCard> {
       },
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -102,7 +97,16 @@ class _DiaryCardState extends State<DiaryCard> {
                           decoration: TextDecoration.underline),
                     ),
                     onTap: () {
-                      print('add item');
+                      setState(() {
+                        foodDiaryItems.add(
+                          FoodDiaryItem(
+                            name: 'Coffee',
+                            calories: '69',
+                            picture: 'bitches',
+                          ),
+                        );
+                        totalCalories += 69;
+                      });
                     },
                   )
                 ],

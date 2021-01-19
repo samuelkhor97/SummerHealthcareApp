@@ -40,7 +40,7 @@ class _DiaryPageState extends State<DiaryPage> {
           decoration: BoxDecoration(
               color: Colours.white,
               borderRadius: BorderRadius.all(Radius.circular(Dimensions.d_10)),
-              border: Border.all(color: Colours.black)
+              border: Border.all(color: Colours.grey),
           ),
           child: ListTile(
             shape: RoundedRectangleBorder(
@@ -67,6 +67,46 @@ class _DiaryPageState extends State<DiaryPage> {
     });
   }
 
+  void showDiaryEntryPopUp() {
+    TextEditingController entryName = TextEditingController();
+
+    showDialog<TextEditingController>(
+        context: context,
+        builder: (BuildContext alertContext) {
+          return AlertDialog(
+            title: Text('Add Diary Entry'),
+            content: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      InputField(
+                        controller: entryName,
+                        hintText: 'Breakfast',
+                        keyboardType: TextInputType.text,
+                      ),
+                    ],
+                  );
+                }),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Add'),
+                onPressed: () async {
+                  Navigator.of(alertContext).pop();
+                  setState(() {
+                    cardList.add(DiaryCard(
+                      title: entryName,
+                    ));
+                  });
+                },
+              ),
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -80,6 +120,17 @@ class _DiaryPageState extends State<DiaryPage> {
 
     return Scaffold(
       backgroundColor: Colours.primaryColour,
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Add diary entry',
+        child: Icon(
+          Icons.add,
+          size: Dimensions.d_35,
+        ),
+        onPressed: () {
+          showDiaryEntryPopUp();
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: ListView(
         children: <Widget>[
           _datePickerField(),

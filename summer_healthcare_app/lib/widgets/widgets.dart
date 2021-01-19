@@ -11,3 +11,4 @@ export 'package:summer_healthcare_app/widgets/sugar_list.dart';
 export 'package:summer_healthcare_app/widgets/user_outlined_button.dart';
 export 'package:summer_healthcare_app/widgets/weight_list.dart';
 export 'package:summer_healthcare_app/widgets/diary_card.dart';
+export 'package:summer_healthcare_app/widgets/food_diary_item.dart';

@@ -73,7 +73,7 @@ class _DiaryPageState extends State<DiaryPage> {
     if (cardList == null) {
       cardList = [
         DiaryCard(
-          title: 'Breakfast',
+          title: TextEditingController(text: 'Breakfast'),
         )
       ];
     }

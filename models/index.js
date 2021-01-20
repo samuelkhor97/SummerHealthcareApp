@@ -16,6 +16,7 @@ const models = {
     Pharmacy: require('./pharmacy')(sequelize, Sequelize),
     Sugar_Level: require('./sugar_level')(sequelize, Sequelize),
     Weight: require('./weight')(sequelize, Sequelize),
+    Food_Diary_Card: require('./food_diary_card')(sequelize, Sequelize),
     Food_Data: require('./food_data')(sequelize, Sequelize),
 };
 

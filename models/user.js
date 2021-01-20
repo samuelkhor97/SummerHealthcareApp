@@ -55,6 +55,10 @@ module.exports = (sequelize, DataTypes) => {
         e_cig: {
             type: DataTypes.BOOLEAN,
             allowNull: false
+        },
+        signup_date: {
+            type: DataTypes.DATEONLY,
+            allowNull: false
         }
     }, {timestamps: false,});
 
@@ -67,6 +71,14 @@ module.exports = (sequelize, DataTypes) => {
             }
         });
         User.hasMany(models.Weight, {
+            onDelete: 'CASCADE',
+            foreignKey: {
+                name: 'uid',
+                allowNull: false
+            }
+        });
+
+        User.hasMany(models.Food_Diary_Card, {
             onDelete: 'CASCADE',
             foreignKey: {
                 name: 'uid',

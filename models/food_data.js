@@ -3,7 +3,6 @@ module.exports = (sequelize, DataTypes) => {
         food_id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
-            autoIncrement: true
         },
         food_name: {
             type: DataTypes.STRING,

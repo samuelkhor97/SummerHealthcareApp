@@ -16,7 +16,7 @@ router.get('/me', async (req, res, next) => {
       res.status(403).send('User not found.')
     } else {
       // Return user's data
-      return  res.status(200).json({
+      return res.status(200).json({
         full_name: user.full_name,
         phone_num: user.phone_num,
         height: user.height,
@@ -28,7 +28,8 @@ router.get('/me', async (req, res, next) => {
         occupation: user.occupation,
         marital_status: user.marital_status,
         smoker: user.smoker,
-        cigs_per_day: user.cigs_per_day
+        cigs_per_day: user.cigs_per_day,
+        signup_date: user.signup_date
       });
     }
   } catch (error) {
@@ -43,7 +44,11 @@ router.get('/me', async (req, res, next) => {
 router.post('/create', async (req, res, next) => {
     const uid = res.locals.id;
     const body = req.body;
-    
+
+    // current timestamp in milliseconds
+    let ts = Date.now();
+    let date_ob = new Date(ts);
+
     models.User
       .create({
         uid: uid,
@@ -59,7 +64,9 @@ router.post('/create', async (req, res, next) => {
         marital_status: body.marital_status,
         smoker: body.smoker,
         cigs_per_day: body.cigs_per_day,
-        pharmacy_id: body.pharmacy_id
+        pharmacy_id: body.pharmacy_id,
+        signup_date: date_ob,
+        e_cig: body.e_cig
       })
       .then(item => {
         res.status(200).send('Successfully created user!')

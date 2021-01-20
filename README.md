@@ -42,7 +42,7 @@ Password for user postgres: (your password)
 4. Once success, enter/copy the following code into the terminal (replace the bracket value to the location where the csv file is located):
 
 ```
-"\COPY public."Food_Data"(food_id, food_name, calories, protein, total_fat, saturated_fat, dietary_fibre, carbohydrate, cholesterol, sodium), FROM ('C:\Users\User\Desktop\food_calories.csv') DELIMITER ',' CSV HEADER;
+\COPY public."Food_Data"(food_id, food_name, calories, protein, total_fat, saturated_fat, dietary_fibre, carbohydrate, cholesterol, sodium), FROM ('C:\Users\User\Desktop\food_calories.csv') DELIMITER ',' CSV HEADER;
 ```
 
 5. Done

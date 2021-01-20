@@ -16,23 +16,13 @@ const models = {
     Pharmacy: require('./pharmacy')(sequelize, Sequelize),
     Sugar_Level: require('./sugar_level')(sequelize, Sequelize),
     Weight: require('./weight')(sequelize, Sequelize),
+    Food_Data: require('./food_data')(sequelize, Sequelize),
 };
-
-// testConnection();
 
 Object.keys(models).forEach(key => {
     if ('associate' in models[key]) {
         models[key].associate(models);
     }
 });
-
-async function testConnection() {
-    try {
-        await sequelize.authenticate();
-        console.log('Db connection has been established successfully.');
-    } catch (error) {
-        console.error('Unable to connect to the database:', error);
-    }
-}
 
 module.exports = {sequelize, models};

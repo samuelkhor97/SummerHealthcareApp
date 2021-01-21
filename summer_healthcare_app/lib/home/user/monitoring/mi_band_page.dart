@@ -43,8 +43,7 @@ class _MiBandPageState extends State<MiBandPage> {
           _handleSignIn();
         }
       });
-    }
-    else {
+    } else {
       _currentUser = _googleSignIn.currentUser;
       _getFitData();
     }
@@ -75,7 +74,9 @@ class _MiBandPageState extends State<MiBandPage> {
         }
       ],
       "bucketByTime": {"durationMillis": 86400000},
-      "startTimeMillis": DateTime(now.year, now.month, now.day - 7).toUtc().millisecondsSinceEpoch,
+      "startTimeMillis": DateTime(now.year, now.month, now.day - 7)
+          .toUtc()
+          .millisecondsSinceEpoch,
       "endTimeMillis": now.toUtc().millisecondsSinceEpoch
     });
 
@@ -91,7 +92,8 @@ class _MiBandPageState extends State<MiBandPage> {
     // The integer after bucket is subject to change, to get today's step value, then it's 7
     print(output["bucket"][7]["dataset"][0]["point"][0]["value"][0]["intVal"]);
     setState(() {
-      todaySteps = output["bucket"][7]["dataset"][0]["point"][0]["value"][0]["intVal"];
+      todaySteps =
+          output["bucket"][7]["dataset"][0]["point"][0]["value"][0]["intVal"];
     });
   }
 
@@ -125,101 +127,128 @@ class _MiBandPageState extends State<MiBandPage> {
                   elevation: 5,
                   child: Padding(
                     padding: EdgeInsets.all(Dimensions.d_15),
-                    child: ListTile(
-                      leading: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
-                          Text(
-                            'Steps Today:',
-                            style: TextStyle(
-                              fontSize: FontSizes.biggerText
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                'Steps Today:',
+                                style:
+                                    TextStyle(fontSize: FontSizes.biggerText),
+                              ),
+                              Text(
+                                '$todaySteps',
+                                style: TextStyle(
+                                    fontSize: FontSizes.biggerText,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: Dimensions.d_10),
+                              Text(
+                                'Distance: ${(todaySteps / 1312.33595801).toStringAsFixed(2)} KM',
+                                style: TextStyle(fontSize: FontSizes.smallText),
+                              )
+                            ],
                           ),
-                          Text(
-                            '$todaySteps',
-                            style: TextStyle(
-                              fontSize: FontSizes.biggerText,
-                              fontWeight: FontWeight.bold
-                            ),
+                          Icon(
+                            Icons.directions_run,
+                            color: Colours.secondaryColour,
+                            size: Dimensions.d_50,
                           ),
-                          SizedBox(height: Dimensions.d_10),
-                          Text(
-                            'Distance: ${(todaySteps/1312.33595801).toStringAsFixed(2)} KM',
-                            style: TextStyle(
-                                fontSize: FontSizes.smallText
-                            ),
-                          )
-                        ],
-                      ),
-                      trailing: Icon(
-                        Icons.directions_run,
-                        color: Colours.secondaryColour,
-                        size: Dimensions.d_50,
-                      ),
-                    ),
+                        ]),
                   ),
                 ),
               ),
-              // Padding(
-              //   padding: EdgeInsets.only(
-              //       top: Dimensions.d_15,
-              //       left: Dimensions.d_15,
-              //       right: Dimensions.d_15),
-              //   child: Card(
-              //     clipBehavior: Clip.antiAlias,
-              //     elevation: 5,
-              //     child: Padding(
-              //       padding: EdgeInsets.all(Dimensions.d_15),
-              //       child: Column(
-              //         crossAxisAlignment: CrossAxisAlignment.start,
-              //         children: [
-              //           ListTile(
-              //             leading: Column(
-              //               children: <Widget>[
-              //                 Text(
-              //                   'Last Night Sleep Hours:',
-              //                   style: TextStyle(
-              //                       fontSize: FontSizes.biggerText
-              //                   ),
-              //                 ),
-              //                 Text(
-              //                   '8h 32min',
-              //                   style: TextStyle(
-              //                       fontSize: FontSizes.biggerText,
-              //                       fontWeight: FontWeight.bold
-              //                   ),
-              //                 ),
-              //                 Text(
-              //                   'Deep sleep: 2h 20min',
-              //                   style: TextStyle(
-              //                       fontSize: FontSizes.smallText
-              //                   ),
-              //                 ),
-              //                 Text(
-              //                   'Light sleep: 6h 12min',
-              //                   style: TextStyle(
-              //                       fontSize: FontSizes.smallText
-              //                   ),
-              //                 ),
-              //                 Text(
-              //                   'Awake: 0min',
-              //                   style: TextStyle(
-              //                       fontSize: FontSizes.smallText
-              //                   ),
-              //                 ),
-              //               ],
-              //             ),
-              //             trailing: Icon(
-              //               Icons.king_bed_rounded,
-              //               color: Colours.secondaryColour,
-              //               size: Dimensions.d_50,
-              //             ),
-              //           ),
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // )
+              Padding(
+                padding: EdgeInsets.only(
+                    top: Dimensions.d_15,
+                    left: Dimensions.d_15,
+                    right: Dimensions.d_15),
+                child: Card(
+                  clipBehavior: Clip.antiAlias,
+                  elevation: 5,
+                  child: Padding(
+                    padding: EdgeInsets.all(Dimensions.d_15),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                'Last Night Sleep Hours:',
+                                style:
+                                    TextStyle(fontSize: FontSizes.biggerText),
+                              ),
+                              Text(
+                                '8h 32min',
+                                style: TextStyle(
+                                    fontSize: FontSizes.biggerText,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: Dimensions.d_10),
+                              Text(
+                                'Deep sleep: 2h 20min',
+                                style: TextStyle(fontSize: FontSizes.smallText),
+                              ),
+                              Text(
+                                'Light sleep: 6h 12min',
+                                style: TextStyle(fontSize: FontSizes.smallText),
+                              ),
+                              Text(
+                                'Awake: 0min',
+                                style: TextStyle(fontSize: FontSizes.smallText),
+                              ),
+                            ],
+                          ),
+                          Icon(
+                            Icons.king_bed_rounded,
+                            color: Colours.secondaryColour,
+                            size: Dimensions.d_50,
+                          ),
+                        ]),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(
+                    top: Dimensions.d_15,
+                    left: Dimensions.d_15,
+                    right: Dimensions.d_15),
+                child: Card(
+                  clipBehavior: Clip.antiAlias,
+                  elevation: 5,
+                  child: Padding(
+                    padding: EdgeInsets.all(Dimensions.d_15),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                'Calories Burned:',
+                                style:
+                                TextStyle(fontSize: FontSizes.biggerText),
+                              ),
+                              Text(
+                                '123kcal',
+                                style: TextStyle(
+                                    fontSize: FontSizes.biggerText,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          Icon(
+                            Icons.local_fire_department,
+                            color: Colours.secondaryColour,
+                            size: Dimensions.d_50,
+                          ),
+                        ]),
+                  ),
+                ),
+              ),
             ],
           )),
     );

@@ -21,7 +21,7 @@ class ChatList extends StatelessWidget {
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back_ios_outlined,
-              color: Colours.secondaryColour,
+              color: Colours.black,
             ),
             onPressed: () {
               Navigator.pop(context);
@@ -31,7 +31,7 @@ class ChatList extends StatelessWidget {
           title: Text(
             'Chat',
             style: TextStyle(
-              color: Colours.secondaryColour,
+              color: Colours.black,
               fontWeight: FontWeight.bold,
             ),
           ),

@@ -9,9 +9,9 @@ import 'package:summer_healthcare_app/home/user/chatroom/chatlist_page.dart'
     show buildAvatar, GroupType;
 import 'package:summer_healthcare_app/home/user/chatroom/chatroom_page.dart'
     show Role;
+import 'package:summer_healthcare_app/home/user/pharmacist/patient_page.dart';
 import 'package:summer_healthcare_app/constants.dart';
-import 'package:summer_healthcare_app/widgets/input_field.dart';
-import 'package:summer_healthcare_app/widgets/show_loading_animation.dart';
+import 'package:summer_healthcare_app/widgets/widgets.dart';
 
 class PatientListPage extends StatefulWidget {
   @override
@@ -97,7 +97,17 @@ class _PatientListPageState extends State<PatientListPage> {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    onTap: () {},
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Patient(
+                                            patientId: userId,
+                                            patientName: userName,
+                                          ),
+                                        ),
+                                      );
+                                    },
                                     trailing: IconButton(
                                       icon: Icon(
                                         Icons.cancel_outlined,

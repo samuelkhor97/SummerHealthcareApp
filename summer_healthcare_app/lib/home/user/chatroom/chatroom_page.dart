@@ -11,7 +11,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 
-import 'package:summer_healthcare_app/widgets/show_loading_animation.dart';
+import 'package:summer_healthcare_app/widgets/widgets.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/home/user/chatroom/full_photo.dart';
 import 'package:summer_healthcare_app/home/user/chatroom/groupinfo_page.dart';
@@ -65,7 +65,7 @@ class _ChatRoomState extends State<ChatRoom> {
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back_ios_outlined,
-              color: Colours.secondaryColour,
+              color: Colours.black,
             ),
             onPressed: () {
               Navigator.popUntil(
@@ -76,7 +76,7 @@ class _ChatRoomState extends State<ChatRoom> {
           title: Text(
             groupName,
             style: TextStyle(
-              color: Colours.secondaryColour,
+              color: Colours.black,
               fontWeight: FontWeight.bold,
             ),
           ),

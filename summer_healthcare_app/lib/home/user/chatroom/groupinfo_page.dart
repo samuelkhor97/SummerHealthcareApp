@@ -15,8 +15,7 @@ import 'package:summer_healthcare_app/home/user/chatroom/chatlist_page.dart'
     show GroupType, buildAvatar;
 import 'package:summer_healthcare_app/home/user/chatroom/chatroom_page.dart'
     show ChatRoom, Role, getPersonalGroupDetails;
-import 'package:summer_healthcare_app/widgets/input_field.dart';
-import 'package:summer_healthcare_app/widgets/show_loading_animation.dart';
+import 'package:summer_healthcare_app/widgets/widgets.dart';
 
 class GroupInfo extends StatefulWidget {
   final String id;

@@ -32,16 +32,22 @@ class _MiBandPageState extends State<MiBandPage> {
   @override
   void initState() {
     super.initState();
-    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
-      setState(() {
-        _currentUser = account;
+    if (_googleSignIn.currentUser == null) {
+      _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
+        setState(() {
+          _currentUser = account;
+        });
+        if (_currentUser != null) {
+          _getFitData();
+        } else {
+          _handleSignIn();
+        }
       });
-      if (_currentUser != null) {
-        _getFitData();
-      } else {
-        _handleSignIn();
-      }
-    });
+    }
+    else {
+      _currentUser = _googleSignIn.currentUser;
+      _getFitData();
+    }
     _googleSignIn.signInSilently();
   }
 
@@ -119,40 +125,37 @@ class _MiBandPageState extends State<MiBandPage> {
                   elevation: 5,
                   child: Padding(
                     padding: EdgeInsets.all(Dimensions.d_15),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListTile(
-                          leading: Column(
-                            children: <Widget>[
-                              Text(
-                                'Steps Today:',
-                                style: TextStyle(
-                                  fontSize: FontSizes.biggerText
-                                ),
-                              ),
-                              Text(
-                                '${todaySteps}',
-                                style: TextStyle(
-                                  fontSize: FontSizes.biggerText,
-                                  fontWeight: FontWeight.bold
-                                ),
-                              ),
-                              Text(
-                                'Distance: ${(todaySteps/1312.33595801).toStringAsFixed(2)} KM',
-                                style: TextStyle(
-                                    fontSize: FontSizes.smallText
-                                ),
-                              )
-                            ],
+                    child: ListTile(
+                      leading: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            'Steps Today:',
+                            style: TextStyle(
+                              fontSize: FontSizes.biggerText
+                            ),
                           ),
-                          trailing: Icon(
-                            Icons.directions_run,
-                            color: Colours.secondaryColour,
-                            size: Dimensions.d_50,
+                          Text(
+                            '$todaySteps',
+                            style: TextStyle(
+                              fontSize: FontSizes.biggerText,
+                              fontWeight: FontWeight.bold
+                            ),
                           ),
-                        ),
-                      ],
+                          SizedBox(height: Dimensions.d_10),
+                          Text(
+                            'Distance: ${(todaySteps/1312.33595801).toStringAsFixed(2)} KM',
+                            style: TextStyle(
+                                fontSize: FontSizes.smallText
+                            ),
+                          )
+                        ],
+                      ),
+                      trailing: Icon(
+                        Icons.directions_run,
+                        color: Colours.secondaryColour,
+                        size: Dimensions.d_50,
+                      ),
                     ),
                   ),
                 ),

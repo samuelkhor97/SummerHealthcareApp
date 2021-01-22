@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import "package:http/http.dart" as http;
+import 'package:charts_flutter/flutter.dart' as charts;
 
 import '../../../constants.dart';
 
@@ -26,6 +27,29 @@ class MiBandPage extends StatefulWidget {
 
 class _MiBandPageState extends State<MiBandPage> {
   var todaySteps = 0;
+  num currentBPM;
+  List<MibandHeartRateData> heartRateData = [
+    MibandHeartRateData(0, 55),
+    MibandHeartRateData(1, 53),
+    MibandHeartRateData(2, 52),
+    MibandHeartRateData(3, 53),
+    MibandHeartRateData(4, 55),
+    MibandHeartRateData(5, 83),
+    MibandHeartRateData(6, 85),
+    MibandHeartRateData(7, 90),
+    MibandHeartRateData(8, 93),
+    MibandHeartRateData(9, 90),
+    MibandHeartRateData(10, 92),
+    MibandHeartRateData(11, 100),
+    MibandHeartRateData(12, 90),
+    MibandHeartRateData(13, 83),
+    MibandHeartRateData(14, 85),
+    MibandHeartRateData(15, 83),
+    MibandHeartRateData(16, 80),
+    MibandHeartRateData(17, 92),
+    MibandHeartRateData(18, 90),
+    MibandHeartRateData(19, 88),
+  ];
   FirebaseAuth _auth = FirebaseAuth.instance;
   GoogleSignInAccount _currentUser;
 
@@ -47,6 +71,7 @@ class _MiBandPageState extends State<MiBandPage> {
       _currentUser = _googleSignIn.currentUser;
       _getFitData();
     }
+    currentBPM = heartRateData[heartRateData.length-1].heart_data;
     _googleSignIn.signInSilently();
   }
 
@@ -63,8 +88,6 @@ class _MiBandPageState extends State<MiBandPage> {
 
   Future<void> _getFitData() async {
     var now = DateTime.now();
-    // print(now.toUtc().millisecondsSinceEpoch);
-    // print(DateTime(now.year, now.month, now.day).toUtc().millisecondsSinceEpoch);
     var body = jsonEncode({
       "aggregateBy": [
         {
@@ -156,7 +179,8 @@ class _MiBandPageState extends State<MiBandPage> {
                             color: Colours.secondaryColour,
                             size: Dimensions.d_50,
                           ),
-                        ]),
+                        ]
+                    ),
                   ),
                 ),
               ),
@@ -207,7 +231,8 @@ class _MiBandPageState extends State<MiBandPage> {
                             color: Colours.secondaryColour,
                             size: Dimensions.d_50,
                           ),
-                        ]),
+                        ]
+                    ),
                   ),
                 ),
               ),
@@ -230,7 +255,7 @@ class _MiBandPageState extends State<MiBandPage> {
                               Text(
                                 'Calories Burned:',
                                 style:
-                                TextStyle(fontSize: FontSizes.biggerText),
+                                    TextStyle(fontSize: FontSizes.biggerText),
                               ),
                               Text(
                                 '123kcal',
@@ -245,12 +270,55 @@ class _MiBandPageState extends State<MiBandPage> {
                             color: Colours.secondaryColour,
                             size: Dimensions.d_50,
                           ),
-                        ]),
+                        ]
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(
+                    top: Dimensions.d_15,
+                    left: Dimensions.d_15,
+                    right: Dimensions.d_15),
+                child: Card(
+                  clipBehavior: Clip.antiAlias,
+                  elevation: 5,
+                  child: Padding(
+                    padding: EdgeInsets.all(Dimensions.d_15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Heart Rate:',
+                          style:
+                          TextStyle(fontSize: FontSizes.biggerText),
+                        ),
+                        Text(
+                          '$currentBPM BPM',
+                          style: TextStyle(
+                              fontSize: FontSizes.biggerText,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Container(
+                            height: 180,
+                            child: charts.LineChart(
+                              _getSeriesData(),
+                              animate: true,
+                              selectionModels: [
+                                charts.SelectionModelConfig(
+                                  type: charts.SelectionModelType.info,
+                                  changedListener: _onSelectionChanged
+                                )
+                              ],
+                            )),
+                      ]
+                    ),
                   ),
                 ),
               ),
             ],
-          )),
+          )
+      ),
     );
   }
 
@@ -264,6 +332,41 @@ class _MiBandPageState extends State<MiBandPage> {
 
   // signout function
   Future<void> _handleSignOut() => _googleSignIn.disconnect();
+
+  _getSeriesData() {
+    List<charts.Series<MibandHeartRateData, int>> series = [
+      charts.Series(
+          id: "Heart_rate",
+          data: this.heartRateData,
+          domainFn: (MibandHeartRateData series, _) => series.time,
+          measureFn: (MibandHeartRateData series, _) => series.heart_data,
+          colorFn: (MibandHeartRateData series, _) => charts.MaterialPalette.blue.shadeDefault
+      )
+    ];
+    return series;
+  }
+
+  _onSelectionChanged(charts.SelectionModel model) {
+    final selectedDatum = model.selectedDatum;
+    final measures = <String, num>{};
+
+    if (selectedDatum.isNotEmpty) {
+      selectedDatum.forEach((charts.SeriesDatum datumPair) {
+        measures[datumPair.series.displayName] = datumPair.datum.heart_data;
+      });
+    }
+    setState(() {
+      currentBPM = measures["Heart_rate"];
+    });
+  }
+
+}
+
+class MibandHeartRateData {
+  final int time;
+  final int heart_data;
+
+  MibandHeartRateData(this.time, this.heart_data);
 }
 
 // Column(

@@ -22,7 +22,7 @@ class _FoodDiaryItemState extends State<FoodDiaryItem> {
         widget.name,
       ),
       trailing: Text(
-        widget.calories + ' cals',
+        widget.calories + ' kcal',
       ),
     );
   }

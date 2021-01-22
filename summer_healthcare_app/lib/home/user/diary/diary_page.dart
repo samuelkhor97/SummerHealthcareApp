@@ -9,7 +9,7 @@ class DiaryPage extends StatefulWidget {
 }
 
 class _DiaryPageState extends State<DiaryPage> {
-  List<DiaryCard> cardList;
+  List<DiaryCard> cardList = [];
   DateTime currentDate;
 
   @override
@@ -109,15 +109,6 @@ class _DiaryPageState extends State<DiaryPage> {
 
   @override
   Widget build(BuildContext context) {
-
-    if (cardList == null) {
-      cardList = [
-        DiaryCard(
-          title: TextEditingController(text: 'Breakfast'),
-        )
-      ];
-    }
-
     return Scaffold(
       backgroundColor: Colours.primaryColour,
       floatingActionButton: FloatingActionButton(

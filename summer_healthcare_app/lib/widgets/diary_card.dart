@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
+import 'package:summer_healthcare_app/home/user/diary/add_food_item_page.dart';
+import 'package:summer_healthcare_app/json/food_item.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
 
 class DiaryCard extends StatefulWidget {
@@ -15,14 +17,8 @@ class DiaryCard extends StatefulWidget {
 }
 
 class _DiaryCardState extends State<DiaryCard> {
-  int totalCalories = 200;
-  List<FoodDiaryItem> foodDiaryItems = [
-    FoodDiaryItem(
-      name: 'Sandwich',
-      calories: '200',
-      picture: 'bitch',
-    ),
-  ];
+  double totalCalories = 0;
+  List<FoodDiaryItem> foodDiaryItems = [];
 
   void editTitlePopUp() {
     showDialog<TextEditingController>(
@@ -96,17 +92,24 @@ class _DiaryCardState extends State<DiaryCard> {
                           fontWeight: FontWeight.bold,
                           decoration: TextDecoration.underline),
                     ),
-                    onTap: () {
-                      setState(() {
-                        foodDiaryItems.add(
-                          FoodDiaryItem(
-                            name: 'Coffee',
-                            calories: '69',
-                            picture: 'bitches',
-                          ),
-                        );
-                        totalCalories += 69;
-                      });
+                    onTap: () async {
+                      FoodItem newFoodItem = await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) =>
+                              AddFoodItemPage()
+                          ));
+                      if (newFoodItem != null) {
+                        setState(() {
+                          foodDiaryItems.add(
+                            FoodDiaryItem(
+                              name: newFoodItem.foodName,
+                              calories: newFoodItem.calories.substring(0, newFoodItem.calories.length - 5),
+                              picture: 'bitches',
+                            ),
+                          );
+                          totalCalories += double.parse(newFoodItem.calories.substring(0, newFoodItem.calories.length - 5));
+                        });
+                      }
                     },
                   )
                 ],
@@ -125,7 +128,7 @@ class _DiaryCardState extends State<DiaryCard> {
                 height: Dimensions.d_10,
               ),
               Text(
-                'Total Calories: $totalCalories cals',
+                'Total Calories: $totalCalories kcal',
                 textAlign: TextAlign.right,
                 style: TextStyle(
                   fontWeight: FontWeight.bold

@@ -27,7 +27,8 @@ class MiBandPage extends StatefulWidget {
 
 class _MiBandPageState extends State<MiBandPage> {
   var todaySteps = 0;
-  List<MibandHeartRateData> heartrate_data = [
+  num currentBPM;
+  List<MibandHeartRateData> heartRateData = [
     MibandHeartRateData(0, 55),
     MibandHeartRateData(1, 53),
     MibandHeartRateData(2, 52),
@@ -70,6 +71,7 @@ class _MiBandPageState extends State<MiBandPage> {
       _currentUser = _googleSignIn.currentUser;
       _getFitData();
     }
+    currentBPM = heartRateData[heartRateData.length-1].heart_data;
     _googleSignIn.signInSilently();
   }
 
@@ -292,7 +294,7 @@ class _MiBandPageState extends State<MiBandPage> {
                           TextStyle(fontSize: FontSizes.biggerText),
                         ),
                         Text(
-                          '88 BPM',
+                          '$currentBPM BPM',
                           style: TextStyle(
                               fontSize: FontSizes.biggerText,
                               fontWeight: FontWeight.bold),
@@ -302,6 +304,12 @@ class _MiBandPageState extends State<MiBandPage> {
                             child: charts.LineChart(
                               _getSeriesData(),
                               animate: true,
+                              selectionModels: [
+                                charts.SelectionModelConfig(
+                                  type: charts.SelectionModelType.info,
+                                  changedListener: _onSelectionChanged
+                                )
+                              ],
                             )),
                       ]
                     ),
@@ -329,13 +337,27 @@ class _MiBandPageState extends State<MiBandPage> {
     List<charts.Series<MibandHeartRateData, int>> series = [
       charts.Series(
           id: "Heart_rate",
-          data: this.heartrate_data,
+          data: this.heartRateData,
           domainFn: (MibandHeartRateData series, _) => series.time,
           measureFn: (MibandHeartRateData series, _) => series.heart_data,
           colorFn: (MibandHeartRateData series, _) => charts.MaterialPalette.blue.shadeDefault
       )
     ];
     return series;
+  }
+
+  _onSelectionChanged(charts.SelectionModel model) {
+    final selectedDatum = model.selectedDatum;
+    final measures = <String, num>{};
+
+    if (selectedDatum.isNotEmpty) {
+      selectedDatum.forEach((charts.SeriesDatum datumPair) {
+        measures[datumPair.series.displayName] = datumPair.datum.heart_data;
+      });
+    }
+    setState(() {
+      currentBPM = measures["Heart_rate"];
+    });
   }
 
 }

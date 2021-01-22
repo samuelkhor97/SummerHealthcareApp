@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import "package:http/http.dart" as http;
 import 'package:charts_flutter/flutter.dart' as charts;
-
-import '../../../constants.dart';
 
 GoogleSignIn _googleSignIn = GoogleSignIn(
   scopes: [
@@ -50,7 +47,7 @@ class _MiBandPageState extends State<MiBandPage> {
     MibandHeartRateData(18, 90),
     MibandHeartRateData(19, 88),
   ];
-  FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth auth = FirebaseAuth.instance;
   GoogleSignInAccount _currentUser;
 
   @override
@@ -331,7 +328,7 @@ class _MiBandPageState extends State<MiBandPage> {
   }
 
   // signout function
-  Future<void> _handleSignOut() => _googleSignIn.disconnect();
+  Future<void> handleSignOut() => _googleSignIn.disconnect();
 
   _getSeriesData() {
     List<charts.Series<MibandHeartRateData, int>> series = [
@@ -359,7 +356,6 @@ class _MiBandPageState extends State<MiBandPage> {
       currentBPM = measures["Heart_rate"];
     });
   }
-
 }
 
 class MibandHeartRateData {

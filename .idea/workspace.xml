@@ -16,24 +16,19 @@
         <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
       </path>
     </expand>
-    <select />
+    <select>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="BRANCH:origin/SugarGraph" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </select>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84cde885-9db8-4ecc-a43e-eed77432cc20" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/SummerHealthcareApp.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/summer_healthcare_app/ios/Podfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/summer_healthcare_app/lib/home/user/monitoring/graph_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/summer_healthcare_app/ios/Flutter/Debug.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/summer_healthcare_app/ios/Flutter/Debug.xcconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/summer_healthcare_app/ios/Flutter/Release.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/summer_healthcare_app/ios/Flutter/Release.xcconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/summer_healthcare_app/lib/home/user/monitoring/sugar_level_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/summer_healthcare_app/lib/home/user/monitoring/sugar_level_page.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/summer_healthcare_app/lib/home/user/navigation.dart" beforeDir="false" afterPath="$PROJECT_DIR$/summer_healthcare_app/lib/home/user/navigation.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/summer_healthcare_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/summer_healthcare_app/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/summer_healthcare_app/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/summer_healthcare_app/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/summer_healthcare_app/lib/home/user/monitoring/graph_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/summer_healthcare_app/lib/home/user/monitoring/graph_page.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,6 +76,14 @@
       <option name="presentableId" value="Default" />
       <updated>1611303932742</updated>
     </task>
+    <task id="LOCAL-00001" summary="Graph for sugar monitoring is done, navigation from sugar page to graph page also done, sugar monitoring complete functionality just no backend">
+      <created>1611527560310</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1611527560310</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -132,21 +135,25 @@
       <screen x="0" y="23" width="1440" height="834" />
     </state>
     <state x="305" y="193" key="AndroidProcessChooserDialog/0.23.1440.834@0.23.1440.834" timestamp="1611526275708" />
-    <state width="979" height="216" key="GridCell.Tab.0.bottom" timestamp="1611527329770">
-      <screen x="0" y="23" width="1440" height="834" />
+    <state width="979" height="216" key="GridCell.Tab.0.bottom" timestamp="1611527608154">
+      <screen x="0" y="0" width="1440" height="900" />
     </state>
+    <state width="979" height="216" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1611527608154" />
     <state width="979" height="216" key="GridCell.Tab.0.bottom/0.23.1440.834@0.23.1440.834" timestamp="1611527329770" />
-    <state width="979" height="216" key="GridCell.Tab.0.center" timestamp="1611527329770">
-      <screen x="0" y="23" width="1440" height="834" />
+    <state width="979" height="216" key="GridCell.Tab.0.center" timestamp="1611527608153">
+      <screen x="0" y="0" width="1440" height="900" />
     </state>
+    <state width="979" height="216" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1611527608153" />
     <state width="979" height="216" key="GridCell.Tab.0.center/0.23.1440.834@0.23.1440.834" timestamp="1611527329770" />
-    <state width="979" height="216" key="GridCell.Tab.0.left" timestamp="1611527329769">
-      <screen x="0" y="23" width="1440" height="834" />
+    <state width="979" height="216" key="GridCell.Tab.0.left" timestamp="1611527608152">
+      <screen x="0" y="0" width="1440" height="900" />
     </state>
+    <state width="979" height="216" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1611527608152" />
     <state width="979" height="216" key="GridCell.Tab.0.left/0.23.1440.834@0.23.1440.834" timestamp="1611527329769" />
-    <state width="979" height="216" key="GridCell.Tab.0.right" timestamp="1611527329770">
-      <screen x="0" y="23" width="1440" height="834" />
+    <state width="979" height="216" key="GridCell.Tab.0.right" timestamp="1611527608153">
+      <screen x="0" y="0" width="1440" height="900" />
     </state>
+    <state width="979" height="216" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1611527608153" />
     <state width="979" height="216" key="GridCell.Tab.0.right/0.23.1440.834@0.23.1440.834" timestamp="1611527329770" />
     <state x="7" y="79" key="SettingsEditor" timestamp="1611306043542">
       <screen x="0" y="23" width="1440" height="834" />

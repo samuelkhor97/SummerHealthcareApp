@@ -262,6 +262,17 @@ class _GraphPageState extends State<GraphPage> {
                   _seriesLineData,
                   animate: false,
                   dateTimeFactory: const chart.LocalDateTimeFactory(),
+                  defaultInteractions: true,
+                  behaviors: [
+                    new chart.ChartTitle('Date',
+                        behaviorPosition: chart.BehaviorPosition.bottom,
+                        titleOutsideJustification:
+                            chart.OutsideJustification.middleDrawArea),
+                    new chart.ChartTitle('mmo/L',
+                        behaviorPosition: chart.BehaviorPosition.start,
+                        titleOutsideJustification:
+                            chart.OutsideJustification.middleDrawArea),
+                  ],
                 ),
               )
             ],

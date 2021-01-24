@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
+import 'package:summer_healthcare_app/home/user/monitoring/graph_page.dart';
+import 'package:summer_healthcare_app/home/user/navigation.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
 
 class SugarLevelPage extends StatefulWidget {
@@ -31,44 +33,51 @@ class _SugarLevelPageState extends State<SugarLevelPage> {
       ];
     }
     return SafeArea(
-        child: Scaffold(
+      child: Scaffold(
+        backgroundColor: Colours.primaryColour,
+        appBar: AppBar(
           backgroundColor: Colours.primaryColour,
-          appBar: AppBar(
-            backgroundColor: Colours.primaryColour,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios, color: Colors.black),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-            title: Text(
-              'Sugar Level',
-            ),
-            centerTitle: true,
-            elevation: Dimensions.d_3,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
-          body: ListView(
-            children: <Widget>[
-              ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: this.sugarLevelList.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return this.sugarLevelList[index];
-                },
-              )
-            ],
+          title: Text(
+            'Sugar Level',
           ),
-          floatingActionButton: FloatingActionButton(
-            // mini: true,
-            tooltip: 'Monitoring Summary',
-            child: Icon(
-              Icons.stacked_bar_chart,
-                  size: Dimensions.d_35,
-            ),
-            onPressed: () {},
-          ),
+          centerTitle: true,
+          elevation: Dimensions.d_3,
         ),
+        body: ListView(
+          children: <Widget>[
+            ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: this.sugarLevelList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return this.sugarLevelList[index];
+              },
+            )
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          // mini: true,
+          tooltip: 'Monitoring Summary',
+          child: Icon(
+            Icons.stacked_bar_chart,
+            size: Dimensions.d_35,
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => GraphPage(),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

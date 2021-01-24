@@ -23,7 +23,7 @@ class _UserNavigationState extends State<UserNavigation> {
     'Monitoring',
     'Food Diary',
     'Readings',
-    'Profile'
+    'Profile',
   ];
   String authToken;
   String id;
@@ -41,7 +41,7 @@ class _UserNavigationState extends State<UserNavigation> {
 
   @override
   void setState(fn) {
-    if(mounted) {
+    if (mounted) {
       super.setState(fn);
     }
   }
@@ -57,6 +57,7 @@ class _UserNavigationState extends State<UserNavigation> {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     id = preferences.getString('id');
   }
+
 //  void initializeUser() async {
 //    String token = await AuthService.getToken();
 //    print('Auth Token: $token');
@@ -85,16 +86,21 @@ class _UserNavigationState extends State<UserNavigation> {
     Map<String, dynamic> groupDetails;
 
     try {
-      QuerySnapshot groupSnapshot = await _firestore.collection('groups').where('members', arrayContainsAny: [id]).get();
+      QuerySnapshot groupSnapshot = await _firestore
+          .collection('groups')
+          .where('members', arrayContainsAny: [id]).get();
       groupDetails = groupSnapshot.docs[0].data();
 
       String groupId = groupDetails['id'];
-      QuerySnapshot userSnapshot = await _firestore.collection('users').where('groupId', isEqualTo: groupId).get();
+      QuerySnapshot userSnapshot = await _firestore
+          .collection('users')
+          .where('groupId', isEqualTo: groupId)
+          .get();
       groupDetails['members'] = {};
       userSnapshot.docs.forEach((doc) {
         groupDetails['members'][doc['id']] = doc.data();
       });
-    } catch(e) {
+    } catch (e) {
       print(e);
       groupDetails = {};
     }
@@ -114,12 +120,7 @@ class _UserNavigationState extends State<UserNavigation> {
 //      widget.isSLI ? fcm.init("sli") : fcm.init("user");
 //    }
     if (_pages == null) {
-      _pages = [
-        MonitoringPage(),
-        DiaryPage(),
-        ReadingsPage(),
-        ProfilePage()
-      ];
+      _pages = [MonitoringPage(), DiaryPage(), ReadingsPage(), ProfilePage()];
     }
 
     return SafeArea(
@@ -140,21 +141,24 @@ class _UserNavigationState extends State<UserNavigation> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: Dimensions.d_10),
               child: IconButton(
-                icon: Icon(Icons.message,
-                color: Colours.grey),
+                icon: Icon(Icons.message, color: Colours.grey),
                 iconSize: Dimensions.d_30,
                 onPressed: () async {
                   showLoadingAnimation(context: context);
-                  Map<String, dynamic> groupDetails = await getGroupDetailsByUID(id: id);
+                  Map<String, dynamic> groupDetails =
+                      await getGroupDetailsByUID(id: id);
                   Navigator.pop(context);
                   if (groupDetails.isEmpty) {
-                    Fluttertoast.showToast(msg: 'You have not been added into any group. Please ask your pharmacist for help.');
+                    Fluttertoast.showToast(
+                        msg:
+                            'You have not been added into any group. Please ask your pharmacist for help.');
                     return;
                   }
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ChatRoom(id: id, groupDetails: groupDetails),
+                      builder: (context) =>
+                          ChatRoom(id: id, groupDetails: groupDetails),
                     ),
                   );
                 },
@@ -189,7 +193,8 @@ class _UserNavigationState extends State<UserNavigation> {
                   label: 'Readings'),
               BottomNavigationBarItem(
                 icon: Icon(Icons.account_circle, size: Dimensions.d_30),
-                label: 'Profile',)
+                label: 'Profile',
+              )
             ]),
       ),
     );

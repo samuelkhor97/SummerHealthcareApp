@@ -5,10 +5,12 @@ class Paddings {
   static EdgeInsetsGeometry signUpPage = EdgeInsets.only(bottom: 35.0, left: 30.0, right: 30.0);
   static EdgeInsetsGeometry horizontal_5 = EdgeInsets.symmetric(horizontal: 5.0);
   static EdgeInsetsGeometry horizontal_10 = EdgeInsets.symmetric(horizontal: 10.0);
+  static EdgeInsetsGeometry horizontal_15 = EdgeInsets.symmetric(horizontal: 15.0);
   static EdgeInsetsGeometry horizontal_20 = EdgeInsets.symmetric(horizontal: 20.0);
   static EdgeInsetsGeometry vertical_5 = EdgeInsets.symmetric(vertical: 5.0);
   static EdgeInsetsGeometry vertical_15 = EdgeInsets.symmetric(vertical: 15.0);
   static EdgeInsetsGeometry vertical_35 = EdgeInsets.symmetric(vertical: 35.0);
+  static EdgeInsetsGeometry all_3 = EdgeInsets.all(3.0);
   static EdgeInsetsGeometry all_10 = EdgeInsets.all(10.0);
 }
 
@@ -28,6 +30,7 @@ class Dimensions {
   static double d_30 = 30.0;
   static double d_35 = 35.0;
   static double d_45 = 45.0;
+  static double d_50 = 50.0;
   static double d_55 = 55.0;
   static double d_65 = 65.0;
   static double d_85 = 85.0;
@@ -40,6 +43,7 @@ class Dimensions {
   static double d_200 = 200.0 ;
   static double d_250 = 250.0;
   static double d_280 = 280.0;
+  static double d_380 = 380.0;
 }
 
 class FontSizes {
@@ -59,7 +63,8 @@ class Colours {
   static Color grey = Color(0xFF707070);
   static Color black = Color(0xFF333333);
   static Color white = Colors.white;
-  static Color midGrey = Colors.grey[300];
+  static Color midGrey = Colors.grey[400];
+  static Color lighterGrey = Colors.grey[300];
   static Color lightGrey = Colors.grey[200];
   static Color green = Color(0xFF0AC350);
   static Color red = Colors.redAccent;
@@ -70,6 +75,7 @@ class BordersRadius {
   static BorderRadius rightChatBubble = BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10), bottomLeft: Radius.circular(10));
   static BorderRadius leftChatBubble = BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10), bottomRight: Radius.circular(10));
   static BorderRadius chatImage = BorderRadius.all(Radius.circular(8.0));
+  static BorderRadius userRole = BorderRadius.all(Radius.circular(5.0));
   static BorderRadius chatAvatar = BorderRadius.all(Radius.circular(18.0));
   static BorderRadius profileAvatar = BorderRadius.all(Radius.circular(45.0));
 }

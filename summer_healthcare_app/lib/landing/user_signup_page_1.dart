@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/landing/user_details.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
@@ -14,6 +15,7 @@ class _UserSignUpPage1State extends State<UserSignUpPage1> {
   bool codeSent = false;
   UserDetails userDetails;
   bool isButtonDisabled = true;
+  DateTime currentDate;
 
   @override
   void initState() {
@@ -48,6 +50,51 @@ class _UserSignUpPage1State extends State<UserSignUpPage1> {
       isButtonDisabled = false;
     else
       isButtonDisabled = true;
+  }
+
+  Future<DateTime> _pickDate() async {
+    DateTime selectedDate =
+    await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(1910),
+        lastDate: DateTime.now()
+    );
+    return selectedDate;
+  }
+
+  Widget _datePickerField() {
+    return StatefulBuilder(builder: (context, setBuilderState) {
+      return Ink(
+        decoration:BoxDecoration(
+            color: Colours.white,
+            borderRadius: BorderRadius.all(Radius.circular(Dimensions.d_10))
+        ),
+        child: ListTile(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(Dimensions.d_10)),
+          title: Text(
+            currentDate == null ?
+            'Select Date' :
+            DateFormat('dd-MM-yyyy').format(currentDate),
+            style: TextStyle(
+              color: currentDate == null ? Colours.grey : Colours.black
+            ),
+          ),
+          trailing: Icon(Icons.keyboard_arrow_down),
+          onTap: () async {
+            DateTime selectedDate = await _pickDate();
+            if (selectedDate != null) {
+              setState(() {
+                currentDate = selectedDate;
+                userDetails.setAge(dateOfBirth: currentDate);
+                checkAllInformationFilled(checkBox: userDetails.termsAndConditions);
+              });
+            }
+          },
+        ),
+      );
+    });
   }
 
   @override
@@ -89,7 +136,7 @@ class _UserSignUpPage1State extends State<UserSignUpPage1> {
                     InputField(
                       hintText: '+60123456789',
                       controller: userDetails.phoneNumber,
-                      labelText: 'Phone Number',
+                      labelText: 'Mobile Phone Number',
                       keyboardType: TextInputType.phone,
                       onChanged: (String text) {
                         setState(() {
@@ -119,17 +166,16 @@ class _UserSignUpPage1State extends State<UserSignUpPage1> {
                         });
                       },
                     ),
-                    InputField(
-                      hintText: '69',
-                      controller: userDetails.age,
-                      labelText: 'Age',
-                      keyboardType: TextInputType.number,
-                      onChanged: (String text) {
-                        setState(() {
-                          checkAllInformationFilled(checkBox: userDetails.termsAndConditions);
-                        });
-                      },
+                    Padding(
+                      padding: EdgeInsets.only(top: Dimensions.d_15),
+                      child: Text(
+                        'Date Of Birth',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500
+                        ),
+                      ),
                     ),
+                    _datePickerField(),
                     SizedBox(height: Dimensions.d_15),
                     Padding(
                       padding: Paddings.vertical_5,

@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:cloud_firestore/cloud_firestore.dart' as store;
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:summer_healthcare_app/home/user/navigation.dart';
 import 'package:summer_healthcare_app/landing/landing_page.dart';
 import 'package:summer_healthcare_app/landing/user_details.dart';
+import 'package:summer_healthcare_app/main.dart' show preferences;
 
 class AuthService {
   final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
@@ -69,7 +69,6 @@ class AuthService {
         String verId}) async {
     String token;
     try {
-      SharedPreferences preferences = await SharedPreferences.getInstance();
       auth.AuthCredential authCreds = auth.PhoneAuthProvider.credential(
           verificationId: verId, smsCode: smsCode);
 
@@ -90,12 +89,12 @@ class AuthService {
         if (documents.length == 0) {
           // Update data to firestore if new user
           _firestore.collection('users').doc(firebaseUser.uid).set({
-            'displayName': firebaseUser.displayName,
-            'photoUrl': firebaseUser.photoURL,
+            'displayName': firebaseUser.displayName ?? '',
+            'photoUrl': firebaseUser.photoURL ?? '',
             'role': 'normal', // will be modified accordingly after pharmacist signup implemented
             'id': firebaseUser.uid,
             'createdAt': store.FieldValue.serverTimestamp(),
-            'groupId': null
+            'groups': []
           });
 
           await preferences.setString('id', firebaseUser.uid);

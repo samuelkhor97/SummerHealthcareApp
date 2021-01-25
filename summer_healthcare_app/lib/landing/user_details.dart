@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:age/age.dart';
 
 class UserDetails {
   TextEditingController fullName = TextEditingController();
@@ -17,6 +18,7 @@ class UserDetails {
   TextEditingController maritalStatus = TextEditingController();
   String smoke;
   TextEditingController smokePerDay = TextEditingController();
+  String e_cig;
 
   void disposeTexts() {
     fullName.dispose();
@@ -34,6 +36,13 @@ class UserDetails {
 
   void setIsLogin({bool isLogin}) {
     this.isLogin = isLogin;
+  }
+
+  void setAge({DateTime dateOfBirth}) {
+    DateTime today = DateTime.now();
+
+    this.age.text = Age.dateDifference(
+        fromDate: dateOfBirth, toDate: today, includeToDate: false).years.toString();
   }
 
   void calcBMI({int weight, int height}) {

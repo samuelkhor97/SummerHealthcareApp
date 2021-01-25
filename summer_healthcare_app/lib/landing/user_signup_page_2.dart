@@ -178,7 +178,7 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                     },
                   ),
                   InputField(
-                    hintText: 'Malay/Chinese/Indian',
+                    hintText: 'Malay/Chinese/Indian/Others',
                     controller: userDetails.ethnicity,
                     labelText: 'Ethnicity',
                     onChanged: (String text) {
@@ -271,7 +271,7 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                   Padding(
                     padding: Paddings.vertical_5,
                     child: Text(
-                      'Smoke or use tobacco product?',
+                      'Do you smoke?',
                       style: TextStyle(
                           fontWeight: FontWeight.w500),
                     ),
@@ -323,6 +323,52 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                             .termsAndConditions);
                       });
                     },
+                  ),
+                  SizedBox(height: Dimensions.d_15),
+                  Padding(
+                    padding: Paddings.vertical_5,
+                    child: Text(
+                      'Do you use e-cigarette?',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                  Row(
+                    children: <Widget>[
+                      Flexible(
+                        flex: 22,
+                        child: RadioListTile(
+                            title: Text(
+                              'Yes',
+                            ),
+                            value: 'Yes',
+                            groupValue: userDetails.e_cig,
+                            onChanged: (String value) {
+                              setState(() {
+                                userDetails.e_cig = value;
+                                checkAllInformationFilled(
+                                    checkBox: userDetails.termsAndConditions);
+                              });
+                            }),
+                      ),
+                      Flexible(
+                        flex: 26,
+                        child: RadioListTile(
+                          // dense: true,
+                            title: Text(
+                              'No',
+                            ),
+                            value: 'No',
+                            groupValue: userDetails.e_cig,
+                            onChanged: (String value) {
+                              setState(() {
+                                userDetails.e_cig = value;
+                                checkAllInformationFilled(
+                                    checkBox: userDetails.termsAndConditions);
+                              });
+                            }),
+                      ),
+                    ],
                   ),
                   SizedBox(
                     height: Dimensions.d_45,

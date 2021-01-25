@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/home/user/monitoring/sugar_level_page.dart';
+import 'package:summer_healthcare_app/home/user/monitoring/mi_band_page.dart';
+import 'package:summer_healthcare_app/home/user/monitoring/weight_page.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
 
 class MonitoringPage extends StatefulWidget {
@@ -34,7 +36,13 @@ class _MonitoringPageState extends State<MonitoringPage> {
             buttonRadius: BorderRadius.circular(Dimensions.d_10)),
         UserOutlinedButton(
             text: 'Weight',
-            onClick: () {},
+            onClick: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>
+                      WeightPage()
+                  ));
+            },
             padding: EdgeInsets.symmetric(horizontal: Dimensions.d_30, vertical: Dimensions.d_20),
             color: Colours.primaryColour,
             textColour: Colours.secondaryColour,
@@ -44,7 +52,13 @@ class _MonitoringPageState extends State<MonitoringPage> {
             buttonRadius: BorderRadius.circular(Dimensions.d_10)),
         UserOutlinedButton(
             text: 'Mi-Band',
-            onClick: () {},
+            onClick: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>
+                      MiBandPage()
+                  ));
+            },
             padding: EdgeInsets.symmetric(horizontal: Dimensions.d_30, vertical: Dimensions.d_20),
             color: Colours.primaryColour,
             textColour: Colours.secondaryColour,

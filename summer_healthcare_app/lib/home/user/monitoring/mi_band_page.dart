@@ -109,11 +109,9 @@ class _MiBandPageState extends State<MiBandPage> {
         },
         body: body);
     var output = jsonDecode(response.body);
-    // The integer after bucket is subject to change, to get today's step value, then it's 7
-    print(output["bucket"][7]["dataset"][0]["point"][0]["value"][0]["intVal"]);
     setState(() {
-      todaySteps =
-          output["bucket"][7]["dataset"][0]["point"][0]["value"][0]["intVal"];
+      // The integer after bucket is subject to change, to get today's step value, then it's 7
+      todaySteps = output["bucket"][7]["dataset"][0]["point"][0]["value"][0]["intVal"];
     });
   }
 
@@ -225,45 +223,6 @@ class _MiBandPageState extends State<MiBandPage> {
                           ),
                           Icon(
                             Icons.king_bed_rounded,
-                            color: Colours.secondaryColour,
-                            size: Dimensions.d_50,
-                          ),
-                        ]
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                    top: Dimensions.d_15,
-                    left: Dimensions.d_15,
-                    right: Dimensions.d_15),
-                child: Card(
-                  clipBehavior: Clip.antiAlias,
-                  elevation: 5,
-                  child: Padding(
-                    padding: EdgeInsets.all(Dimensions.d_15),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                'Calories Burned:',
-                                style:
-                                    TextStyle(fontSize: FontSizes.biggerText),
-                              ),
-                              Text(
-                                '123kcal',
-                                style: TextStyle(
-                                    fontSize: FontSizes.biggerText,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          Icon(
-                            Icons.local_fire_department,
                             color: Colours.secondaryColour,
                             size: Dimensions.d_50,
                           ),

@@ -6,6 +6,7 @@ const cors = require('cors')
 const app = express();
 const bodyParser = require('body-parser');
 const port = process.env.PORT
+const firebaseAdmin = require('./firebase/firebase-admin');
 
 function verifyUser(req, res, next){
     if (req.headers.authorization) {
@@ -67,9 +68,9 @@ initialize();
 async function initialize() {
     if (process.env.DB_SYNC === 'true')
         await sequelize.sync(
-            {
-                force:true
-            }
+            // {
+            //     force:true
+            // }
         );
     app.listen(port, () => {
         console.log(`Listening at port: ${port}`)

@@ -1,13 +1,18 @@
 module.exports = (sequelize, DataTypes) => {
     const Food_Diary_Card = sequelize.define('Food_Diary_Card', {
+        card_id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
+        },
         card_name: {
             type: DataTypes.STRING,
-            primaryKey: true,
-            unique: true
         },
         date: {
-            type: DataTypes.DATEONLY,
-            primaryKey: true
+            type: DataTypes.DATE,
+            set: function(fieldName){
+                this.setDataValue('date', new Date(fieldName))
+            }
         },
         photo_url: {
             type: DataTypes.STRING,
@@ -19,10 +24,15 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: {
                 name: 'uid',
                 allowNull: false,
-                primaryKey: true
+                as: "food_card"
             }
         });
-
+        
+        Food_Diary_Card.belongsToMany(models.Food_Data, {
+            through: models.Food_Bridge,
+            foreignKey: 'card_id',
+            timestamps: false,
+        });
 
     };
 

@@ -42,6 +42,14 @@ module.exports = (sequelize, DataTypes) => {
         },
     }, {timestamps: false,});
 
+    Food_Data.associate = models => {
+        Food_Data.belongsToMany(models.Food_Diary_Card, {
+            through: models.Food_Bridge,
+            foreignKey: 'food_id',
+            timestamps: false,
+            as: 'food_info' 
+        });
+    };
 
     return Food_Data;
 };

@@ -44,13 +44,11 @@ router.get('/me', async (req, res, next) => {
 router.post('/create', async (req, res, next) => {
     const uid = res.locals.id;
     const body = req.body;
-
-    // current timestamp in milliseconds
-    let ts = Date.now();
-    let date_ob = new Date(ts);
-
-    models.User
-      .create({
+    try{
+      // current timestamp in milliseconds
+      let ts = Date.now();
+      let date_ob = new Date(ts);
+      models.User.create({
         uid: uid,
         full_name: body.full_name,
         phone_num: body.phone_num,
@@ -67,13 +65,38 @@ router.post('/create', async (req, res, next) => {
         pharmacy_id: body.pharmacy_id,
         signup_date: date_ob,
         e_cig: body.e_cig
-      })
-      .then(item => {
-        res.status(200).send('Successfully created user!')
-      })
-      .catch(error => {
-        res.status(403).send(`Error: ${error}`)
-      })
+      });
+
+      return res.status(200).send('Successfully created user!')
+    } catch (error){
+      return res.status(403).send(`Error: ${error}`)
+    }
+    
+});
+
+/**
+ * GET api: Find if user exists or not
+ * url: domain/user/exists
+ */
+router.get('/exists', async (req, res, next) => {
+  const uid = res.locals.id;
+  
+  try {
+    // Find entry with uid
+    const token = await models.User.findByPk(uid);
+
+    if (token === null) {
+      return res.status(200).json({
+        exists: false,
+      });
+    } else {
+      return res.status(200).json({
+        exists: true,
+      });
+    }
+  } catch (error) {
+    return res.status(403).send('Failed to check user existence.');
+  }
 });
 
 module.exports = router;

@@ -13,7 +13,9 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
     'https://www.googleapis.com/auth/fitness.activity.read',
     'https://www.googleapis.com/auth/fitness.activity.write',
     'https://www.googleapis.com/auth/fitness.heart_rate.read',
-    'https://www.googleapis.com/auth/fitness.heart_rate.write'
+    'https://www.googleapis.com/auth/fitness.heart_rate.write',
+    'https://www.googleapis.com/auth/fitness.sleep.read',
+    'https://www.googleapis.com/auth/fitness.sleep.write'
   ],
 );
 
@@ -25,27 +27,9 @@ class MiBandPage extends StatefulWidget {
 class _MiBandPageState extends State<MiBandPage> {
   var todaySteps = 0;
   num currentBPM;
+  bool showAllData = false;
   List<MibandHeartRateData> heartRateData = [
-    MibandHeartRateData(0, 55),
-    MibandHeartRateData(1, 53),
-    MibandHeartRateData(2, 52),
-    MibandHeartRateData(3, 53),
-    MibandHeartRateData(4, 55),
-    MibandHeartRateData(5, 83),
-    MibandHeartRateData(6, 85),
-    MibandHeartRateData(7, 90),
-    MibandHeartRateData(8, 93),
-    MibandHeartRateData(9, 90),
-    MibandHeartRateData(10, 92),
-    MibandHeartRateData(11, 100),
-    MibandHeartRateData(12, 90),
-    MibandHeartRateData(13, 83),
-    MibandHeartRateData(14, 85),
-    MibandHeartRateData(15, 83),
-    MibandHeartRateData(16, 80),
-    MibandHeartRateData(17, 92),
-    MibandHeartRateData(18, 90),
-    MibandHeartRateData(19, 88),
+    MibandHeartRateData(DateTime(2021, 1, 1, 0, 0), 0),
   ];
   FirebaseAuth auth = FirebaseAuth.instance;
   GoogleSignInAccount _currentUser;
@@ -72,20 +56,11 @@ class _MiBandPageState extends State<MiBandPage> {
     _googleSignIn.signInSilently();
   }
 
-  /// Heart rate body
-  // {
-  // "aggregateBy": [
-  // {
-  // "dataTypeName": "com.google.heart_rate.bpm"
-  // }
-  // ],
-  // "endTimeMillis": 1610812800000,
-  // "startTimeMillis": 1609430400000
-  // }
 
   Future<void> _getFitData() async {
     var now = DateTime.now();
-    var body = jsonEncode({
+    List<MibandHeartRateData> heartRateList = [];
+    var stepsBody = jsonEncode({
       "aggregateBy": [
         {
           "dataTypeName": "com.google.step_count.delta",
@@ -100,18 +75,79 @@ class _MiBandPageState extends State<MiBandPage> {
       "endTimeMillis": now.toUtc().millisecondsSinceEpoch
     });
 
+    var heartRateBody = jsonEncode({
+      "aggregateBy": [
+        {
+          "dataTypeName": "com.google.heart_rate.bpm"
+        }
+      ],
+      "startTimeMillis": DateTime(now.year, now.month, now.day).toUtc().millisecondsSinceEpoch,
+      "endTimeMillis": now.toUtc().millisecondsSinceEpoch
+    });
+
+    var sleepBody = jsonEncode({
+      "aggregateBy": [
+        {
+          "dataTypeName": "com.google.sleep.segment"
+        }
+      ],
+      "startTimeMillis": 1609495200000,
+      "endTimeMillis": 1609560000000
+
+    });
+
+
     GoogleSignInAuthentication googlesigninauthentication =
         await _currentUser.authentication;
-    var response = await http.post(
+
+
+    var stepsResponse = await http.post(
         'https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate',
         headers: {
           'authorization': 'Bearer ' + googlesigninauthentication.accessToken
         },
-        body: body);
-    var output = jsonDecode(response.body);
+        body: stepsBody);
+    var stepsOutput = jsonDecode(stepsResponse.body);
+
+
+    var heartRateResponse = await http.post(
+        'https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate',
+        headers: {
+          'authorization': 'Bearer ' + googlesigninauthentication.accessToken
+        },
+        body: heartRateBody);
+    var heartRateOutput = jsonDecode(heartRateResponse.body);
+    var heartRateValues = heartRateOutput["bucket"][0]["dataset"][0]["point"];
+
+
+    for (int i = 0; i < heartRateValues.length; i ++) {
+      heartRateList.add(MibandHeartRateData(DateTime.fromMicrosecondsSinceEpoch((int.parse(heartRateValues[i]["endTimeNanos"]) / 1000).round()).add(Duration(hours: 8)),heartRateValues[i]["value"][0]["fpVal"]));
+    }
+
+
+    var sleepResponse = await http.post(
+        'https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate',
+        headers: {
+          'authorization': 'Bearer ' + googlesigninauthentication.accessToken
+        },
+        body: sleepBody);
+    var sleepOutput = jsonDecode(sleepResponse.body);
+    var sleepValues = sleepOutput["bucket"][0]["dataset"][0]["point"];
+
+
+
     setState(() {
+      print(sleepValues);
       // The integer after bucket is subject to change, to get today's step value, then it's 7
-      todaySteps = output["bucket"][7]["dataset"][0]["point"][0]["value"][0]["intVal"];
+      todaySteps = stepsOutput["bucket"][7]["dataset"][0]["point"][0]["value"][0]["intVal"];
+
+      heartRateData = heartRateList;
+      currentBPM = heartRateValues[heartRateValues.length-1]["value"][0]["fpVal"];
+
+
+
+
+      showAllData = true;
     });
   }
 
@@ -133,7 +169,7 @@ class _MiBandPageState extends State<MiBandPage> {
             centerTitle: true,
             elevation: Dimensions.d_3,
           ),
-          body: ListView(
+          body: (showAllData == false) ? Center(child: CircularProgressIndicator()):ListView(
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.only(
@@ -257,8 +293,16 @@ class _MiBandPageState extends State<MiBandPage> {
                         ),
                         Container(
                             height: 180,
-                            child: charts.LineChart(
+                            child: charts.TimeSeriesChart(
                               _getSeriesData(),
+                              domainAxis: charts.DateTimeAxisSpec(
+                                tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
+                                  hour: charts.TimeFormatterSpec(
+                                    format: 'HH:mm',
+                                    transitionFormat: 'HH:mm'
+                                  )
+                                ),
+                              ),
                               animate: true,
                               selectionModels: [
                                 charts.SelectionModelConfig(
@@ -267,6 +311,10 @@ class _MiBandPageState extends State<MiBandPage> {
                                 )
                               ],
                             )),
+                        // ElevatedButton(
+                        //   child: const Text('SIGN IN'),
+                        //   onPressed: _handleSignIn,
+                        // ),
                       ]
                     ),
                   ),
@@ -290,7 +338,7 @@ class _MiBandPageState extends State<MiBandPage> {
   Future<void> handleSignOut() => _googleSignIn.disconnect();
 
   _getSeriesData() {
-    List<charts.Series<MibandHeartRateData, int>> series = [
+    return <charts.Series<MibandHeartRateData, DateTime>> [
       charts.Series(
           id: "Heart_rate",
           data: this.heartRateData,
@@ -299,7 +347,6 @@ class _MiBandPageState extends State<MiBandPage> {
           colorFn: (MibandHeartRateData series, _) => charts.MaterialPalette.blue.shadeDefault
       )
     ];
-    return series;
   }
 
   _onSelectionChanged(charts.SelectionModel model) {
@@ -318,17 +365,8 @@ class _MiBandPageState extends State<MiBandPage> {
 }
 
 class MibandHeartRateData {
-  final int time;
+  final DateTime time;
   final int heart_data;
 
   MibandHeartRateData(this.time, this.heart_data);
 }
-
-// Column(
-// children: <Widget>[
-// ElevatedButton(
-// child: const Text('SIGN IN'),
-// onPressed: _handleSignIn,
-// )
-// ],
-// ),

@@ -28,6 +28,9 @@ class _MiBandPageState extends State<MiBandPage> {
   var todaySteps = 0;
   num currentBPM;
   bool showAllData = false;
+  var sleepDuration;
+  bool stepsCard = false;
+  bool sleepCard = false;
   List<MibandHeartRateData> heartRateData = [
     MibandHeartRateData(DateTime(2021, 1, 1, 0, 0), 0),
   ];
@@ -134,18 +137,41 @@ class _MiBandPageState extends State<MiBandPage> {
     var sleepOutput = jsonDecode(sleepResponse.body);
     var sleepValues = sleepOutput["bucket"][0]["dataset"][0]["point"];
 
+    var sleepTime = sleepValues[0]["startTimeNanos"];
+    var wakeTime = sleepValues.last["endTimeNanos"];
+
+    var totalSleepMinutes = (DateTime.fromMicrosecondsSinceEpoch((int.parse(wakeTime) / 1000).round()).difference(DateTime.fromMicrosecondsSinceEpoch((int.parse(sleepTime) / 1000).round())).inMinutes);
+
+
+    /// SLEEP DATA FOR AWAKE, LIGHT SLEEP AND DEEP SLEEP (DATA IS NOT COMPLETELY RECORDED BY GOOGLE)
+    // var one = 0;
+    // var four = 0;
+    // var five = 0;
+    //
+    // for (int i = 0; i < sleepValues.length; i ++) {
+    //   var sleepStage = sleepValues[i]["value"][0]["intVal"];
+    //   var startStageTime = sleepValues[i]["startTimeNanos"];
+    //   var endStageTime = sleepValues[i]["endTimeNanos"];
+    //   if (sleepStage == 1) {
+    //     one += (DateTime.fromMicrosecondsSinceEpoch((int.parse(endStageTime) / 1000).round()).difference(DateTime.fromMicrosecondsSinceEpoch((int.parse(startStageTime) / 1000).round())).inMinutes);
+    //   }
+    //   else if (sleepStage == 4) {
+    //     four += (DateTime.fromMicrosecondsSinceEpoch((int.parse(endStageTime) / 1000).round()).difference(DateTime.fromMicrosecondsSinceEpoch((int.parse(startStageTime) / 1000).round())).inMinutes);
+    //   }
+    //   else if (sleepStage == 5) {
+    //     five += (DateTime.fromMicrosecondsSinceEpoch((int.parse(endStageTime) / 1000).round()).difference(DateTime.fromMicrosecondsSinceEpoch((int.parse(startStageTime) / 1000).round())).inMinutes);
+    //   }
+    // }
 
 
     setState(() {
-      print(sleepValues);
       // The integer after bucket is subject to change, to get today's step value, then it's 7
       todaySteps = stepsOutput["bucket"][7]["dataset"][0]["point"][0]["value"][0]["intVal"];
 
       heartRateData = heartRateList;
       currentBPM = heartRateValues[heartRateValues.length-1]["value"][0]["fpVal"];
 
-
-
+      sleepDuration = durationToString(totalSleepMinutes);
 
       showAllData = true;
     });
@@ -176,41 +202,78 @@ class _MiBandPageState extends State<MiBandPage> {
                     top: Dimensions.d_15,
                     left: Dimensions.d_15,
                     right: Dimensions.d_15),
-                child: Card(
-                  clipBehavior: Clip.antiAlias,
-                  elevation: 5,
-                  child: Padding(
-                    padding: EdgeInsets.all(Dimensions.d_15),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                'Steps Today:',
-                                style:
-                                    TextStyle(fontSize: FontSizes.biggerText),
-                              ),
-                              Text(
-                                '$todaySteps',
-                                style: TextStyle(
-                                    fontSize: FontSizes.biggerText,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(height: Dimensions.d_10),
-                              Text(
-                                'Distance: ${(todaySteps / 1312.33595801).toStringAsFixed(2)} KM',
-                                style: TextStyle(fontSize: FontSizes.smallText),
-                              )
-                            ],
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (stepsCard == true) {
+                        stepsCard = false;
+                      }
+                      else {
+                        stepsCard = true;
+                      }
+                    });
+                    print(stepsCard);
+                  },
+                  child: Card(
+                    clipBehavior: Clip.antiAlias,
+                    elevation: 5,
+                    child: Padding(
+                      padding: EdgeInsets.all(Dimensions.d_15),
+                      child: Column(
+                        children: [
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      'Steps Today:',
+                                      style:
+                                          TextStyle(fontSize: FontSizes.biggerText),
+                                    ),
+                                    Text(
+                                      '$todaySteps',
+                                      style: TextStyle(
+                                          fontSize: FontSizes.biggerText,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(height: Dimensions.d_10),
+                                    Text(
+                                      'Distance: ${(todaySteps / 1312.33595801).toStringAsFixed(2)} KM',
+                                      style: TextStyle(fontSize: FontSizes.smallText),
+                                    ),
+                                  ],
+                                ),
+                                Icon(
+                                  Icons.directions_run,
+                                  color: Colours.secondaryColour,
+                                  size: Dimensions.d_50,
+                                ),
+                              ]
                           ),
-                          Icon(
-                            Icons.directions_run,
-                            color: Colours.secondaryColour,
-                            size: Dimensions.d_50,
-                          ),
-                        ]
+                          (stepsCard == false) ? SizedBox.shrink() : Container(
+                              height: 180,
+                              child: charts.TimeSeriesChart(
+                                _getSeriesData(),
+                                domainAxis: charts.DateTimeAxisSpec(
+                                  tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
+                                      hour: charts.TimeFormatterSpec(
+                                          format: 'HH:mm',
+                                          transitionFormat: 'HH:mm'
+                                      )
+                                  ),
+                                ),
+                                animate: true,
+                                selectionModels: [
+                                  charts.SelectionModelConfig(
+                                      type: charts.SelectionModelType.info,
+                                      changedListener: _onSelectionChanged
+                                  )
+                                ],
+                              )),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -237,24 +300,24 @@ class _MiBandPageState extends State<MiBandPage> {
                                     TextStyle(fontSize: FontSizes.biggerText),
                               ),
                               Text(
-                                '8h 32min',
+                                '$sleepDuration',
                                 style: TextStyle(
                                     fontSize: FontSizes.biggerText,
                                     fontWeight: FontWeight.bold),
                               ),
-                              SizedBox(height: Dimensions.d_10),
-                              Text(
-                                'Deep sleep: 2h 20min',
-                                style: TextStyle(fontSize: FontSizes.smallText),
-                              ),
-                              Text(
-                                'Light sleep: 6h 12min',
-                                style: TextStyle(fontSize: FontSizes.smallText),
-                              ),
-                              Text(
-                                'Awake: 0min',
-                                style: TextStyle(fontSize: FontSizes.smallText),
-                              ),
+                              // SizedBox(height: Dimensions.d_10),
+                              // Text(
+                              //   'Deep sleep: 2h 20min',
+                              //   style: TextStyle(fontSize: FontSizes.smallText),
+                              // ),
+                              // Text(
+                              //   'Light sleep: 6h 12min',
+                              //   style: TextStyle(fontSize: FontSizes.smallText),
+                              // ),
+                              // Text(
+                              //   'Awake: 0min',
+                              //   style: TextStyle(fontSize: FontSizes.smallText),
+                              // ),
                             ],
                           ),
                           Icon(
@@ -362,6 +425,14 @@ class _MiBandPageState extends State<MiBandPage> {
       currentBPM = measures["Heart_rate"];
     });
   }
+
+
+  String durationToString(int minutes) {
+    var d = Duration(minutes:minutes);
+    List<String> parts = d.toString().split(':');
+    return '${parts[0].padRight(2, 'h')}  ${parts[1].padRight(3, 'min')}';
+  }
+
 }
 
 class MibandHeartRateData {
@@ -370,3 +441,5 @@ class MibandHeartRateData {
 
   MibandHeartRateData(this.time, this.heart_data);
 }
+
+

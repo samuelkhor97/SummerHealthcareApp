@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/home/user/monitoring/monitoring_page.dart';
-import 'package:summer_healthcare_app/widgets/show_loading_animation.dart';
-import 'package:summer_healthcare_app/home/user/chatroom/chatroom_page.dart';
 import 'package:summer_healthcare_app/home/user/chatroom/chatlist_page.dart';
 import 'package:summer_healthcare_app/home/user/diary/diary_page.dart';
 import 'package:summer_healthcare_app/home/user/profile/profile_page.dart';
 import 'package:summer_healthcare_app/home/user/readings/readings_page.dart';
-
 import 'package:summer_healthcare_app/main.dart' show preferences;
 
 class UserNavigation extends StatefulWidget {
@@ -33,13 +30,13 @@ class _UserNavigationState extends State<UserNavigation> {
   @override
   void initState() {
     super.initState();
-//    initializeUser();
+    // initializeUser();
     readLocal();
   }
 
   @override
   void setState(fn) {
-    if(mounted) {
+    if (mounted) {
       super.setState(fn);
     }
   }
@@ -55,30 +52,31 @@ class _UserNavigationState extends State<UserNavigation> {
     id = preferences.getString('id');
     role = preferences.getString('role');
   }
-//  void initializeUser() async {
-//    String token = await AuthService.getToken();
-//    print('Auth Token: $token');
-//    User user;
-//    if (widget.isSLI == false) {
-//      user = await UserServices().getUser(headerToken: token);
-//    } else {
-//      user = await SLIServices().getSLI(headerToken: token);
-//      status = await OnDemandServices().getOnDemandStatus(isSLI: true, headerToken: token);
-//      if (status.status != 'ongoing') {
-//        allRequests =
-//        await OnDemandServices().getAllRequests(headerToken: token);
-//        print('Got all on-demand requests ...');
-//      }
-//      print('Request: $onDemandRequests and length of ${onDemandRequests.length}');
-//    }
-//    setState(() {
-//      authToken = token;
-//      userDetails = user;
-//      onDemandRequests = allRequests;
-//      showLoadingAnimation = false;
-//      onDemandStatus = status;
-//    });
-//  }
+
+  // void initializeUser() async {
+  //   String token = await AuthService.getToken();
+  //   print('Auth Token: $token');
+  //   // User user;
+  //   // if (widget.isSLI == false) {
+  //   //   user = await UserServices().getUser(headerToken: token);
+  //   // } else {
+  //   //   user = await SLIServices().getSLI(headerToken: token);
+  //   //   status = await OnDemandServices().getOnDemandStatus(isSLI: true, headerToken: token);
+  //   //   if (status.status != 'ongoing') {
+  //   //     allRequests =
+  //   //     await OnDemandServices().getAllRequests(headerToken: token);
+  //   //     print('Got all on-demand requests ...');
+  //   //   }
+  //   //   print('Request: $onDemandRequests and length of ${onDemandRequests.length}');
+  //   // }
+  //   setState(() {
+  //     authToken = token;
+  //     // userDetails = user;
+  //     // onDemandRequests = allRequests;
+  //     // showLoadingAnimation = false;
+  //     // onDemandStatus = status;
+  //   });
+  // }
 
   void onPageChanged(int index) {
     setState(() {
@@ -93,12 +91,7 @@ class _UserNavigationState extends State<UserNavigation> {
 //      widget.isSLI ? fcm.init("sli") : fcm.init("user");
 //    }
     if (_pages == null) {
-      _pages = [
-        MonitoringPage(),
-        DiaryPage(),
-        ReadingsPage(),
-        ProfilePage()
-      ];
+      _pages = [MonitoringPage(), DiaryPage(), ReadingsPage(), ProfilePage()];
     }
 
     return SafeArea(
@@ -119,8 +112,7 @@ class _UserNavigationState extends State<UserNavigation> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: Dimensions.d_10),
               child: IconButton(
-                icon: Icon(Icons.message,
-                color: Colours.secondaryColour),
+                icon: Icon(Icons.message, color: Colours.secondaryColour),
                 iconSize: Dimensions.d_30,
                 onPressed: () {
                   Navigator.push(
@@ -162,7 +154,8 @@ class _UserNavigationState extends State<UserNavigation> {
                   label: 'Readings'),
               BottomNavigationBarItem(
                 icon: Icon(Icons.account_circle, size: Dimensions.d_30),
-                label: 'Profile',)
+                label: 'Profile',
+              )
             ]),
       ),
     );

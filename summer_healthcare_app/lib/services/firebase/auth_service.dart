@@ -5,6 +5,7 @@ import 'package:summer_healthcare_app/home/user/navigation.dart';
 import 'package:summer_healthcare_app/landing/landing_page.dart';
 import 'package:summer_healthcare_app/landing/user_details.dart';
 import 'package:summer_healthcare_app/main.dart' show preferences;
+import 'package:summer_healthcare_app/services/api/user_services.dart';
 
 class AuthService {
   final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
@@ -13,9 +14,8 @@ class AuthService {
   //Sign out
   signOut({BuildContext context}) async {
     await _auth.signOut();
-    // SharedPreferences preferences = await SharedPreferences.getInstance();
-    // preferences.clear();
-    // print('preference now isSLI after logout: ${preferences.containsKey('isSLI')}');
+    preferences.clear();
+    print('preference now pharmacist after logout: ${preferences.containsKey('isPharmacist')}');
     Navigator.pop(context);
     Navigator.pop(context);
     Navigator.push(
@@ -80,6 +80,7 @@ class AuthService {
       String authTokenString =
       await authResult.user.getIdToken();
       token = authTokenString;
+      print(token);
 
       auth.User firebaseUser = authResult.user;
       if (firebaseUser != null) {
@@ -109,7 +110,36 @@ class AuthService {
           await preferences.setString('role', documents[0].data()['role']);
           await preferences.setString('groupId', documents[0].data()['groupId']);
         }
-        if (token != null) {
+
+        if (userDetails.isPharmacist == false) {
+          // bool userExists = await UserServices().doesUserExist(
+          //     headerToken: authTokenString);
+          bool userExists = false;
+          if (userExists == false && userDetails.isLogin == false) {
+            await UserServices().createUser(
+              headerToken: authTokenString,
+              user: userDetails,
+            );
+          }
+          else if (userExists == false && userDetails.isLogin == true) {
+            token = 'wrongLogin';
+            _auth.signOut();
+          }
+        } else {
+          // bool sliExists = await SLIServices().doesSLIExist(
+          //     headerToken: authTokenString);
+          // if (sliExists == false && userDetails.isLogin == false) {
+          //   await SLIServices().createSLI(
+          //     headerToken: authTokenString,
+          //     sliDetails: userDetails,
+          //   );
+          // }
+          // else if (sliExists == false && userDetails.isLogin == true) {
+          //   token = 'wrongLogin';
+          // }
+        }
+
+        if (token != 'wrongLogin') {
           Navigator.pop(context);
           Navigator.pop(context);
           Navigator.pop(context);

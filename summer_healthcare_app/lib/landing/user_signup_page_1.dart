@@ -26,7 +26,6 @@ class _UserSignUpPage1State extends State<UserSignUpPage1> {
   @override
   void dispose() {
     super.dispose();
-    userDetails.disposeTexts();
     print('Disposed text editor');
   }
 

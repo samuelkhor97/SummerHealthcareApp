@@ -3,7 +3,7 @@ import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/landing/user_details.dart';
 import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
-//import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VerificationPage extends StatefulWidget {
   final String verificationId;
@@ -49,6 +49,33 @@ class _VerificationPageState extends State<VerificationPage> {
             ],
           );
         },
+    );
+  }
+
+  void showWrongLoginError() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext alertContext) {
+        return AlertDialog(
+          title: Text('Alert'),
+          content: Text(
+            'Account Does Not Exist. Please Try Signing Up First.',
+            textAlign: TextAlign.left,
+            style: TextStyle(
+                color: Colours.black),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(alertContext).pop();
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -109,7 +136,21 @@ class _VerificationPageState extends State<VerificationPage> {
                                 userDetails: widget.userDetails,
                                 smsCode: verificationNumberController.text,
                                 verId: widget.verificationId);
-                            if (token == null) {
+                            if (token != null) {
+                              if (token == 'wrongLogin') {
+                                Navigator.pop(context);
+                                showWrongLoginError();
+                              }
+                              else {
+                                // set shared preference
+                                SharedPreferences preferences = await SharedPreferences
+                                    .getInstance();
+                                preferences.setBool('isSLI',
+                                    widget.userDetails.isPharmacist);
+                                widget.userDetails.disposeTexts();
+                              }
+                            }
+                            else {
                               Navigator.pop(context);
                               showSmsCodeError();
                             }

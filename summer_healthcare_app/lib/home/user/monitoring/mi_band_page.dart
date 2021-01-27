@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import "package:http/http.dart" as http;
 import 'package:charts_flutter/flutter.dart' as charts;
@@ -13,7 +14,9 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
     'https://www.googleapis.com/auth/fitness.activity.read',
     'https://www.googleapis.com/auth/fitness.activity.write',
     'https://www.googleapis.com/auth/fitness.heart_rate.read',
-    'https://www.googleapis.com/auth/fitness.heart_rate.write'
+    'https://www.googleapis.com/auth/fitness.heart_rate.write',
+    'https://www.googleapis.com/auth/fitness.sleep.read',
+    'https://www.googleapis.com/auth/fitness.sleep.write'
   ],
 );
 
@@ -25,27 +28,15 @@ class MiBandPage extends StatefulWidget {
 class _MiBandPageState extends State<MiBandPage> {
   var todaySteps = 0;
   num currentBPM;
+  bool showAllData = false;
+  var sleepDuration;
+  bool stepsCard = false;
+  bool sleepCard = false;
   List<MibandHeartRateData> heartRateData = [
-    MibandHeartRateData(0, 55),
-    MibandHeartRateData(1, 53),
-    MibandHeartRateData(2, 52),
-    MibandHeartRateData(3, 53),
-    MibandHeartRateData(4, 55),
-    MibandHeartRateData(5, 83),
-    MibandHeartRateData(6, 85),
-    MibandHeartRateData(7, 90),
-    MibandHeartRateData(8, 93),
-    MibandHeartRateData(9, 90),
-    MibandHeartRateData(10, 92),
-    MibandHeartRateData(11, 100),
-    MibandHeartRateData(12, 90),
-    MibandHeartRateData(13, 83),
-    MibandHeartRateData(14, 85),
-    MibandHeartRateData(15, 83),
-    MibandHeartRateData(16, 80),
-    MibandHeartRateData(17, 92),
-    MibandHeartRateData(18, 90),
-    MibandHeartRateData(19, 88),
+    MibandHeartRateData(DateTime(2021, 1, 1, 0, 0), 0),
+  ];
+  List<MiBandStepsData> stepsData = [
+    MiBandStepsData(DateFormat('EEEE').format(DateTime(2021, 1, 1)), 0)
   ];
   FirebaseAuth auth = FirebaseAuth.instance;
   GoogleSignInAccount _currentUser;
@@ -72,20 +63,12 @@ class _MiBandPageState extends State<MiBandPage> {
     _googleSignIn.signInSilently();
   }
 
-  /// Heart rate body
-  // {
-  // "aggregateBy": [
-  // {
-  // "dataTypeName": "com.google.heart_rate.bpm"
-  // }
-  // ],
-  // "endTimeMillis": 1610812800000,
-  // "startTimeMillis": 1609430400000
-  // }
 
   Future<void> _getFitData() async {
     var now = DateTime.now();
-    var body = jsonEncode({
+    List<MibandHeartRateData> heartRateList = [];
+    List<MiBandStepsData> stepsList = [];
+    var stepsBody = jsonEncode({
       "aggregateBy": [
         {
           "dataTypeName": "com.google.step_count.delta",
@@ -100,20 +83,111 @@ class _MiBandPageState extends State<MiBandPage> {
       "endTimeMillis": now.toUtc().millisecondsSinceEpoch
     });
 
+    var heartRateBody = jsonEncode({
+      "aggregateBy": [
+        {
+          "dataTypeName": "com.google.heart_rate.bpm"
+        }
+      ],
+      "startTimeMillis": DateTime(now.year, now.month, now.day).toUtc().millisecondsSinceEpoch,
+      "endTimeMillis": now.toUtc().millisecondsSinceEpoch
+    });
+
+    var sleepBody = jsonEncode({
+      "aggregateBy": [
+        {
+          "dataTypeName": "com.google.sleep.segment"
+        }
+      ],
+      "startTimeMillis":  DateTime(now.year, now.month, now.day - 1, 18, 0 , 0).toUtc().millisecondsSinceEpoch,
+      "endTimeMillis": now.toUtc().millisecondsSinceEpoch
+
+    });
+
+
     GoogleSignInAuthentication googlesigninauthentication =
         await _currentUser.authentication;
-    var response = await http.post(
+
+
+    var stepsResponse = await http.post(
         'https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate',
         headers: {
           'authorization': 'Bearer ' + googlesigninauthentication.accessToken
         },
-        body: body);
-    var output = jsonDecode(response.body);
-    // The integer after bucket is subject to change, to get today's step value, then it's 7
-    print(output["bucket"][7]["dataset"][0]["point"][0]["value"][0]["intVal"]);
+        body: stepsBody);
+    var stepsOutput = jsonDecode(stepsResponse.body);
+    var stepsValues = stepsOutput["bucket"];
+
+    for (int i = 0; i < stepsValues.length; i++) {
+      var dateMili = int.parse(stepsValues[i]["startTimeMillis"]);
+      var formatedDate = DateFormat('EEE').format(DateTime.fromMillisecondsSinceEpoch(dateMili).add(Duration(hours: 8)));
+      var steps = stepsValues[i]["dataset"][0]["point"][0]["value"][0]["intVal"];
+
+      stepsList.add(MiBandStepsData(formatedDate, steps));
+    }
+
+    var heartRateResponse = await http.post(
+        'https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate',
+        headers: {
+          'authorization': 'Bearer ' + googlesigninauthentication.accessToken
+        },
+        body: heartRateBody);
+    var heartRateOutput = jsonDecode(heartRateResponse.body);
+    var heartRateValues = heartRateOutput["bucket"][0]["dataset"][0]["point"];
+
+
+    for (int i = 0; i < heartRateValues.length; i ++) {
+      heartRateList.add(MibandHeartRateData(DateTime.fromMicrosecondsSinceEpoch((int.parse(heartRateValues[i]["endTimeNanos"]) / 1000).round()).add(Duration(hours: 8)),heartRateValues[i]["value"][0]["fpVal"]));
+    }
+
+
+    var sleepResponse = await http.post(
+        'https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate',
+        headers: {
+          'authorization': 'Bearer ' + googlesigninauthentication.accessToken
+        },
+        body: sleepBody);
+    var sleepOutput = jsonDecode(sleepResponse.body);
+    var sleepValues = sleepOutput["bucket"][0]["dataset"][0]["point"];
+
+    var sleepTime = sleepValues[0]["startTimeNanos"];
+    var wakeTime = sleepValues.last["endTimeNanos"];
+
+    var totalSleepMinutes = (DateTime.fromMicrosecondsSinceEpoch((int.parse(wakeTime) / 1000).round()).difference(DateTime.fromMicrosecondsSinceEpoch((int.parse(sleepTime) / 1000).round())).inMinutes);
+
+
+    /// SLEEP DATA FOR AWAKE, LIGHT SLEEP AND DEEP SLEEP (DATA IS NOT COMPLETELY RECORDED BY GOOGLE)
+    // var one = 0;
+    // var four = 0;
+    // var five = 0;
+    //
+    // for (int i = 0; i < sleepValues.length; i ++) {
+    //   var sleepStage = sleepValues[i]["value"][0]["intVal"];
+    //   var startStageTime = sleepValues[i]["startTimeNanos"];
+    //   var endStageTime = sleepValues[i]["endTimeNanos"];
+    //   if (sleepStage == 1) {
+    //     one += (DateTime.fromMicrosecondsSinceEpoch((int.parse(endStageTime) / 1000).round()).difference(DateTime.fromMicrosecondsSinceEpoch((int.parse(startStageTime) / 1000).round())).inMinutes);
+    //   }
+    //   else if (sleepStage == 4) {
+    //     four += (DateTime.fromMicrosecondsSinceEpoch((int.parse(endStageTime) / 1000).round()).difference(DateTime.fromMicrosecondsSinceEpoch((int.parse(startStageTime) / 1000).round())).inMinutes);
+    //   }
+    //   else if (sleepStage == 5) {
+    //     five += (DateTime.fromMicrosecondsSinceEpoch((int.parse(endStageTime) / 1000).round()).difference(DateTime.fromMicrosecondsSinceEpoch((int.parse(startStageTime) / 1000).round())).inMinutes);
+    //   }
+    // }
+
+
     setState(() {
-      todaySteps =
-          output["bucket"][7]["dataset"][0]["point"][0]["value"][0]["intVal"];
+      // The integer after bucket is subject to change, to get today's step value, then it's 7
+      todaySteps = stepsValues.last["dataset"][0]["point"][0]["value"][0]["intVal"];
+      stepsData = stepsList;
+
+      heartRateData = heartRateList;
+      currentBPM = heartRateValues[heartRateValues.length-1]["value"][0]["fpVal"];
+
+      sleepDuration = durationToString(totalSleepMinutes);
+
+      showAllData = true;
     });
   }
 
@@ -135,48 +209,71 @@ class _MiBandPageState extends State<MiBandPage> {
             centerTitle: true,
             elevation: Dimensions.d_3,
           ),
-          body: ListView(
+          body: (showAllData == false) ? Center(child: CircularProgressIndicator()):ListView(
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.only(
                     top: Dimensions.d_15,
                     left: Dimensions.d_15,
                     right: Dimensions.d_15),
-                child: Card(
-                  clipBehavior: Clip.antiAlias,
-                  elevation: 5,
-                  child: Padding(
-                    padding: EdgeInsets.all(Dimensions.d_15),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                'Steps Today:',
-                                style:
-                                    TextStyle(fontSize: FontSizes.biggerText),
-                              ),
-                              Text(
-                                '$todaySteps',
-                                style: TextStyle(
-                                    fontSize: FontSizes.biggerText,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(height: Dimensions.d_10),
-                              Text(
-                                'Distance: ${(todaySteps / 1312.33595801).toStringAsFixed(2)} KM',
-                                style: TextStyle(fontSize: FontSizes.smallText),
-                              )
-                            ],
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (stepsCard == true) {
+                        stepsCard = false;
+                      }
+                      else {
+                        stepsCard = true;
+                      }
+                    });
+                    print(stepsCard);
+                  },
+                  child: Card(
+                    clipBehavior: Clip.antiAlias,
+                    elevation: 5,
+                    child: Padding(
+                      padding: EdgeInsets.all(Dimensions.d_15),
+                      child: Column(
+                        children: [
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      'Steps Today:',
+                                      style:
+                                          TextStyle(fontSize: FontSizes.biggerText),
+                                    ),
+                                    Text(
+                                      '$todaySteps',
+                                      style: TextStyle(
+                                          fontSize: FontSizes.biggerText,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(height: Dimensions.d_10),
+                                    Text(
+                                      'Distance: ${(todaySteps / 1312.33595801).toStringAsFixed(2)} KM',
+                                      style: TextStyle(fontSize: FontSizes.smallText),
+                                    ),
+                                  ],
+                                ),
+                                Icon(
+                                  Icons.directions_run,
+                                  color: Colours.secondaryColour,
+                                  size: Dimensions.d_50,
+                                ),
+                              ]
                           ),
-                          Icon(
-                            Icons.directions_run,
-                            color: Colours.secondaryColour,
-                            size: Dimensions.d_50,
-                          ),
-                        ]
+                          (stepsCard == false) ? SizedBox.shrink() : Container(
+                              height: 180,
+                              child: charts.BarChart(
+                                _getStepsData(),
+                                animate: true,
+                              )),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -203,67 +300,28 @@ class _MiBandPageState extends State<MiBandPage> {
                                     TextStyle(fontSize: FontSizes.biggerText),
                               ),
                               Text(
-                                '8h 32min',
+                                '$sleepDuration',
                                 style: TextStyle(
                                     fontSize: FontSizes.biggerText,
                                     fontWeight: FontWeight.bold),
                               ),
-                              SizedBox(height: Dimensions.d_10),
-                              Text(
-                                'Deep sleep: 2h 20min',
-                                style: TextStyle(fontSize: FontSizes.smallText),
-                              ),
-                              Text(
-                                'Light sleep: 6h 12min',
-                                style: TextStyle(fontSize: FontSizes.smallText),
-                              ),
-                              Text(
-                                'Awake: 0min',
-                                style: TextStyle(fontSize: FontSizes.smallText),
-                              ),
+                              // SizedBox(height: Dimensions.d_10),
+                              // Text(
+                              //   'Deep sleep: 2h 20min',
+                              //   style: TextStyle(fontSize: FontSizes.smallText),
+                              // ),
+                              // Text(
+                              //   'Light sleep: 6h 12min',
+                              //   style: TextStyle(fontSize: FontSizes.smallText),
+                              // ),
+                              // Text(
+                              //   'Awake: 0min',
+                              //   style: TextStyle(fontSize: FontSizes.smallText),
+                              // ),
                             ],
                           ),
                           Icon(
                             Icons.king_bed_rounded,
-                            color: Colours.secondaryColour,
-                            size: Dimensions.d_50,
-                          ),
-                        ]
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                    top: Dimensions.d_15,
-                    left: Dimensions.d_15,
-                    right: Dimensions.d_15),
-                child: Card(
-                  clipBehavior: Clip.antiAlias,
-                  elevation: 5,
-                  child: Padding(
-                    padding: EdgeInsets.all(Dimensions.d_15),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                'Calories Burned:',
-                                style:
-                                    TextStyle(fontSize: FontSizes.biggerText),
-                              ),
-                              Text(
-                                '123kcal',
-                                style: TextStyle(
-                                    fontSize: FontSizes.biggerText,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          Icon(
-                            Icons.local_fire_department,
                             color: Colours.secondaryColour,
                             size: Dimensions.d_50,
                           ),
@@ -298,16 +356,28 @@ class _MiBandPageState extends State<MiBandPage> {
                         ),
                         Container(
                             height: 180,
-                            child: charts.LineChart(
-                              _getSeriesData(),
+                            child: charts.TimeSeriesChart(
+                              _getHeartRateData(),
+                              domainAxis: charts.DateTimeAxisSpec(
+                                tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
+                                  hour: charts.TimeFormatterSpec(
+                                    format: 'HH:mm',
+                                    transitionFormat: 'HH:mm'
+                                  )
+                                ),
+                              ),
                               animate: true,
                               selectionModels: [
                                 charts.SelectionModelConfig(
                                   type: charts.SelectionModelType.info,
-                                  changedListener: _onSelectionChanged
+                                  changedListener: _onHeartSelectionChanged
                                 )
                               ],
                             )),
+                        // ElevatedButton(
+                        //   child: const Text('SIGN IN'),
+                        //   onPressed: _handleSignIn,
+                        // ),
                       ]
                     ),
                   ),
@@ -330,8 +400,8 @@ class _MiBandPageState extends State<MiBandPage> {
   // signout function
   Future<void> handleSignOut() => _googleSignIn.disconnect();
 
-  _getSeriesData() {
-    List<charts.Series<MibandHeartRateData, int>> series = [
+  _getHeartRateData() {
+    return <charts.Series<MibandHeartRateData, DateTime>> [
       charts.Series(
           id: "Heart_rate",
           data: this.heartRateData,
@@ -340,10 +410,21 @@ class _MiBandPageState extends State<MiBandPage> {
           colorFn: (MibandHeartRateData series, _) => charts.MaterialPalette.blue.shadeDefault
       )
     ];
-    return series;
   }
 
-  _onSelectionChanged(charts.SelectionModel model) {
+  _getStepsData() {
+    return <charts.Series<MiBandStepsData, String>> [
+      charts.Series(
+          id: "Number_of_steps",
+          data: this.stepsData,
+          domainFn: (MiBandStepsData series, _) => series.day,
+          measureFn: (MiBandStepsData series, _) => series.steps,
+          colorFn: (MiBandStepsData series, _) => charts.MaterialPalette.blue.shadeDefault
+      )
+    ];
+  }
+
+  _onHeartSelectionChanged(charts.SelectionModel model) {
     final selectedDatum = model.selectedDatum;
     final measures = <String, num>{};
 
@@ -356,20 +437,28 @@ class _MiBandPageState extends State<MiBandPage> {
       currentBPM = measures["Heart_rate"];
     });
   }
+
+
+  String durationToString(int minutes) {
+    var d = Duration(minutes:minutes);
+    List<String> parts = d.toString().split(':');
+    return '${parts[0].padRight(2, 'h')}  ${parts[1].padRight(3, 'min')}';
+  }
+
 }
 
 class MibandHeartRateData {
-  final int time;
+  final DateTime time;
   final int heart_data;
 
   MibandHeartRateData(this.time, this.heart_data);
 }
 
-// Column(
-// children: <Widget>[
-// ElevatedButton(
-// child: const Text('SIGN IN'),
-// onPressed: _handleSignIn,
-// )
-// ],
-// ),
+
+class MiBandStepsData {
+  final String day;
+  final int steps;
+
+  MiBandStepsData(this.day, this.steps);
+}
+

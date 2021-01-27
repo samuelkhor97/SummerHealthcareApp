@@ -6,6 +6,7 @@ class UserDetails {
   TextEditingController phoneNumber = TextEditingController();
   bool termsAndConditions = false;
   bool isLogin = false;
+  bool isPharmacist = false;
   String gender;
   TextEditingController age = TextEditingController();
   TextEditingController weight = TextEditingController();

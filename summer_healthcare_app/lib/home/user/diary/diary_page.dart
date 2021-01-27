@@ -1,6 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:summer_healthcare_app/constants.dart';
+import 'package:summer_healthcare_app/json/food_diary_card.dart';
+import 'package:summer_healthcare_app/services/api/food_diary_services.dart';
+import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
 
 class DiaryPage extends StatefulWidget {
@@ -11,16 +15,47 @@ class DiaryPage extends StatefulWidget {
 class _DiaryPageState extends State<DiaryPage> {
   List<DiaryCard> cardList = [];
   DateTime currentDate;
+  String authToken;
+  List<FoodDiaryCard> foodDiaries;
 
   @override
   void initState() {
     super.initState();
-    currentDate = DateTime.now();
+    initializePage();
   }
 
   @override
   void setState(fn) {
     super.setState(fn);
+  }
+
+  void initializePage() async {
+    String token = await AuthService.getToken();
+    List<FoodDiaryCard> diaries = await FoodDiaryServices().getAllCards(
+      headerToken: token,
+      date: _getFormattedDate(DateTime.now()));
+    print('Auth Token: $token');
+    setState(() {
+      authToken = token;
+      foodDiaries = diaries;
+      currentDate = DateTime.now();
+      _refreshCards();
+    });
+  }
+
+  String _getFormattedDate(DateTime date) {
+    if (date.month < 10) {
+      return date.year.toString() + "-0" + date.month.toString() + "-" + date.day.toString();
+    }
+    return date.year.toString() + "-" + date.month.toString() + "-" + date.day.toString();
+  }
+
+  void _refreshCards() {
+    cardList.clear();
+    for (int i = 0; i < foodDiaries.length; i++) {
+      cardList.add(DiaryCard(title: foodDiaries[i].cardName, foodDiaryCard: foodDiaries[i],));
+    }
+    print(cardList);
   }
 
   Future<DateTime> _pickDate(DateTime initDate) async {
@@ -56,7 +91,11 @@ class _DiaryPageState extends State<DiaryPage> {
             onTap: () async {
               DateTime selectedDate = await _pickDate(currentDate);
               if (selectedDate != null) {
+                foodDiaries = await FoodDiaryServices().getAllCards(
+                    headerToken: authToken,
+                    date: _getFormattedDate(selectedDate));
                 setState(() {
+                  _refreshCards();
                   currentDate = selectedDate;
                 });
               }
@@ -95,10 +134,16 @@ class _DiaryPageState extends State<DiaryPage> {
                 child: Text('Add'),
                 onPressed: () async {
                   Navigator.of(alertContext).pop();
+                  await FoodDiaryServices().createCard(
+                    headerToken: authToken,
+                    date: _getFormattedDate(currentDate),
+                    cardName: entryName.text
+                  );
+                  foodDiaries = await FoodDiaryServices().getAllCards(
+                      headerToken: authToken,
+                      date: _getFormattedDate(currentDate));
                   setState(() {
-                    cardList.add(DiaryCard(
-                      title: entryName,
-                    ));
+                    _refreshCards();
                   });
                 },
               ),
@@ -109,7 +154,7 @@ class _DiaryPageState extends State<DiaryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return (authToken == null && foodDiaries == null) ? Center(child: CircularProgressIndicator(),) : Scaffold(
       backgroundColor: Colours.primaryColour,
       floatingActionButton: FloatingActionButton(
         tooltip: 'Add diary entry',

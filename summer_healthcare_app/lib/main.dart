@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/home/user/navigation.dart';
+import 'package:summer_healthcare_app/json/user.dart';
 import 'package:summer_healthcare_app/landing/landing_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:summer_healthcare_app/services/api/user_services.dart';
 
 SharedPreferences preferences;
 void main() async {
@@ -14,13 +16,45 @@ void main() async {
   runApp(App());
 }
 
-class App extends StatelessWidget {
-  bool isSignedIn() {
+class App extends StatefulWidget {
+  @override
+  _AppState createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  bool signedIn;
+
+  @override
+  void initState() {
+    super.initState();
+    isSignedIn();
+  }
+
+  void isSignedIn() async {
     auth.User firebaseUser = auth.FirebaseAuth.instance.currentUser;
     if (firebaseUser != null) {
-      return true;
+      String token = await firebaseUser.getIdToken();
+      User user;
+      // user = await SLIServices().getSLI(headerToken: token);
+      if (user == null) {
+        user = await UserServices().getUser(headerToken: token);
+      }
+      if (user != null) {
+        if (!preferences.containsKey('isPharmacist')) {
+          bool isSLI = user.eCig == null ? true : false;
+          preferences.setBool('isPharmacist', isSLI);
+        }
+        signedIn = true;
+      }
+      else {
+        signedIn = false;
+        await auth.FirebaseAuth.instance.signOut();
+      }
     }
-    return false;
+    else {
+      signedIn = false;
+    }
+    setState(() {});
   }
 
   @override
@@ -31,7 +65,7 @@ class App extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      home: isSignedIn() ? UserNavigation() : LandingPage(),
+      home: signedIn == null ? Container() : signedIn ? UserNavigation() : LandingPage(),
     );
   }
 }

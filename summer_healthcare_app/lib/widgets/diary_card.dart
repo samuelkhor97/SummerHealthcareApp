@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/home/user/diary/add_food_item_page.dart';
+import 'package:summer_healthcare_app/json/food_diary_card.dart';
 import 'package:summer_healthcare_app/json/food_item.dart';
+import 'package:summer_healthcare_app/services/api/food_diary_services.dart';
+import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
 
 class DiaryCard extends StatefulWidget {
   final TextEditingController title;
+  final FoodDiaryCard foodDiaryCard;
 
   DiaryCard({
     Key key,
-    this.title,
+    this.title, this.foodDiaryCard,
   }) : super(key: key);
 
   @override
@@ -19,6 +23,20 @@ class DiaryCard extends StatefulWidget {
 class _DiaryCardState extends State<DiaryCard> {
   double totalCalories = 0;
   List<FoodDiaryItem> foodDiaryItems = [];
+  FoodDiaryCard foodDiaryCard;
+
+  void _refreshFoodItems() {
+    foodDiaryItems.clear();
+    totalCalories = 0;
+    for (int i = 0; i < foodDiaryCard.foodData.length; i++) {
+      foodDiaryItems.add(FoodDiaryItem(
+        name: foodDiaryCard.foodData[i].foodName,
+        calories: foodDiaryCard.foodData[i].calories.substring(0, foodDiaryCard.foodData[i].calories.length - 5),
+        picture: 'bitches',
+      ),);
+      totalCalories += double.parse(foodDiaryCard.foodData[i].calories.substring(0, foodDiaryCard.foodData[i].calories.length - 5));
+    }
+  }
 
   void editTitlePopUp() {
     showDialog<TextEditingController>(
@@ -50,7 +68,11 @@ class _DiaryCardState extends State<DiaryCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    if (foodDiaryCard == null) {
+      foodDiaryCard = widget.foodDiaryCard;
+      _refreshFoodItems();
+    }
+    return (foodDiaryCard == null) ? Container() : Padding(
       padding: EdgeInsets.fromLTRB(Dimensions.d_15, Dimensions.d_15, Dimensions.d_15, Dimensions.d_0),
       child: Card(
         child: Padding(
@@ -99,15 +121,23 @@ class _DiaryCardState extends State<DiaryCard> {
                               AddFoodItemPage()
                           ));
                       if (newFoodItem != null) {
+                        String authToken = await AuthService.getToken();
+                        await FoodDiaryServices().addFoodItem(
+                            headerToken: authToken,
+                            foodId: newFoodItem.foodId,
+                            cardName: widget.title.text,
+                            date: foodDiaryCard.date.substring(0, 10)
+                        );
+                        foodDiaryCard.foodData.add(
+                          FoodData(
+                            foodId: newFoodItem.foodId,
+                            foodName: newFoodItem.foodName,
+                            calories: newFoodItem.calories
+                          )
+                        );
                         setState(() {
-                          foodDiaryItems.add(
-                            FoodDiaryItem(
-                              name: newFoodItem.foodName,
-                              calories: newFoodItem.calories.substring(0, newFoodItem.calories.length - 5),
-                              picture: 'bitches',
-                            ),
-                          );
-                          totalCalories += double.parse(newFoodItem.calories.substring(0, newFoodItem.calories.length - 5));
+                          _refreshFoodItems();
+                          // totalCalories += double.parse(newFoodItem.calories.substring(0, newFoodItem.calories.length - 5));
                         });
                       }
                     },
@@ -120,6 +150,7 @@ class _DiaryCardState extends State<DiaryCard> {
               ListView.builder(
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
+                  reverse: true,
                   itemCount: foodDiaryItems.length,
                   itemBuilder: (BuildContext context, int index) {
                     return foodDiaryItems[index];
@@ -128,7 +159,7 @@ class _DiaryCardState extends State<DiaryCard> {
                 height: Dimensions.d_10,
               ),
               Text(
-                'Total Calories: $totalCalories kcal',
+                'Total Calories: ${double.parse(totalCalories.toStringAsFixed(2))} kcal',
                 textAlign: TextAlign.right,
                 style: TextStyle(
                   fontWeight: FontWeight.bold

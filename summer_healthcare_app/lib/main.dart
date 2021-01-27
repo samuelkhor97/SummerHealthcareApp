@@ -23,13 +23,11 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   bool signedIn;
-  Future<bool> isSignedIn() async {
-    signedIn = false;
+  void isSignedIn() async {
     auth.User firebaseUser = auth.FirebaseAuth.instance.currentUser;
     if (firebaseUser != null) {
       String token = await firebaseUser.getIdToken();
       User user;
-      signedIn = true; /// TO BE DELETED ONCE PROBLEM IS FIXED
       // user = await SLIServices().getSLI(headerToken: token);
       if (user == null) {
         user = await UserServices().getUser(headerToken: token);
@@ -42,10 +40,13 @@ class _AppState extends State<App> {
         signedIn = true;
       }
       else {
-        // await auth.FirebaseAuth.instance.signOut();
+        signedIn = false;
+        await auth.FirebaseAuth.instance.signOut();
       }
     }
-    return signedIn;
+    else {
+      signedIn = false;
+    }
   }
 
   @override
@@ -53,6 +54,7 @@ class _AppState extends State<App> {
     if (signedIn == null) {
       setState(() {
         isSignedIn();
+        print(signedIn);
       });
     }
     return MaterialApp(
@@ -61,7 +63,7 @@ class _AppState extends State<App> {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      home: signedIn ? UserNavigation() : LandingPage(),
+      home: signedIn == null ? Container() : signedIn ? UserNavigation() : LandingPage(),
     );
   }
 }

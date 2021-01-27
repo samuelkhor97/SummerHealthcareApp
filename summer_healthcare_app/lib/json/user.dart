@@ -3,7 +3,7 @@ class User {
   String pharmacyId;
   String fullName;
   String phoneNum;
-  double height;
+  String height;
   int age;
   String gender;
   String ethnicity;

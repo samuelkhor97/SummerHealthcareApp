@@ -48,6 +48,7 @@ router.post('/create', async (req, res, next) => {
       // current timestamp in milliseconds
       let ts = Date.now();
       let date_ob = new Date(ts);
+
       models.User.create({
         uid: uid,
         full_name: body.full_name,
@@ -65,6 +66,12 @@ router.post('/create', async (req, res, next) => {
         pharmacy_id: body.pharmacy_id,
         signup_date: date_ob,
         e_cig: body.e_cig
+      });
+
+      models.Weight.create({
+        uid: uid,
+        date: date_ob,
+        weight: body.weight
       });
 
       return res.status(200).send('Successfully created user!')

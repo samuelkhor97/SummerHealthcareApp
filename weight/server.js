@@ -9,18 +9,19 @@ let router = express.Router();
 router.post('/add', async (req, res, next) => {
     const uid = res.locals.id;
     const body = req.body;
-    models.Weight
+    try{
+      models.Weight
       .create({
         uid: uid,
         date: body.date,
         weight: body.weight
-      })
-      .then(item => {
-        res.status(200).send('Successfully added weight entry!')
-      })
-      .catch(error => {
-        res.status(403).send(`Error: ${error}`)
-      })
+      });
+      
+      return res.status(200).send('Successfully added weight entry!');
+    } catch (error){
+      return res.status(403).send(`Error: ${error}`);
+    }
+ 
 });
 
 /**

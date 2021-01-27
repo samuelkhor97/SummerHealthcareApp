@@ -12,7 +12,7 @@ class UserServices {
           'Authorization': headerToken,
         },
         body: {
-          'fullname': user.fullName.text,
+          'full_name': user.fullName.text,
           'phone_num': user.phoneNumber.text,
           'height': user.height.text,
           'age': user.age.text,

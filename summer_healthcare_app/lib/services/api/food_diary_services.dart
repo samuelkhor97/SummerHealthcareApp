@@ -22,4 +22,13 @@ class FoodDiaryServices {
 
     return foodDiaries;
   }
+
+  Future<void> createCard(
+      {String headerToken, String date, String card_name}) async {
+    var response = await http.post(
+        'http://10.0.2.2:3000/food-diary/create-card',
+        headers: {'Authorization': headerToken},
+        body: {"date": date, "card_name": card_name});
+    print('Response: ${response.statusCode}');
+  }
 }

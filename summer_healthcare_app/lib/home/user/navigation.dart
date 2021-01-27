@@ -6,6 +6,7 @@ import 'package:summer_healthcare_app/home/user/diary/diary_page.dart';
 import 'package:summer_healthcare_app/home/user/profile/profile_page.dart';
 import 'package:summer_healthcare_app/home/user/readings/readings_page.dart';
 import 'package:summer_healthcare_app/main.dart' show preferences;
+import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
 
 class UserNavigation extends StatefulWidget {
   @override
@@ -30,7 +31,7 @@ class _UserNavigationState extends State<UserNavigation> {
   @override
   void initState() {
     super.initState();
-    // initializeUser();
+    initializeUser();
     readLocal();
   }
 
@@ -53,30 +54,30 @@ class _UserNavigationState extends State<UserNavigation> {
     role = preferences.getString('role');
   }
 
-  // void initializeUser() async {
-  //   String token = await AuthService.getToken();
-  //   print('Auth Token: $token');
-  //   // User user;
-  //   // if (widget.isSLI == false) {
-  //   //   user = await UserServices().getUser(headerToken: token);
-  //   // } else {
-  //   //   user = await SLIServices().getSLI(headerToken: token);
-  //   //   status = await OnDemandServices().getOnDemandStatus(isSLI: true, headerToken: token);
-  //   //   if (status.status != 'ongoing') {
-  //   //     allRequests =
-  //   //     await OnDemandServices().getAllRequests(headerToken: token);
-  //   //     print('Got all on-demand requests ...');
-  //   //   }
-  //   //   print('Request: $onDemandRequests and length of ${onDemandRequests.length}');
-  //   // }
-  //   setState(() {
-  //     authToken = token;
-  //     // userDetails = user;
-  //     // onDemandRequests = allRequests;
-  //     // showLoadingAnimation = false;
-  //     // onDemandStatus = status;
-  //   });
-  // }
+  void initializeUser() async {
+    String token = await AuthService.getToken();
+    print('Auth Token: $token');
+    // User user;
+    // if (widget.isSLI == false) {
+    //   user = await UserServices().getUser(headerToken: token);
+    // } else {
+    //   user = await SLIServices().getSLI(headerToken: token);
+    //   status = await OnDemandServices().getOnDemandStatus(isSLI: true, headerToken: token);
+    //   if (status.status != 'ongoing') {
+    //     allRequests =
+    //     await OnDemandServices().getAllRequests(headerToken: token);
+    //     print('Got all on-demand requests ...');
+    //   }
+    //   print('Request: $onDemandRequests and length of ${onDemandRequests.length}');
+    // }
+    setState(() {
+      authToken = token;
+      // userDetails = user;
+      // onDemandRequests = allRequests;
+      // showLoadingAnimation = false;
+      // onDemandStatus = status;
+    });
+  }
 
   void onPageChanged(int index) {
     setState(() {

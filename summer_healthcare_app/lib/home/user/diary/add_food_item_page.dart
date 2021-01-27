@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/json/food_item.dart';
 import 'package:summer_healthcare_app/services/api/food_diary_services.dart';
+import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
 
 class AddFoodItemPage extends StatefulWidget {
   @override
@@ -21,9 +22,11 @@ class _AddFoodItemPageState extends State<AddFoodItemPage> {
   }
 
   void getAllFoodData() async {
-    foodDiaries =
-        await FoodDiaryServices().getAllFoodDiary(headerToken: 'adminuser');
+    String authToken = await AuthService.getToken();
+    List<FoodItem> diaries =
+        await FoodDiaryServices().getAllFoodItems(headerToken: authToken);
     setState(() {
+      foodDiaries = diaries;
       loadingFoodItems = false;
     });
   }

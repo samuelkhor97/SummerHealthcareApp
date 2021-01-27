@@ -23,6 +23,13 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   bool signedIn;
+
+  @override
+  void initState() {
+    super.initState();
+    isSignedIn();
+  }
+
   void isSignedIn() async {
     auth.User firebaseUser = auth.FirebaseAuth.instance.currentUser;
     if (firebaseUser != null) {
@@ -47,16 +54,11 @@ class _AppState extends State<App> {
     else {
       signedIn = false;
     }
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    if (signedIn == null) {
-      setState(() {
-        isSignedIn();
-        print(signedIn);
-      });
-    }
     return MaterialApp(
       theme: ThemeData(
         primaryColor: Colours.primaryColour,

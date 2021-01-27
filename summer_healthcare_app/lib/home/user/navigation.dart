@@ -20,7 +20,7 @@ class _UserNavigationState extends State<UserNavigation> {
     'Monitoring',
     'Food Diary',
     'Readings',
-    'Profile'
+    'Profile',
   ];
   String authToken;
   String id;

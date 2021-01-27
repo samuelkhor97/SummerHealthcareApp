@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import "package:http/http.dart" as http;
 import 'package:charts_flutter/flutter.dart' as charts;
@@ -34,6 +35,9 @@ class _MiBandPageState extends State<MiBandPage> {
   List<MibandHeartRateData> heartRateData = [
     MibandHeartRateData(DateTime(2021, 1, 1, 0, 0), 0),
   ];
+  List<MiBandStepsData> stepsData = [
+    MiBandStepsData(DateFormat('EEEE').format(DateTime(2021, 1, 1)), 0)
+  ];
   FirebaseAuth auth = FirebaseAuth.instance;
   GoogleSignInAccount _currentUser;
 
@@ -63,6 +67,7 @@ class _MiBandPageState extends State<MiBandPage> {
   Future<void> _getFitData() async {
     var now = DateTime.now();
     List<MibandHeartRateData> heartRateList = [];
+    List<MiBandStepsData> stepsList = [];
     var stepsBody = jsonEncode({
       "aggregateBy": [
         {
@@ -94,8 +99,8 @@ class _MiBandPageState extends State<MiBandPage> {
           "dataTypeName": "com.google.sleep.segment"
         }
       ],
-      "startTimeMillis": 1609495200000,
-      "endTimeMillis": 1609560000000
+      "startTimeMillis":  DateTime(now.year, now.month, now.day - 1, 18, 0 , 0).toUtc().millisecondsSinceEpoch,
+      "endTimeMillis": now.toUtc().millisecondsSinceEpoch
 
     });
 
@@ -111,7 +116,15 @@ class _MiBandPageState extends State<MiBandPage> {
         },
         body: stepsBody);
     var stepsOutput = jsonDecode(stepsResponse.body);
+    var stepsValues = stepsOutput["bucket"];
 
+    for (int i = 0; i < stepsValues.length; i++) {
+      var dateMili = int.parse(stepsValues[i]["startTimeMillis"]);
+      var formatedDate = DateFormat('EEE').format(DateTime.fromMillisecondsSinceEpoch(dateMili).add(Duration(hours: 8)));
+      var steps = stepsValues[i]["dataset"][0]["point"][0]["value"][0]["intVal"];
+
+      stepsList.add(MiBandStepsData(formatedDate, steps));
+    }
 
     var heartRateResponse = await http.post(
         'https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate',
@@ -166,7 +179,8 @@ class _MiBandPageState extends State<MiBandPage> {
 
     setState(() {
       // The integer after bucket is subject to change, to get today's step value, then it's 7
-      todaySteps = stepsOutput["bucket"][7]["dataset"][0]["point"][0]["value"][0]["intVal"];
+      todaySteps = stepsValues.last["dataset"][0]["point"][0]["value"][0]["intVal"];
+      stepsData = stepsList;
 
       heartRateData = heartRateList;
       currentBPM = heartRateValues[heartRateValues.length-1]["value"][0]["fpVal"];
@@ -254,23 +268,9 @@ class _MiBandPageState extends State<MiBandPage> {
                           ),
                           (stepsCard == false) ? SizedBox.shrink() : Container(
                               height: 180,
-                              child: charts.TimeSeriesChart(
-                                _getSeriesData(),
-                                domainAxis: charts.DateTimeAxisSpec(
-                                  tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
-                                      hour: charts.TimeFormatterSpec(
-                                          format: 'HH:mm',
-                                          transitionFormat: 'HH:mm'
-                                      )
-                                  ),
-                                ),
+                              child: charts.BarChart(
+                                _getStepsData(),
                                 animate: true,
-                                selectionModels: [
-                                  charts.SelectionModelConfig(
-                                      type: charts.SelectionModelType.info,
-                                      changedListener: _onSelectionChanged
-                                  )
-                                ],
                               )),
                         ],
                       ),
@@ -357,7 +357,7 @@ class _MiBandPageState extends State<MiBandPage> {
                         Container(
                             height: 180,
                             child: charts.TimeSeriesChart(
-                              _getSeriesData(),
+                              _getHeartRateData(),
                               domainAxis: charts.DateTimeAxisSpec(
                                 tickFormatterSpec: charts.AutoDateTimeTickFormatterSpec(
                                   hour: charts.TimeFormatterSpec(
@@ -370,7 +370,7 @@ class _MiBandPageState extends State<MiBandPage> {
                               selectionModels: [
                                 charts.SelectionModelConfig(
                                   type: charts.SelectionModelType.info,
-                                  changedListener: _onSelectionChanged
+                                  changedListener: _onHeartSelectionChanged
                                 )
                               ],
                             )),
@@ -400,7 +400,7 @@ class _MiBandPageState extends State<MiBandPage> {
   // signout function
   Future<void> handleSignOut() => _googleSignIn.disconnect();
 
-  _getSeriesData() {
+  _getHeartRateData() {
     return <charts.Series<MibandHeartRateData, DateTime>> [
       charts.Series(
           id: "Heart_rate",
@@ -412,7 +412,19 @@ class _MiBandPageState extends State<MiBandPage> {
     ];
   }
 
-  _onSelectionChanged(charts.SelectionModel model) {
+  _getStepsData() {
+    return <charts.Series<MiBandStepsData, String>> [
+      charts.Series(
+          id: "Number_of_steps",
+          data: this.stepsData,
+          domainFn: (MiBandStepsData series, _) => series.day,
+          measureFn: (MiBandStepsData series, _) => series.steps,
+          colorFn: (MiBandStepsData series, _) => charts.MaterialPalette.blue.shadeDefault
+      )
+    ];
+  }
+
+  _onHeartSelectionChanged(charts.SelectionModel model) {
     final selectedDatum = model.selectedDatum;
     final measures = <String, num>{};
 
@@ -442,4 +454,11 @@ class MibandHeartRateData {
   MibandHeartRateData(this.time, this.heart_data);
 }
 
+
+class MiBandStepsData {
+  final String day;
+  final int steps;
+
+  MiBandStepsData(this.day, this.steps);
+}
 

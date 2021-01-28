@@ -78,7 +78,7 @@ class _PatientListPageState extends State<PatientListPage> {
                                   userSnapshot.data.docs[index].data();
                               String userId = userDetails['id'];
                               String userName =
-                                  userDetails['displayName'] ?? '';
+                                  userDetails['fullName'] ?? '';
                               String avatarUrl = userDetails['photoUrl'];
                               String pharmacyGroupId =
                                   userDetails['pharmacyGroupId'];

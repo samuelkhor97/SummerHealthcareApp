@@ -14,6 +14,11 @@ class User {
   bool smoker;
   int cigsPerDay;
   bool eCig;
+  String weight;
+  String bodyFatPercentage;
+  Map<String, dynamic> medicalHistory;
+  Map<String, dynamic> medication;
+  Map<String, dynamic> biochemistry;
 
   User(
       {this.uid,
@@ -30,7 +35,12 @@ class User {
         this.maritalStatus,
         this.smoker,
         this.cigsPerDay,
-        this.eCig});
+        this.eCig,
+        this.weight,
+        this.bodyFatPercentage,
+        this.medicalHistory,
+        this.medication,
+        this.biochemistry});
 
   User.fromJson(Map<String, dynamic> json) {
     uid = json['uid'];
@@ -48,6 +58,11 @@ class User {
     smoker = json['smoker'];
     cigsPerDay = json['cigs_per_day'];
     eCig = json['e_cig'];
+    weight = json['weight'];
+    bodyFatPercentage = json['bodyFatPercentage'];
+    medicalHistory = json['medicalHistory'];
+    medication = json['medication'];
+    biochemistry = json['biochemistry'];
   }
 
   Map<String, dynamic> toJson() {
@@ -66,7 +81,11 @@ class User {
     data['marital_status'] = this.maritalStatus;
     data['smoker'] = this.smoker;
     data['cigs_per_day'] = this.cigsPerDay;
-    data['e_cig'] = this.eCig;
+    data['weight'] = this.weight;
+    data['bodyFatPercentage'] = this.bodyFatPercentage;
+    data['medicalHistory'] = this.medicalHistory;
+    data['medication'] = this.medication;
+    data['biochemistry'] = this.biochemistry;
     return data;
   }
 }

@@ -181,12 +181,12 @@ class _ChatListScreenState extends State<ChatListScreen> {
     String avatarUrl = '';
 
     String title = '';
-    String selfName = members[id] != null ? members[id]['displayName'] : '';
+    String selfName = members[id] != null ? members[id]['fullName'] : '';
     if (groupType == describeEnum(GroupType.personal)) {
       // for personal group, it is one-to-one group so set title
       // equals to another conversation participant
       members.forEach((memberId, details) {
-        title = (memberId.toString() != id) ? details['displayName'] : title;
+        title = (memberId.toString() != id) ? details['fullName'] : title;
       });
       lastSentBy = (lastSentBy == selfName) ? 'You: ' : '';
     } else {

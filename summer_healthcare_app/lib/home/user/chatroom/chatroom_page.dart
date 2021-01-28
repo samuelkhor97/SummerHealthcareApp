@@ -49,7 +49,7 @@ class _ChatRoomState extends State<ChatRoom> {
       // equals to another conversation participant
       groupDetails['members'].forEach((memberId, details) {
         groupName = (memberId.toString() != widget.id)
-            ? details['displayName']
+            ? details['fullName']
             : groupName;
       });
     } else {
@@ -272,7 +272,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       String lastMessage =
           (type == Type.text) ? content : "[${describeEnum(type)}]";
-      String lastSentBy = groupDetails['members'][id]['displayName'];
+      String lastSentBy = groupDetails['members'][id]['fullName'];
 
       var documentReference = _firestore
           .collection('messages')
@@ -428,7 +428,7 @@ class _ChatScreenState extends State<ChatScreen> {
       sender = groupDetails['members'][senderId];
     }
     // if message is sent by a user who has been removed from group
-    String senderName = sender != null ? sender['displayName'] : 'User removed';
+    String senderName = sender != null ? sender['fullName'] : 'User removed';
     String senderAvatar = sender != null ? sender['photoUrl'] : '';
     String messageType = docData['type'];
     String content = docData['content'];

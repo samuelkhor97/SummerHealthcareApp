@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:summer_healthcare_app/json/weight.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+final String backendUrl = env['backendUrl'];
 
 class WeightServices {
   Future<List<Weight>> getAllWeight(
       {String headerToken}) async {
     var response = await http.get(
-        'http://10.0.2.2:3000/weight/all',
+        '$backendUrl/weight/all',
         headers: {
           'Authorization': headerToken,
         },);
@@ -25,7 +28,7 @@ class WeightServices {
 
   Future<void> addWeight({String headerToken, String date, String weight}) async {
     var response = await http.post(
-        'http://10.0.2.2:3000/weight/add',
+        '$backendUrl/weight/add',
         headers: {
           'Authorization': headerToken,
         },
@@ -39,7 +42,7 @@ class WeightServices {
 
   Future<void> editWeight({String headerToken, String date, String oldWeight, String newWeight}) async {
     var response = await http.post(
-        'http://10.0.2.2:3000/weight/edit',
+        '$backendUrl/weight/edit',
         headers: {
           'Authorization': headerToken,
         },

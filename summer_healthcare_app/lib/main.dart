@@ -7,12 +7,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:summer_healthcare_app/services/api/user_services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
 
 SharedPreferences preferences;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await initPrefs();
+  await DotEnv.load(fileName: ".env");
   runApp(App());
 }
 

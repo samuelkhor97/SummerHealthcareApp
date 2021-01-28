@@ -205,7 +205,7 @@ class _GroupInfoState extends State<GroupInfo> {
                         userSnapshot.data.docs[index].data();
                     String groupType = describeEnum(GroupType.personal);
                     String userId = userDetails['id'];
-                    String userName = userDetails['displayName'] ?? '';
+                    String userName = userDetails['fullName'] ?? '';
                     String avatarUrl = userDetails['photoUrl'];
                     String userRole = userDetails['role'];
 

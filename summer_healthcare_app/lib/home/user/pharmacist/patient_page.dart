@@ -1,9 +1,13 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:summer_healthcare_app/constants.dart';
-import 'package:summer_healthcare_app/home/user/pharmacist/patient_details_page.dart';
 import 'package:summer_healthcare_app/home/user/pharmacist/patient_monitoring_page.dart';
+import 'package:summer_healthcare_app/home/user/profile/user_details_page.dart';
+import 'package:summer_healthcare_app/home/user/chatroom/chatroom_page.dart'
+    show Role;
+import 'package:summer_healthcare_app/main.dart' show preferences;
 
 class Patient extends StatefulWidget {
   final String patientId;
@@ -27,14 +31,24 @@ class _PatientState extends State<Patient> {
     ),
   };
 
-  final List<Widget> _pages = [
-    PatientDetails(),
-    PatientMonitoring(),
-  ];
+  List<Widget> _pages;
+  String role;
+  bool isPharmacist;
 
   final pageController = PageController();
 
   int _currentPageIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    role = preferences.getString('role');
+    isPharmacist = (role == describeEnum(Role.pharmacist));
+    _pages = [
+      UserDetailsPage(patientUserId: widget.patientId, pharmacistView: isPharmacist),
+      PatientMonitoring(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {

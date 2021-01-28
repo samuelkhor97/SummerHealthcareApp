@@ -90,9 +90,9 @@ class AuthService {
         if (documents.length == 0) {
           // Update data to firestore if new user
           _firestore.collection('users').doc(firebaseUser.uid).set({
-            'displayName': firebaseUser.displayName ?? '',
+            'fullName': userDetails.fullName.text ?? '',
             'photoUrl': firebaseUser.photoURL ?? '',
-            'role': 'normal', // will be modified accordingly after pharmacist signup implemented
+            'role': 'normal',
             'id': firebaseUser.uid,
             'mobileNumber': firebaseUser.phoneNumber ?? '',
             'createdAt': store.FieldValue.serverTimestamp(),
@@ -102,13 +102,13 @@ class AuthService {
 
           await preferences.setString('id', firebaseUser.uid);
           // TODO: get display name from backend api for first time login user  
-          await preferences.setString('displayName', firebaseUser.displayName);
+          await preferences.setString('fullName', userDetails.fullName.text);
           await preferences.setString('photoUrl', firebaseUser.photoURL);
           await preferences.setString('role', 'normal');
           await preferences.setString('pharmacyGroupId', null);
         } else {
           await preferences.setString('id', documents[0].data()['id']);
-          await preferences.setString('displayName', documents[0].data()['displayName']);
+          await preferences.setString('fullName', documents[0].data()['fullName']);
           await preferences.setString('photoUrl', documents[0].data()['photoUrl']);
           await preferences.setString('role', documents[0].data()['role']);
           await preferences.setString('pharmacyGroupId', documents[0].data()['pharmacyGroupId']);
@@ -117,7 +117,7 @@ class AuthService {
         if (userDetails.isPharmacist == false) {
           // bool userExists = await UserServices().doesUserExist(
           //     headerToken: authTokenString);
-          bool userExists = false;
+          bool userExists = true;
           if (userExists == false && userDetails.isLogin == false) {
             await UserServices().createUser(
               headerToken: authTokenString,

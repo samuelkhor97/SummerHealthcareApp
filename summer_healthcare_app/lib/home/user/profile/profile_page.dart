@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
+import 'package:summer_healthcare_app/services/api/user_services.dart';
 import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
 import 'package:summer_healthcare_app/main.dart' show preferences;
@@ -21,14 +22,14 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   String id;
-  String displayName;
+  String fullName;
   String photoUrl;
 
   bool updatePressed = false;
 
-  final TextEditingController displayNameController = TextEditingController();
+  final TextEditingController fullNameController = TextEditingController();
 
-  final FocusNode displayNameFocusNode = FocusNode();
+  final FocusNode fullNameFocusNode = FocusNode();
 
   final _firestore = FirebaseFirestore.instance;
   final _firestorage = FirebaseStorage.instance;
@@ -102,8 +103,8 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void dispose() {
     super.dispose();
-    displayNameController.dispose();
-    displayNameFocusNode.dispose();
+    fullNameController.dispose();
+    fullNameFocusNode.dispose();
     print('Disposed text editor and focus node in profile page');
   }
 
@@ -111,9 +112,9 @@ class _ProfilePageState extends State<ProfilePage> {
     // Force refresh avatar image and text field
     setState(() {
       id = preferences.getString('id') ?? '';
-      displayName = preferences.getString('displayName') ?? '';
+      fullName = preferences.getString('fullName') ?? '';
       photoUrl = preferences.getString('photoUrl') ?? '';
-      displayNameController.text = displayName;
+      fullNameController.text = fullName;
     });
   }
 
@@ -184,8 +185,8 @@ class _ProfilePageState extends State<ProfilePage> {
         child: InputField(
           labelText: title,
           hintText: hintText,
-          controller: displayNameController,
-          focusNode: displayNameFocusNode,
+          controller: fullNameController,
+          focusNode: fullNameFocusNode,
         ),
       ),
     );
@@ -227,15 +228,19 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void updateData({BuildContext context}) {
-    displayNameFocusNode.unfocus();
+    fullNameFocusNode.unfocus();
     showLoadingAnimation(context: context);
 
     _firestore
         .collection('users')
         .doc(id)
-        .update({'displayName': displayNameController.text}).then((data) async {
-      displayName = displayNameController.text;
-      await preferences.setString('displayName', displayName);
+        .update({'fullName': fullNameController.text}).then((data) async {
+      fullName = fullNameController.text;
+      
+      String authToken = await AuthService.getToken();
+      await UserServices().updateUserById(
+          headerToken: authToken, userId: id, updateValues: {'full_name': fullName});
+      await preferences.setString('fullName', fullName);
 
       Navigator.pop(context);
       Fluttertoast.showToast(msg: 'Update success');

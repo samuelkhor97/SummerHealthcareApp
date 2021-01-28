@@ -10,7 +10,7 @@ router.post('/add', async (req, res, next) => {
     const uid = res.locals.id;
     const body = req.body;
     try{
-      models.Weight
+      await models.Weight
       .create({
         uid: uid,
         date: body.date,

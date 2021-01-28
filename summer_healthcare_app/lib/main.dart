@@ -45,13 +45,11 @@ class _AppState extends State<App> {
           preferences.setBool('isPharmacist', isSLI);
         }
         signedIn = true;
-      }
-      else {
+      } else {
         signedIn = false;
         await auth.FirebaseAuth.instance.signOut();
       }
-    }
-    else {
+    } else {
       signedIn = false;
     }
     setState(() {});
@@ -65,11 +63,15 @@ class _AppState extends State<App> {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      home: signedIn == null ? Container() : signedIn ? UserNavigation() : LandingPage(),
+      home: signedIn == null
+          ? Container()
+          : signedIn
+              ? UserNavigation()
+              : LandingPage(),
     );
   }
 }
 
 Future<void> initPrefs() async {
-   preferences = await SharedPreferences.getInstance();
+  preferences = await SharedPreferences.getInstance();
 }

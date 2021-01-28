@@ -45,8 +45,7 @@ class AuthService {
     _auth.signInWithCredential(authCreds).catchError((error) {
       print("Error caught signing in");
     }).then((user) {
-      user.user.getIdToken().then((tokenResult) {
-      });
+      user.user.getIdToken().then((tokenResult) {});
       if (user != null) {
         Navigator.pop(context);
         Navigator.push(
@@ -62,23 +61,16 @@ class AuthService {
     });
   }
 
-  Future<String> signInWithOTP(
-      {BuildContext context,
-        UserDetails userDetails,
-        String smsCode,
-        String verId}) async {
+  Future<String> signInWithOTP({BuildContext context, UserDetails userDetails, String smsCode, String verId}) async {
     String token;
     try {
-      auth.AuthCredential authCreds = auth.PhoneAuthProvider.credential(
-          verificationId: verId, smsCode: smsCode);
+      auth.AuthCredential authCreds = auth.PhoneAuthProvider.credential(verificationId: verId, smsCode: smsCode);
 
       // getting auth result after signing in with credentials
-      auth.UserCredential authResult = await _auth.signInWithCredential(
-          authCreds);
+      auth.UserCredential authResult = await _auth.signInWithCredential(authCreds);
 
       // getting the authentication token from current firebase user state
-      String authTokenString =
-      await authResult.user.getIdToken();
+      String authTokenString = await authResult.user.getIdToken();
       token = authTokenString;
       print(token);
 
@@ -112,16 +104,13 @@ class AuthService {
         }
 
         if (userDetails.isPharmacist == false) {
-          // bool userExists = await UserServices().doesUserExist(
-          //     headerToken: authTokenString);
-          bool userExists = false;
+          bool userExists = await UserServices().doesUserExist(headerToken: authTokenString);
           if (userExists == false && userDetails.isLogin == false) {
             await UserServices().createUser(
               headerToken: authTokenString,
               user: userDetails,
             );
-          }
-          else if (userExists == false && userDetails.isLogin == true) {
+          } else if (userExists == false && userDetails.isLogin == true) {
             token = 'wrongLogin';
             _auth.signOut();
           }
@@ -145,8 +134,7 @@ class AuthService {
           Navigator.pop(context);
           Navigator.push(
             context,
-            MaterialPageRoute(
-                builder: (context) => UserNavigation()),
+            MaterialPageRoute(builder: (context) => UserNavigation()),
           );
         }
       } else {
@@ -158,8 +146,8 @@ class AuthService {
           MaterialPageRoute(builder: (context) => LandingPage()),
         );
       }
-
     } catch (e) {
+      print(e);
       debugPrint("Error on Sign-in");
     }
     return token;

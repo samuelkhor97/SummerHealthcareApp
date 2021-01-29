@@ -46,7 +46,7 @@ router.get('/all', async (req, res, next) => {
 router.post('/edit', async (req, res, next) => {
   const uid = res.locals.id;
   const body = req.body;
-  const date_obj = new Date(date);
+  const date_obj = new Date(body.date);
 
   try {
     // retrieve weight record chosen

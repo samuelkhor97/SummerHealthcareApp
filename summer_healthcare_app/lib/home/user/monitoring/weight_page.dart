@@ -5,6 +5,7 @@ import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
 import 'package:summer_healthcare_app/services/api/weight_services.dart';
 import 'package:summer_healthcare_app/json/weight.dart';
 import 'package:intl/intl.dart';
+import 'package:summer_healthcare_app/home/user/monitoring/weight_graph_page.dart';
 
 class WeightPage extends StatefulWidget {
   @override
@@ -22,6 +23,7 @@ class _WeightPageState extends State<WeightPage> {
   }
 
   void initializePage() async {
+    weightList = [];
     String token = await AuthService.getToken();
     allWeights = await WeightServices().getAllWeight(headerToken: token);
 
@@ -50,6 +52,7 @@ class _WeightPageState extends State<WeightPage> {
         currentDate: formatDate,
         weight: weightController,
         lastWeight: allWeights[ind].weight,
+        callback: initializePage, // pass this function as callback in order to refresh current/start weight if edited
       );
 
       // push the widget into array and update
@@ -219,7 +222,13 @@ class _WeightPageState extends State<WeightPage> {
             Icons.stacked_bar_chart,
             size: Dimensions.d_35,
           ),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => WeightGraphPage(),
+                ));
+          },
         ),
       ),
     );

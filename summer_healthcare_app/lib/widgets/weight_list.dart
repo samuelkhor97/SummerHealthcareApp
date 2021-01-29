@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
+import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
+import 'package:summer_healthcare_app/services/api/weight_services.dart';
 
 class WeightList extends StatefulWidget {
   final String currentDate;
   final String lastWeight;
   final TextEditingController weight;
-
-  WeightList({this.currentDate, this.lastWeight, this.weight});
+  Function callback;
+  WeightList({this.currentDate, this.lastWeight, this.weight, this.callback});
 
   @override
   _WeightListState createState() => _WeightListState();
@@ -17,6 +19,7 @@ class _WeightListState extends State<WeightList> {
   TextEditingController weight;
 
   void showWeightChangePopUp() {
+    String oldWeight = weight.text;
     showDialog<TextEditingController>(
       context: context,
       builder: (BuildContext alertContext) {
@@ -37,9 +40,7 @@ class _WeightListState extends State<WeightList> {
                   ),
                   Text(
                     'Date: ${widget.currentDate}',
-                    style: TextStyle(
-                        color: Colours.grey
-                    ),
+                    style: TextStyle(color: Colours.grey),
                   ),
                 ],
               );
@@ -50,7 +51,14 @@ class _WeightListState extends State<WeightList> {
               child: Text('UPDATE'),
               onPressed: () async {
                 Navigator.of(alertContext).pop();
-                setState(() {});
+                String token = await AuthService.getToken();
+                List dateSplit = widget.currentDate.split("/");
+                String weightDate = dateSplit[2] + "-" + dateSplit[1] + "-" + dateSplit[0];
+                await WeightServices().editWeight(headerToken: token, oldWeight: oldWeight, newWeight: weight.text, date: weightDate);
+
+                setState(() {
+                  widget.callback(); // callback to refresh main weight page
+                });
               },
             ),
           ],
@@ -76,8 +84,8 @@ class _WeightListState extends State<WeightList> {
             color: int.parse(weight.text) > int.parse(widget.lastWeight)
                 ? Colours.red
                 : int.parse(weight.text) < int.parse(widget.lastWeight)
-                ? Colours.green
-                : Colours.grey),
+                    ? Colours.green
+                    : Colours.grey),
       ),
       onTap: () {
         showWeightChangePopUp();

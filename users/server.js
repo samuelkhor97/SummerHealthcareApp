@@ -46,8 +46,9 @@ router.post('/create', async (req, res, next) => {
     const body = req.body;
     try{
       // current timestamp in milliseconds
-      let ts = Date.now();
-      let date_ob = new Date(ts);
+      var cur_datetime = new Date().toISOString();
+      var cur_dateonly = cur_datetime.split("T")[0];
+      let date_obj = new Date(cur_dateonly);
 
       await models.User.create({
         uid: uid,
@@ -64,7 +65,7 @@ router.post('/create', async (req, res, next) => {
         smoker: body.smoker,
         cigs_per_day: body.cigs_per_day,
         pharmacy_id: body.pharmacy_id,
-        signup_date: date_ob,
+        signup_date: date_obj,
         e_cig: body.e_cig
       });
 

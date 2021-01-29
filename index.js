@@ -66,11 +66,15 @@ app.use('/mi-band', mibandRoutes);
 initialize();
 
 async function initialize() {
-    await sequelize.sync(
-        // {
-        //     force:true
-        // }
-    );
+    var cur_datetime = new Date().toISOString();
+    var cur_dateonly = cur_datetime.split("T")[0];
+    let date_ob = new Date(cur_dateonly);
+    console.log(date_ob)
+    // await sequelize.sync(
+    //     // {
+    //     //     force:true
+    //     // }
+    // );
         
     app.listen(port, () => {
         console.log(`Listening at port: ${port}`)

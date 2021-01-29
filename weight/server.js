@@ -53,7 +53,7 @@ router.post('/edit', async (req, res, next) => {
     const weight = await models.Weight.findOne({
       where: {
         uid: uid,
-        date: body.date_obj,
+        date: date_obj,
         weight: body.old_weight
       }
     });

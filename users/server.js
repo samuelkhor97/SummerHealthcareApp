@@ -71,7 +71,7 @@ router.post('/create', async (req, res, next) => {
 
       await models.Weight.create({
         uid: uid,
-        date: date_ob,
+        date: date_obj,
         weight: body.weight
       });
 

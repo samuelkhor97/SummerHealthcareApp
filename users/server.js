@@ -103,7 +103,7 @@ router.get('/exists', async (req, res, next) => {
       });
     }
   } catch (error) {
-    return res.status(403).send('Failed to check user existence.');
+    return res.status(403).send(`Error: ${error}`);
   }
 });
 

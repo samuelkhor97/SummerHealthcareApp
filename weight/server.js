@@ -46,13 +46,14 @@ router.get('/all', async (req, res, next) => {
 router.post('/edit', async (req, res, next) => {
   const uid = res.locals.id;
   const body = req.body;
+  const date_obj = new Date(date);
 
   try {
     // retrieve weight record chosen
     const weight = await models.Weight.findOne({
       where: {
         uid: uid,
-        date: body.date,
+        date: body.date_obj,
         weight: body.old_weight
       }
     });

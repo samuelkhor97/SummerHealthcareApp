@@ -26,7 +26,7 @@ router.post('/create-card', async (req, res, next) => {
     const body = req.body;
 
     try{
-        models.Food_Diary_Card.create({
+        await models.Food_Diary_Card.create({
             uid: uid,
             date: body.date,
             card_name: body.card_name,
@@ -96,7 +96,7 @@ router.post('/add-food', async (req, res, next) => {
 
         const card_id = food_card.card_id
         
-        models.Food_Bridge.create({
+        await models.Food_Bridge.create({
             card_id: card_id,
             food_id: food_id
         });

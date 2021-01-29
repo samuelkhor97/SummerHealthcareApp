@@ -49,7 +49,7 @@ router.post('/create', async (req, res, next) => {
       let ts = Date.now();
       let date_ob = new Date(ts);
 
-      models.User.create({
+      await models.User.create({
         uid: uid,
         full_name: body.full_name,
         phone_num: body.phone_num,
@@ -68,7 +68,7 @@ router.post('/create', async (req, res, next) => {
         e_cig: body.e_cig
       });
 
-      models.Weight.create({
+      await models.Weight.create({
         uid: uid,
         date: date_ob,
         weight: body.weight

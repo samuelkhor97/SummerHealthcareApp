@@ -48,7 +48,7 @@ router.post('/create', async (req, res, next) => {
       // current timestamp in milliseconds
       var cur_datetime = new Date().toISOString();
       var cur_dateonly = cur_datetime.split("T")[0];
-      let date_obj = new Date(cur_dateonly);
+      var date_obj = new Date(cur_dateonly);
 
       await models.User.create({
         uid: uid,

@@ -7,7 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 final String backendUrl = env['backendUrl'];
 
 class UserServices {
-  Future<bool> createUser({String headerToken, UserDetails user}) async {
+  static Future<bool> createUser({String headerToken, UserDetails user}) async {
     var response = await http.post('$backendUrl/user/create', headers: {
       'Authorization': headerToken,
     }, body: {
@@ -34,7 +34,7 @@ class UserServices {
     return false;
   }
 
-  Future<User> getUser({String headerToken}) async {
+  static Future<User> getUser({String headerToken}) async {
     var response = await http.get('$backendUrl/user/me', headers: {
       'Authorization': headerToken,
     });
@@ -43,12 +43,14 @@ class UserServices {
     if (response.statusCode == 200) {
       Map<String, dynamic> requestsBody = jsonDecode(response.body);
       user = User.fromJson(requestsBody);
+    } else {
+      return Future.error(response.body.toString());
     }
 
     return user;
   }
 
-  Future<User> getUserById({String headerToken, String userId}) async {
+  static Future<User> getUserById({String headerToken, String userId}) async {
     var response = await http.get('$backendUrl/user/id?id=$userId', headers: {
       'Authorization': headerToken,
     });
@@ -57,12 +59,14 @@ class UserServices {
     if (response.statusCode == 200) {
       Map<String, dynamic> requestsBody = jsonDecode(response.body);
       user = User.fromJson(requestsBody);
+    } else {
+      return Future.error(response.body.toString());
     }
 
     return user;
   }
 
-  Future<String> updateUserById({String headerToken, String userId, Map<String, dynamic> updateValues}) async {
+  static Future<String> updateUserById({String headerToken, String userId, Map<String, dynamic> updateValues}) async {
     var response = await http.post('$backendUrl/user/update', headers: {
       'Authorization': headerToken,
     }, body: {
@@ -70,10 +74,10 @@ class UserServices {
       'updateValues': json.encode(updateValues),
     });
 
-    if (response.statusCode != 200) {
-      return "Error on updateUserById: ${response.body}";
-    } else {
+    if (response.statusCode == 200) {
       return "Update successful";
+    } else {
+      return Future.error("Error on updateUserById: ${response.body.toString()}");
     }
   }
 }

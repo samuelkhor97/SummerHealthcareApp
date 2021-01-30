@@ -119,7 +119,7 @@ class AuthService {
           //     headerToken: authTokenString);
           bool userExists = true;
           if (userExists == false && userDetails.isLogin == false) {
-            await UserServices().createUser(
+            await UserServices.createUser(
               headerToken: authTokenString,
               user: userDetails,
             );

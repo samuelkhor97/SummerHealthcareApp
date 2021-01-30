@@ -39,7 +39,7 @@ class _AppState extends State<App> {
       User user;
       // user = await SLIServices().getSLI(headerToken: token);
       if (user == null) {
-        user = await UserServices().getUser(headerToken: token);
+        user = await UserServices.getUser(headerToken: token);
       }
       if (user != null) {
         if (!preferences.containsKey('isPharmacist')) {

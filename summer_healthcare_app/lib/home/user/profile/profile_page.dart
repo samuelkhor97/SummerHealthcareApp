@@ -238,7 +238,7 @@ class _ProfilePageState extends State<ProfilePage> {
       fullName = fullNameController.text;
       
       String authToken = await AuthService.getToken();
-      await UserServices().updateUserById(
+      await UserServices.updateUserById(
           headerToken: authToken, userId: id, updateValues: {'full_name': fullName});
       await preferences.setString('fullName', fullName);
 

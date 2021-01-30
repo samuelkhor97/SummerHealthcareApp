@@ -107,9 +107,9 @@ class AuthService {
         }
 
         if (userDetails.isPharmacist == false) {
-          bool userExists = await UserServices().doesUserExist(headerToken: authTokenString);
+          bool userExists = await UserServices.doesUserExist(headerToken: authTokenString);
           if (userExists == false && userDetails.isLogin == false) {
-            await UserServices().createUser(
+            await UserServices.createUser(
               headerToken: authTokenString,
               user: userDetails,
             );

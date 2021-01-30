@@ -1,3 +1,7 @@
+import 'package:summer_healthcare_app/json/biochemistry.dart';
+import 'package:summer_healthcare_app/json/medical_history.dart';
+import 'package:summer_healthcare_app/json/medication.dart';
+
 class User {
   String uid;
   String pharmacyId;
@@ -16,31 +20,31 @@ class User {
   bool eCig;
   String weight;
   String bodyFatPercentage;
-  Map<String, dynamic> medicalHistory;
-  Map<String, dynamic> medication;
-  Map<String, dynamic> biochemistry;
+  MedicalHistory medicalHistory;
+  List<Medication> medication;
+  Biochemistry biochemistry;
 
   User(
       {this.uid,
-        this.pharmacyId,
-        this.fullName,
-        this.phoneNum,
-        this.height,
-        this.age,
-        this.gender,
-        this.ethnicity,
-        this.educationStatus,
-        this.employmentStatus,
-        this.occupation,
-        this.maritalStatus,
-        this.smoker,
-        this.cigsPerDay,
-        this.eCig,
-        this.weight,
-        this.bodyFatPercentage,
-        this.medicalHistory,
-        this.medication,
-        this.biochemistry});
+      this.pharmacyId,
+      this.fullName,
+      this.phoneNum,
+      this.height,
+      this.age,
+      this.gender,
+      this.ethnicity,
+      this.educationStatus,
+      this.employmentStatus,
+      this.occupation,
+      this.maritalStatus,
+      this.smoker,
+      this.cigsPerDay,
+      this.eCig,
+      this.weight,
+      this.bodyFatPercentage,
+      this.medicalHistory,
+      this.medication,
+      this.biochemistry});
 
   User.fromJson(Map<String, dynamic> json) {
     uid = json['uid'];
@@ -59,10 +63,14 @@ class User {
     cigsPerDay = json['cigs_per_day'];
     eCig = json['e_cig'];
     weight = json['weight'];
-    bodyFatPercentage = json['bodyFatPercentage'];
-    medicalHistory = json['medicalHistory'];
-    medication = json['medication'];
-    biochemistry = json['biochemistry'];
+    bodyFatPercentage = json['body_fat_percentage'];
+    medicalHistory = MedicalHistory.fromJson(json['medical_history']);
+    medication = List<Medication>.from(
+      json['medication'].map(
+        (med) => Medication.fromJson(med),
+      ),
+    );
+    biochemistry = Biochemistry.fromJson(json['biochemistry']);
   }
 
   Map<String, dynamic> toJson() {
@@ -82,10 +90,12 @@ class User {
     data['smoker'] = this.smoker;
     data['cigs_per_day'] = this.cigsPerDay;
     data['weight'] = this.weight;
-    data['bodyFatPercentage'] = this.bodyFatPercentage;
-    data['medicalHistory'] = this.medicalHistory;
-    data['medication'] = this.medication;
-    data['biochemistry'] = this.biochemistry;
+    data['body_fat_percentage'] = this.bodyFatPercentage;
+    data['medical_history'] = this.medicalHistory.toJson();
+    data['medication'] = List<Map<String, dynamic>>.from(
+      this.medication.map((med) => med.toJson()),
+    );
+    data['biochemistry'] = this.biochemistry.toJson();
     return data;
   }
 }

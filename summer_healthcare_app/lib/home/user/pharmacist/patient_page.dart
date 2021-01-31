@@ -46,7 +46,7 @@ class _PatientState extends State<Patient> {
     isPharmacist = (role == describeEnum(Role.pharmacist));
     _pages = [
       UserDetailsPage(patientUserId: widget.patientId, pharmacistView: isPharmacist),
-      PatientMonitoring(),
+      PatientMonitoring(uid: widget.patientId),
     ];
   }
 

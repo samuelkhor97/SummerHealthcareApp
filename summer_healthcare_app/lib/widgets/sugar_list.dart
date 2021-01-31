@@ -5,13 +5,16 @@ class SugarList extends StatefulWidget {
   final double readings;
   final String day;
   final String date;
+  @required
+  final bool editable;
 
-  SugarList(
-      {Key key,
-      this.readings = 0,
-      this.day,
-      this.date,})
-      : super(key: key);
+  SugarList({
+    Key key,
+    this.readings = 0,
+    this.day,
+    this.date,
+    this.editable,
+  }) : super(key: key);
 
   @override
   _SugarListState createState() => _SugarListState();
@@ -88,9 +91,11 @@ class _SugarListState extends State<SugarList> {
       padding: EdgeInsets.symmetric(
           vertical: Dimensions.d_10, horizontal: Dimensions.d_10),
       child: GestureDetector(
-        onTap: () {
-          showDescriptionChangePopUp();
-        },
+        onTap: widget.editable
+            ? () {
+                showDescriptionChangePopUp();
+              }
+            : null,
         child: Card(
           clipBehavior: Clip.antiAlias,
           elevation: 5,
@@ -112,30 +117,41 @@ class _SugarListState extends State<SugarList> {
                 ListTile(
                   leading: Column(
                     children: <Widget>[
-                      Text(
-                        widget.readings.toString(),
-                        style: TextStyle(
-                            fontSize: 30,
-                            color: widget.readings > 7.8
-                                ? Colours.red
-                                : widget.readings < 4.0
-                                    ? Colours.blue
-                                    : Colours.green),
+                      Flexible(
+                        child: Text(
+                          widget.readings.toString(),
+                          style: TextStyle(
+                              fontSize: 30,
+                              color: widget.readings > 7.8
+                                  ? Colours.red
+                                  : widget.readings < 4.0
+                                      ? Colours.blue
+                                      : Colours.green),
+                        ),
+                        flex: 4,
                       ),
-                      Text("mmo/L")
+                      Flexible(
+                        child: Text("mmo/L"),
+                        flex: 2,
+                      )
                     ],
                   ),
                   title: Text(
-                    description == null ? 'Select Description' : description,
+                    widget.editable
+                        ? (description == null
+                            ? 'Select Description'
+                            : description)
+                        : '',
                     style: TextStyle(
-                        color: description == null
-                            ? Colours.grey
-                            : Colours.black),
+                        color:
+                            description == null ? Colours.grey : Colours.black),
                   ),
-                  trailing: Icon(
-                    Icons.arrow_forward_ios_outlined,
-                    color: Colours.secondaryColour,
-                  ),
+                  trailing: widget.editable
+                      ? Icon(
+                          Icons.arrow_forward_ios_outlined,
+                          color: Colours.secondaryColour,
+                        )
+                      : null,
                 ),
               ],
             ),

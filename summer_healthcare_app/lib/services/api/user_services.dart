@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:summer_healthcare_app/json/user.dart';
 import 'package:summer_healthcare_app/landing/user_details.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';

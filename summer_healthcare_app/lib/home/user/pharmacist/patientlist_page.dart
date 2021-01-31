@@ -11,6 +11,8 @@ import 'package:summer_healthcare_app/home/user/chatroom/chatroom_page.dart'
     show Role;
 import 'package:summer_healthcare_app/home/user/pharmacist/patient_page.dart';
 import 'package:summer_healthcare_app/constants.dart';
+import 'package:summer_healthcare_app/services/api/user_services.dart';
+import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
 
 class PatientListPage extends StatefulWidget {
@@ -77,8 +79,7 @@ class _PatientListPageState extends State<PatientListPage> {
                               Map<String, dynamic> userDetails =
                                   userSnapshot.data.docs[index].data();
                               String userId = userDetails['id'];
-                              String userName =
-                                  userDetails['fullName'] ?? '';
+                              String userName = userDetails['fullName'] ?? '';
                               String avatarUrl = userDetails['photoUrl'];
                               String pharmacyGroupId =
                                   userDetails['pharmacyGroupId'];
@@ -205,6 +206,12 @@ class _PatientListPageState extends State<PatientListPage> {
     var groupReference = _firestore.collection('groups').doc(pharmacyGroupId);
 
     await _firestore.runTransaction((transaction) async {
+      String authToken = await AuthService.getToken();
+      await UserServices.updateUserById(
+        headerToken: authToken,
+        userId: patientId,
+        updateValues: {'pharmacy_id': null},
+      );
       transaction.update(
         userReference,
         {
@@ -219,6 +226,8 @@ class _PatientListPageState extends State<PatientListPage> {
           'members': FieldValue.arrayRemove([patientId])
         },
       );
+    }).catchError((err) {
+      Fluttertoast.showToast(msg: 'Failed to remove patient: $err');
     });
   }
 
@@ -284,6 +293,12 @@ class _PatientListPageState extends State<PatientListPage> {
     var groupReference = _firestore.collection('groups').doc(pharmacyGroupId);
 
     await _firestore.runTransaction((transaction) async {
+      String authToken = await AuthService.getToken();
+      await UserServices.updateUserById(
+        headerToken: authToken,
+        userId: patientUserId,
+        updateValues: {'pharmacy_id': pharmacyGroupId},
+      );
       transaction.update(
         userReference,
         {
@@ -298,9 +313,11 @@ class _PatientListPageState extends State<PatientListPage> {
           'members': FieldValue.arrayUnion([patientUserId])
         },
       );
+      patientMobileNumController.clear();
+      Fluttertoast.showToast(msg: 'Patient added successfully.');
+      Navigator.of(alertContext).pop();
+    }).catchError((err) {
+      Fluttertoast.showToast(msg: 'Failed to add patient: $err');
     });
-    patientMobileNumController.clear();
-    Fluttertoast.showToast(msg: 'Patient added successfully.');
-    Navigator.of(alertContext).pop();
   }
 }

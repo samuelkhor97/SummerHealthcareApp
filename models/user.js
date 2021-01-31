@@ -56,6 +56,22 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             allowNull: false
         },
+        body_fat_percentage: {
+            type: DataTypes.DECIMAL,
+            allowNull: true,
+        },
+        medical_history: {
+            type: DataTypes.JSONB,
+            allowNull: false
+        },
+        medication: {
+            type: DataTypes.JSONB,
+            allowNull: false
+        },
+        biochemistry: {
+            type: DataTypes.JSONB,
+            allowNull: false
+        },
         signup_date: {
             type: DataTypes.DATE,
             allowNull: false

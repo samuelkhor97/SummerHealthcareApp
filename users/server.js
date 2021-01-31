@@ -1,5 +1,6 @@
 let express = require('express');
 const { sequelize, models } = require('../models/index');
+let userHelper = require('../helpers/user.js');
 let router = express.Router();
 
 /**
@@ -26,7 +27,8 @@ router.get('/me', async (req, res, next) => {
         phone_num: user.phone_num,
         height: user.height,
         weight: weight === null ? null : weight.weight,
-        age: user.age,
+        dob: user.dob, 
+        age: userHelper.getAge(user.dob),
         gender: user.gender,
         ethnicity: user.ethnicity,
         education_status: user.education_status,
@@ -72,7 +74,8 @@ router.get('/id', async (req, res, next) => {
         phone_num: user.phone_num,
         height: user.height,
         weight: weight === null ? null : weight.weight,
-        age: user.age,
+        dob: user.dob,
+        age: userHelper.getAge(user.dob),
         gender: user.gender,
         ethnicity: user.ethnicity,
         education_status: user.education_status,
@@ -111,7 +114,7 @@ router.post('/create', async (req, res, next) => {
       full_name: body.full_name,
       phone_num: body.phone_num,
       height: body.height,
-      age: body.age,
+      dob: body.dob,
       gender: body.gender,
       ethnicity: body.ethnicity,
       education_status: body.education_status,

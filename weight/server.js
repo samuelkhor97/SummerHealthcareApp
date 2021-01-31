@@ -7,9 +7,10 @@ let router = express.Router();
  * url: domain/weight/add
  */
 router.post('/add', async (req, res, next) => {
-    const uid = res.locals.id;
     const body = req.body;
-    try{
+    const uid = body.uid;
+
+    try {
       models.Weight
       .create({
         uid: uid,
@@ -29,7 +30,7 @@ router.post('/add', async (req, res, next) => {
  * url: domain/weight/all
  */
 router.get('/all', async (req, res, next) => {
-    const uid = res.locals.id;
+    const uid = req.query.uid;
 
     try{
         const all_weights =  await models.Weight.findAll({
@@ -44,8 +45,8 @@ router.get('/all', async (req, res, next) => {
 });
 
 router.post('/edit', async (req, res, next) => {
-  const uid = res.locals.id;
   const body = req.body;
+  const uid = body.uid;
 
   try {
     // retrieve weight record chosen

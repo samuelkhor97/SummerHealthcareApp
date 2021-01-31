@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
+import 'package:summer_healthcare_app/home/user/profile/user_details_page.dart';
 import 'package:summer_healthcare_app/services/api/user_services.dart';
 import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
@@ -76,6 +77,26 @@ class _ProfilePageState extends State<ProfilePage> {
     return Column(children: <Widget>[
       buildAvatar(),
       buildInputFields(title: 'Display Name', hintText: 'Jack'),
+      Container(
+        padding: Paddings.all_10,
+        child: UserButton(
+          text: 'View User Details',
+          color: Colours.secondaryColour,
+          padding: EdgeInsets.symmetric(horizontal: Dimensions.d_65),
+          onClick: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UserDetailsPage(
+                  patientUserId: id,
+                  appBar: true,
+                  pharmacistView: false,
+                ),
+              ),
+            );
+          },
+        ),
+      ),
       Container(
         padding: Paddings.all_10,
         child: UserButton(
@@ -236,10 +257,12 @@ class _ProfilePageState extends State<ProfilePage> {
         .doc(id)
         .update({'fullName': fullNameController.text}).then((data) async {
       fullName = fullNameController.text;
-      
+
       String authToken = await AuthService.getToken();
       await UserServices.updateUserById(
-          headerToken: authToken, userId: id, updateValues: {'full_name': fullName});
+          headerToken: authToken,
+          userId: id,
+          updateValues: {'full_name': fullName});
       await preferences.setString('fullName', fullName);
 
       Navigator.pop(context);

@@ -14,8 +14,11 @@ class SugarLevelPage extends StatefulWidget {
   _SugarLevelPageState createState() => _SugarLevelPageState();
 }
 
-class _SugarLevelPageState extends State<SugarLevelPage> {
+class _SugarLevelPageState extends State<SugarLevelPage>  with AutomaticKeepAliveClientMixin<SugarLevelPage> {
   List<SugarList> sugarLevelList;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -23,6 +26,8 @@ class _SugarLevelPageState extends State<SugarLevelPage> {
   }
 
   Widget build(BuildContext context) {
+    super.build(context);
+    
     if (sugarLevelList == null) {
       sugarLevelList = [
         SugarList(

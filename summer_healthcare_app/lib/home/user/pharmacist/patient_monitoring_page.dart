@@ -15,7 +15,7 @@ class PatientMonitoring extends StatefulWidget {
   _PatientMonitoringState createState() => _PatientMonitoringState();
 }
 
-class _PatientMonitoringState extends State<PatientMonitoring> {
+class _PatientMonitoringState extends State<PatientMonitoring> with AutomaticKeepAliveClientMixin<PatientMonitoring> {
   int _currentPageIndex = 0;
 
   List<Widget> _pages;
@@ -29,6 +29,9 @@ class _PatientMonitoringState extends State<PatientMonitoring> {
   final pageController = PageController();
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
     _pages = [
@@ -40,6 +43,8 @@ class _PatientMonitoringState extends State<PatientMonitoring> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [

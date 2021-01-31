@@ -17,9 +17,12 @@ class WeightPage extends StatefulWidget {
   _WeightPageState createState() => _WeightPageState();
 }
 
-class _WeightPageState extends State<WeightPage> {
+class _WeightPageState extends State<WeightPage> with AutomaticKeepAliveClientMixin<WeightPage> {
   List<WeightList> weightList = [];
   List<Weight> allWeights;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -137,6 +140,8 @@ class _WeightPageState extends State<WeightPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+    
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colours.primaryColour,

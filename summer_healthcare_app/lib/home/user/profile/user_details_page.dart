@@ -24,7 +24,7 @@ class UserDetailsPage extends StatefulWidget {
   _UserDetailsPageState createState() => _UserDetailsPageState();
 }
 
-class _UserDetailsPageState extends State<UserDetailsPage> {
+class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAliveClientMixin<UserDetailsPage> {
   bool loadingUserDetails = true;
 
   String myUserId;
@@ -32,6 +32,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   User userDetails;
 
   TextEditingController bodyFatController = TextEditingController();
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -49,11 +52,21 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+    
     return SafeArea(
       child: Scaffold(
         appBar: widget.appBar
             ? AppBar(
-                leading: SizedBox.shrink(),
+                leading: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios_outlined,
+                    color: Colours.black,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
                 title: Text(
                   widget.pharmacistView
                       ? 'Patient\'s Details'
@@ -655,7 +668,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   void updateData({User user}) async {
     Map<String, dynamic> userJson = user.toJson();
     userJson.remove('uid');
-    
+
     String authToken = await AuthService.getToken();
     UserServices.updateUserById(
       headerToken: authToken,

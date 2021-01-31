@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:summer_healthcare_app/json/user.dart';
 import 'package:summer_healthcare_app/landing/user_details.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -14,7 +15,7 @@ class UserServices {
       'full_name': user.fullName.text,
       'phone_num': user.phoneNumber.text,
       'height': user.height.text,
-      'age': user.age.text,
+      'dob': user.dob,
       'gender': user.gender,
       'ethnicity': user.ethnicity.text,
       'education_status': user.educationStatus.text,

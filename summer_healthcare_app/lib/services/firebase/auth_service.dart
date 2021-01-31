@@ -101,7 +101,6 @@ class AuthService {
           });
 
           await preferences.setString('id', firebaseUser.uid);
-          // TODO: get display name from backend api for first time login user  
           await preferences.setString('fullName', userDetails.fullName.text);
           await preferences.setString('photoUrl', firebaseUser.photoURL);
           await preferences.setString('role', 'normal');

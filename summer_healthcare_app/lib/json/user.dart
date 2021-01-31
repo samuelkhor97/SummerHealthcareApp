@@ -8,6 +8,7 @@ class User {
   String fullName;
   String phoneNum;
   String height;
+  String dob;
   int age;
   String gender;
   String ethnicity;
@@ -30,6 +31,7 @@ class User {
       this.fullName,
       this.phoneNum,
       this.height,
+      this.dob,
       this.age,
       this.gender,
       this.ethnicity,
@@ -52,6 +54,7 @@ class User {
     fullName = json['full_name'];
     phoneNum = json['phone_num'];
     height = json['height'];
+    dob = json['dob'];
     age = json['age'];
     gender = json['gender'];
     ethnicity = json['ethnicity'];
@@ -80,6 +83,7 @@ class User {
     data['full_name'] = this.fullName;
     data['phone_num'] = this.phoneNum;
     data['height'] = this.height;
+    data['dob'] = this.dob;
     data['age'] = this.age;
     data['gender'] = this.gender;
     data['ethnicity'] = this.ethnicity;

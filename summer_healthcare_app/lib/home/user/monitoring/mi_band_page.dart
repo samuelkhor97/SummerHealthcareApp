@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import "package:http/http.dart" as http;
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:cloud_firestore/cloud_firestore.dart' as store;
+import 'package:summer_healthcare_app/main.dart';
 
 GoogleSignIn _googleSignIn = GoogleSignIn(
   scopes: [
@@ -26,6 +28,7 @@ class MiBandPage extends StatefulWidget {
 }
 
 class _MiBandPageState extends State<MiBandPage> {
+  store.FirebaseFirestore _firestore = store.FirebaseFirestore.instance;
   var todaySteps = 0;
   num currentBPM;
   bool showAllData = false;
@@ -189,6 +192,7 @@ class _MiBandPageState extends State<MiBandPage> {
 
       showAllData = true;
     });
+    saveToFirebase(showAllData);
   }
 
   Widget build(BuildContext context) {
@@ -443,6 +447,42 @@ class _MiBandPageState extends State<MiBandPage> {
     var d = Duration(minutes:minutes);
     List<String> parts = d.toString().split(':');
     return '${parts[0].padRight(2, 'h')}  ${parts[1].padRight(3, 'min')}';
+  }
+
+  void saveToFirebase(getAllData) {
+    String uid = preferences.getString('id');
+    String date = DateFormat('dd-MM-yyyy').format(DateTime.now().add(Duration(hours: 8)));
+    var heartRateDic = {};
+
+    if (getAllData){
+      for (var i = 0; i < heartRateData.length; i++) {
+        heartRateDic[i] = {
+          "time": heartRateData[i].time,
+          "value": heartRateData[i].heart_data
+        };
+      }
+
+
+      _firestore.collection("mi-band").doc(uid).collection(date).doc("steps").set({
+        "name": 'steps',
+        "steps data": stepsData.last.steps,
+        "day": stepsData.last.day
+      });
+
+      _firestore.collection("mi-band").doc(uid).collection(date).doc("heart").set({
+        "name": 'heartRate',
+        "heart rate": heartRateDic.toString(),
+      });
+
+      _firestore.collection("mi-band").doc(uid).collection(date).doc("sleep").set({
+        "name": 'sleepData',
+        "duration": sleepDuration,
+      });
+
+    }
+    else {
+      print("did not get all data");
+    }
   }
 
 }

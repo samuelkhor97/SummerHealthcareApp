@@ -44,15 +44,15 @@ class _MiBandPageState extends State<MiBandPage> {
   @override
   void initState() {
     super.initState();
+    print('here ${_googleSignIn.currentUser}');
     if (_googleSignIn.currentUser == null) {
+      _handleSignIn();
       _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
         setState(() {
           _currentUser = account;
         });
         if (_currentUser != null) {
           _getFitData();
-        } else {
-          _handleSignIn();
         }
       });
     } else {

@@ -11,7 +11,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 
-import 'package:summer_healthcare_app/widgets/show_loading_animation.dart';
+import 'package:summer_healthcare_app/widgets/widgets.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/home/user/chatroom/full_photo.dart';
 import 'package:summer_healthcare_app/home/user/chatroom/groupinfo_page.dart';
@@ -49,7 +49,7 @@ class _ChatRoomState extends State<ChatRoom> {
       // equals to another conversation participant
       groupDetails['members'].forEach((memberId, details) {
         groupName = (memberId.toString() != widget.id)
-            ? details['displayName']
+            ? details['fullName']
             : groupName;
       });
     } else {
@@ -65,7 +65,7 @@ class _ChatRoomState extends State<ChatRoom> {
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back_ios_outlined,
-              color: Colours.secondaryColour,
+              color: Colours.black,
             ),
             onPressed: () {
               Navigator.popUntil(
@@ -76,7 +76,7 @@ class _ChatRoomState extends State<ChatRoom> {
           title: Text(
             groupName,
             style: TextStyle(
-              color: Colours.secondaryColour,
+              color: Colours.black,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -266,13 +266,13 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void onSendMessage({String content, Type type}) {
+  void onSendMessage({String content, Type type}) async {
     if (content.trim() != '') {
       textEditingController.clear();
 
       String lastMessage =
           (type == Type.text) ? content : "[${describeEnum(type)}]";
-      String lastSentBy = groupDetails['members'][id]['displayName'];
+      String lastSentBy = groupDetails['members'][id]['fullName'];
 
       var documentReference = _firestore
           .collection('messages')
@@ -281,7 +281,7 @@ class _ChatScreenState extends State<ChatScreen> {
           .doc();
       var groupReference = _firestore.collection('groups').doc(groupId);
 
-      _firestore.runTransaction((transaction) async {
+      await _firestore.runTransaction((transaction) async {
         transaction.set(
           documentReference,
           {
@@ -420,13 +420,22 @@ class _ChatScreenState extends State<ChatScreen> {
     Map<String, dynamic> docData = document.data();
 
     String senderId = docData['sentBy'];
-    String senderName = groupDetails['members'][senderId]['displayName'] ?? '';
-    String senderAvatar = groupDetails['members'][senderId]['photoUrl'];
+    dynamic sender;
+    // if user is removed while still in the chatroom page
+    if (groupDetails.isEmpty) {
+      return Container();
+    } else {
+      sender = groupDetails['members'][senderId];
+    }
+    // if message is sent by a user who has been removed from group
+    String senderName = sender != null ? sender['fullName'] : 'User removed';
+    String senderAvatar = sender != null ? sender['photoUrl'] : '';
     String messageType = docData['type'];
     String content = docData['content'];
-    String senderRole = groupDetails['members'][senderId]['role'];
+    String senderRole = sender != null ? sender['role'] : 'normal';
     Timestamp sentAt = docData['sentAt'];
     bool isPersonal = groupType == describeEnum(GroupType.personal);
+    bool isremoved = sender == null;
 
     if (docData['sentBy'] == id) {
       // Right (my message)
@@ -463,6 +472,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ? buildSenderLabel(
                         sender: senderName,
                         role: senderRole,
+                        isRemoved: isremoved,
                       )
                     : Container(),
             Row(
@@ -563,7 +573,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Row buildSenderLabel({String sender, String role}) {
+  Row buildSenderLabel({String sender, String role, bool isRemoved}) {
     return Row(
       children: <Widget>[
         Container(width: Dimensions.d_50),
@@ -572,6 +582,9 @@ class _ChatScreenState extends State<ChatScreen> {
           child: Text(
             sender,
             overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontStyle: isRemoved ? FontStyle.italic : FontStyle.normal,
+            ),
           ),
         ),
       ],

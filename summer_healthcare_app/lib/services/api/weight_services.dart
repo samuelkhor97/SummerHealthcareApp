@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:summer_healthcare_app/json/weight.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+final String backendUrl = env['backendUrl'];
 
 class WeightServices {
-  Future<List<Weight>> getAllWeight({String headerToken}) async {
+  static Future<List<Weight>> getAllWeight({String headerToken, String uid}) async {
     var response = await http.get(
-      'https://monashhealthcare-app.herokuapp.com/weight/all',
+      '$backendUrl/weight/all?uid=$uid',
       headers: {
         'Authorization': headerToken,
       },
@@ -23,10 +26,12 @@ class WeightServices {
     return allWeights;
   }
 
-  Future<void> addWeight({String headerToken, String date, String weight}) async {
-    var response = await http.post('https://monashhealthcare-app.herokuapp.com/weight/add', headers: {
+  static Future<void> addWeight(
+      {String headerToken, String uid, String date, String weight}) async {
+    var response = await http.post('$backendUrl/weight/add', headers: {
       'Authorization': headerToken,
     }, body: {
+      'uid': uid,
       'date': date,
       'weight': weight
     });
@@ -34,10 +39,16 @@ class WeightServices {
     print('Response: ${response.statusCode} and ${response.body}');
   }
 
-  Future<void> editWeight({String headerToken, String date, String oldWeight, String newWeight}) async {
-    var response = await http.post('https://monashhealthcare-app.herokuapp.com/weight/edit', headers: {
+  static Future<void> editWeight(
+      {String headerToken,
+      String uid,
+      String date,
+      String oldWeight,
+      String newWeight}) async {
+    var response = await http.post('$backendUrl/weight/edit', headers: {
       'Authorization': headerToken,
     }, body: {
+      'uid': uid,
       'date': date,
       'old_weight': oldWeight,
       'new_weight': newWeight

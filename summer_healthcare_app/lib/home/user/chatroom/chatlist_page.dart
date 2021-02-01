@@ -1,5 +1,4 @@
 import 'dart:collection';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -9,14 +8,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:summer_healthcare_app/home/user/chatroom/chatroom_page.dart';
+import 'package:summer_healthcare_app/main.dart';
 
 enum GroupType { personal, pharmacy, public }
 
 class ChatList extends StatelessWidget {
-  final String id;
-
-  ChatList({this.id});
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -25,7 +21,7 @@ class ChatList extends StatelessWidget {
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back_ios_outlined,
-              color: Colours.secondaryColour,
+              color: Colours.black,
             ),
             onPressed: () {
               Navigator.pop(context);
@@ -35,21 +31,18 @@ class ChatList extends StatelessWidget {
           title: Text(
             'Chat',
             style: TextStyle(
-              color: Colours.secondaryColour,
+              color: Colours.black,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        body: ChatListScreen(id: id),
+        body: ChatListScreen(),
       ),
     );
   }
 }
 
 class ChatListScreen extends StatefulWidget {
-  final String id;
-
-  ChatListScreen({this.id});
 
   @override
   _ChatListScreenState createState() => _ChatListScreenState();
@@ -65,7 +58,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
   void initState() {
     super.initState();
 
-    id = widget.id;
+    id = preferences.getString('id');
   }
 
   @override
@@ -172,7 +165,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
   }
 
   Map<String, dynamic> getGroupDetailsCallback({String groupId}) {
-    return UnmodifiableMapView(groupsDetails[groupId]);
+    if (groupsDetails[groupId] != null)
+      return UnmodifiableMapView(groupsDetails[groupId]);
+    else
+      return UnmodifiableMapView(Map());
   }
 
   Widget buildChatTile({Map<String, dynamic> groupDetails}) {
@@ -185,12 +181,12 @@ class _ChatListScreenState extends State<ChatListScreen> {
     String avatarUrl = '';
 
     String title = '';
-    String selfName = members[id]['displayName'];
+    String selfName = members[id] != null ? members[id]['fullName'] : '';
     if (groupType == describeEnum(GroupType.personal)) {
       // for personal group, it is one-to-one group so set title
       // equals to another conversation participant
       members.forEach((memberId, details) {
-        title = (memberId.toString() != id) ? details['displayName'] : title;
+        title = (memberId.toString() != id) ? details['fullName'] : title;
       });
       lastSentBy = (lastSentBy == selfName) ? 'You: ' : '';
     } else {

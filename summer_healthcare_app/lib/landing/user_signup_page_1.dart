@@ -82,6 +82,7 @@ class _UserSignUpPage1State extends State<UserSignUpPage1> {
             if (selectedDate != null) {
               setState(() {
                 currentDate = selectedDate;
+                userDetails.dob = DateFormat('dd-MM-yyyy').format(currentDate);
                 userDetails.setAge(dateOfBirth: currentDate);
                 checkAllInformationFilled(
                     checkBox: userDetails.termsAndConditions);

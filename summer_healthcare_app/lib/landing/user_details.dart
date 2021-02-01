@@ -8,6 +8,7 @@ class UserDetails {
   bool isLogin = false;
   bool isPharmacist = false;
   String gender;
+  String dob;
   TextEditingController age = TextEditingController();
   TextEditingController weight = TextEditingController();
   TextEditingController height = TextEditingController();

@@ -10,8 +10,12 @@ class Paddings {
   static EdgeInsetsGeometry vertical_5 = EdgeInsets.symmetric(vertical: 5.0);
   static EdgeInsetsGeometry vertical_15 = EdgeInsets.symmetric(vertical: 15.0);
   static EdgeInsetsGeometry vertical_35 = EdgeInsets.symmetric(vertical: 35.0);
+  static EdgeInsetsGeometry all_1 = EdgeInsets.all(1.0);
   static EdgeInsetsGeometry all_3 = EdgeInsets.all(3.0);
+  static EdgeInsetsGeometry all_5 = EdgeInsets.all(5.0);
   static EdgeInsetsGeometry all_10 = EdgeInsets.all(10.0);
+  static EdgeInsetsGeometry all_15 = EdgeInsets.all(15.0);
+  static EdgeInsetsGeometry all_20 = EdgeInsets.all(20.0);
 }
 
 class Dimensions {
@@ -23,6 +27,7 @@ class Dimensions {
   static double d_2 = 2.0;
   static double d_3 = 3.0;
   static double d_5 = 5.0;
+  static double d_8 = 8.0;
   static double d_10 = 10.0;
   static double d_15 = 15.0;
   static double d_20 = 20.0;

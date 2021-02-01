@@ -6,6 +6,10 @@ import 'package:summer_healthcare_app/json/weight.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
 class WeightGraphPage extends StatefulWidget {
+  final String uid;
+
+  WeightGraphPage({@required this.uid});
+
   @override
   _WeightGraphPageState createState() => _WeightGraphPageState();
 }
@@ -24,7 +28,7 @@ class _WeightGraphPageState extends State<WeightGraphPage> {
 
   void getAllWeights() async {
     String token = await AuthService.getToken();
-    allWeights = await WeightServices().getAllWeight(headerToken: token);
+    allWeights = await WeightServices.getAllWeight(headerToken: token, uid: widget.uid);
     allWeights.sort((a, b) => DateTime.parse(a.date).compareTo(DateTime.parse(b.date)));
     graphBuilder(0, 7);
     setState(() {});

@@ -15,8 +15,7 @@ import 'package:summer_healthcare_app/home/user/chatroom/chatlist_page.dart'
     show GroupType, buildAvatar;
 import 'package:summer_healthcare_app/home/user/chatroom/chatroom_page.dart'
     show ChatRoom, Role, getPersonalGroupDetails;
-import 'package:summer_healthcare_app/widgets/input_field.dart';
-import 'package:summer_healthcare_app/widgets/show_loading_animation.dart';
+import 'package:summer_healthcare_app/widgets/widgets.dart';
 
 class GroupInfo extends StatefulWidget {
   final String id;
@@ -206,7 +205,7 @@ class _GroupInfoState extends State<GroupInfo> {
                         userSnapshot.data.docs[index].data();
                     String groupType = describeEnum(GroupType.personal);
                     String userId = userDetails['id'];
-                    String userName = userDetails['displayName'] ?? '';
+                    String userName = userDetails['fullName'] ?? '';
                     String avatarUrl = userDetails['photoUrl'];
                     String userRole = userDetails['role'];
 

@@ -2,16 +2,19 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:summer_healthcare_app/json/user.dart';
 import 'package:summer_healthcare_app/landing/user_details.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+final String backendUrl = env['backendUrl'];
 
 class UserServices {
-  Future<bool> createUser({String headerToken, UserDetails user}) async {
-    var response = await http.post('https://monashhealthcare-app.herokuapp.com/user/create', headers: {
+  static Future<bool> createUser({String headerToken, UserDetails user}) async {
+    var response = await http.post('$backendUrl/user/create', headers: {
       'Authorization': headerToken,
     }, body: {
       'full_name': user.fullName.text,
       'phone_num': user.phoneNumber.text,
       'height': user.height.text,
-      'age': user.age.text,
+      'dob': user.dob,
       'gender': user.gender,
       'ethnicity': user.ethnicity.text,
       'education_status': user.educationStatus.text,
@@ -32,8 +35,8 @@ class UserServices {
     return false;
   }
 
-  Future<bool> doesUserExist({String headerToken}) async {
-    var response = await http.get('https://monashhealthcare-app.herokuapp.com/user/exists', headers: {
+  static Future<bool> doesUserExist({String headerToken}) async {
+    var response = await http.get('$backendUrl/user/exists', headers: {
       'Authorization': headerToken,
     });
 
@@ -43,8 +46,9 @@ class UserServices {
     return userBody['exists'];
   }
 
-  Future<User> getUser({String headerToken}) async {
-    var response = await http.get('https://monashhealthcare-app.herokuapp.com/user/me', headers: {
+
+  static Future<User> getUser({String headerToken}) async {
+    var response = await http.get('$backendUrl/user/me', headers: {
       'Authorization': headerToken,
     });
 
@@ -52,8 +56,41 @@ class UserServices {
     if (response.statusCode == 200) {
       Map<String, dynamic> requestsBody = jsonDecode(response.body);
       user = User.fromJson(requestsBody);
+    } else {
+      return Future.error(response.body.toString());
     }
 
     return user;
+  }
+
+  static Future<User> getUserById({String headerToken, String userId}) async {
+    var response = await http.get('$backendUrl/user/id?id=$userId', headers: {
+      'Authorization': headerToken,
+    });
+
+    User user;
+    if (response.statusCode == 200) {
+      Map<String, dynamic> requestsBody = jsonDecode(response.body);
+      user = User.fromJson(requestsBody);
+    } else {
+      return Future.error(response.body.toString());
+    }
+
+    return user;
+  }
+
+  static Future<String> updateUserById({String headerToken, String userId, Map<String, dynamic> updateValues}) async {
+    var response = await http.post('$backendUrl/user/update', headers: {
+      'Authorization': headerToken,
+    }, body: {
+      'id': userId,
+      'updateValues': json.encode(updateValues),
+    });
+
+    if (response.statusCode == 200) {
+      return "Update successful";
+    } else {
+      return Future.error("Error on updateUserById: ${response.body.toString()}");
+    }
   }
 }

@@ -31,6 +31,7 @@ dependencies:
   flutter_image_compress: ^0.7.0
   age: ^0.0.1
   charts_flutter: ^0.9.0
+  flutter_dotenv: ^3.1.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -62,6 +63,7 @@ flutter:
   assets:
     - images/medical_logo_new.png
     - images/img_not_available.jpeg
+    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

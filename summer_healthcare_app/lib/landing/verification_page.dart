@@ -145,7 +145,7 @@ class _VerificationPageState extends State<VerificationPage> {
                                 // set shared preference
                                 SharedPreferences preferences = await SharedPreferences
                                     .getInstance();
-                                preferences.setBool('isSLI',
+                                await preferences.setBool('isSLI',
                                     widget.userDetails.isPharmacist);
                                 widget.userDetails.disposeTexts();
                               }

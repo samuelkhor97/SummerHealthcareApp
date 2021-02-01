@@ -317,6 +317,7 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                     hintText: '5',
                     controller: userDetails.smokePerDay,
                     labelText: 'Number of cigarettes per day?',
+                    keyboardType: TextInputType.number,
                     onChanged: (String text) {
                       setState(() {
                         checkAllInformationFilled(checkBox: userDetails

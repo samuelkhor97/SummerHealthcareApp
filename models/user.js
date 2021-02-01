@@ -17,8 +17,8 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DECIMAL,
             allowNull: false,
         },
-        age: {
-            type: DataTypes.INTEGER,
+        dob: {
+            type: DataTypes.STRING,
             allowNull: false,
         },
         gender: {
@@ -54,6 +54,22 @@ module.exports = (sequelize, DataTypes) => {
         },
         e_cig: {
             type: DataTypes.BOOLEAN,
+            allowNull: false
+        },
+        body_fat_percentage: {
+            type: DataTypes.DECIMAL,
+            allowNull: true,
+        },
+        medical_history: {
+            type: DataTypes.JSONB,
+            allowNull: false
+        },
+        medication: {
+            type: DataTypes.JSONB,
+            allowNull: false
+        },
+        biochemistry: {
+            type: DataTypes.JSONB,
             allowNull: false
         },
         signup_date: {

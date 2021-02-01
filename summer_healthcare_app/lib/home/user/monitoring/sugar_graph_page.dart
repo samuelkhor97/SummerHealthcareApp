@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
 import 'package:charts_flutter/flutter.dart' as chart;
 
-class GraphPage extends StatefulWidget {
+class SugarGraphPage extends StatefulWidget {
   @override
-  _GraphPageState createState() => _GraphPageState();
+  _SugarGraphPageState createState() => _SugarGraphPageState();
 }
 
-class _GraphPageState extends State<GraphPage> {
+class _SugarGraphPageState extends State<SugarGraphPage> {
   bool _hasBeenPressed = false;
   var lineData;
   List<bool> daysList = [true, false, false, false];
@@ -128,58 +128,6 @@ class _GraphPageState extends State<GraphPage> {
         body: SafeArea(
           child: Column(
             children: [
-              ButtonBar(
-                alignment: MainAxisAlignment.center,
-                buttonPadding: EdgeInsets.all(0.0),
-                children: [
-                  SizedBox(
-                    width: 110,
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Colours.secondaryColour,
-                        padding: EdgeInsets.all(8.0),
-                        side: BorderSide(color: Colours.secondaryColour),
-                        shape: BeveledRectangleBorder(),
-                      ),
-                      onPressed: null,
-                      child: Text(
-                        'Sugar Level',
-                        style: TextStyle(color: Colours.primaryColour),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 110,
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.all(8.0),
-                        side: BorderSide(color: Colours.secondaryColour),
-                        shape: BeveledRectangleBorder(),
-                      ),
-                      onPressed: null,
-                      child: Text(
-                        'Weight',
-                        style: TextStyle(color: Colours.grey),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 110,
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.all(8.0),
-                        side: BorderSide(color: Colours.secondaryColour),
-                        shape: BeveledRectangleBorder(),
-                      ),
-                      onPressed: null,
-                      child: Text(
-                        'Mi-Band',
-                        style: TextStyle(color: Colours.grey),
-                      ),
-                    ),
-                  )
-                ],
-              ),
               ButtonBar(
                 alignment: MainAxisAlignment.center,
                 buttonPadding: EdgeInsets.all(0.0),

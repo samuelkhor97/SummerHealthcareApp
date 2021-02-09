@@ -9,12 +9,14 @@ class WeightList extends StatefulWidget {
   final String currentDate;
   final String lastWeight;
   final TextEditingController weight;
+  final bool editable;
   final Function callback;
   WeightList(
       {@required this.uid,
       this.currentDate,
       this.lastWeight,
       this.weight,
+      this.editable = true,
       this.callback});
 
   @override
@@ -100,9 +102,11 @@ class _WeightListState extends State<WeightList> {
                     ? Colours.green
                     : Colours.grey),
       ),
-      onTap: () {
-        showWeightChangePopUp();
-      },
+      onTap: widget.editable
+          ? () {
+              showWeightChangePopUp();
+            }
+          : null,
     );
   }
 }

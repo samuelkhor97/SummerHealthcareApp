@@ -85,6 +85,8 @@ class _SugarLevelPageState extends State<SugarLevelPage>  with AutomaticKeepAliv
             Icons.stacked_bar_chart,
             size: Dimensions.d_35,
           ),
+          // prevent duplicated heroTag of FAB across pages which cause crash occasionally
+          heroTag: 'sugarLvlBtn',
           onPressed: () {
             Navigator.push(
               context,

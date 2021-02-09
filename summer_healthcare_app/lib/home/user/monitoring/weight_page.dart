@@ -10,8 +10,9 @@ import 'package:summer_healthcare_app/home/user/monitoring/weight_graph_page.dar
 class WeightPage extends StatefulWidget {
   final bool appBar;
   final String uid;
+  final bool editable;
 
-  WeightPage({@required this.appBar, @required this.uid});
+  WeightPage({@required this.appBar, @required this.uid, @required this.editable});
 
   @override
   _WeightPageState createState() => _WeightPageState();
@@ -64,6 +65,7 @@ class _WeightPageState extends State<WeightPage> with AutomaticKeepAliveClientMi
         currentDate: formatDate,
         weight: weightController,
         lastWeight: allWeights[ind].weight,
+        editable: widget.editable,
         callback:
             initializePage, // pass this function as callback in order to refresh current/start weight if edited
       );
@@ -265,6 +267,8 @@ class _WeightPageState extends State<WeightPage> with AutomaticKeepAliveClientMi
             Icons.stacked_bar_chart,
             size: Dimensions.d_35,
           ),
+          // prevent duplicated heroTag of FAB across pages which cause crash occasionally
+          heroTag: 'weightBtn',
           onPressed: () {
             Navigator.push(
               context,

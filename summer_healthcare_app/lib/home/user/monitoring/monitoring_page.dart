@@ -51,6 +51,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
                   builder: (context) => WeightPage(
                     appBar: true,
                     uid: uid,
+                    editable: true,
                   ),
                 ),
               );

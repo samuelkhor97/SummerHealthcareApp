@@ -125,18 +125,25 @@ class _MiBandPageState extends State<MiBandPage> {
     var stepsOutput = jsonDecode(stepsResponse.body);
     var stepsValues = stepsOutput["bucket"];
 
-    for (int i = 0; i < stepsValues.length; i++) {
-      var dateMili = int.parse(stepsValues[i]["startTimeMillis"]);
-      var formatedDate = DateFormat('EEE').format(DateTime.fromMillisecondsSinceEpoch(dateMili).add(Duration(hours: 8)));
-      if (stepsValues[i]["dataset"][0]["point"].length == 0) {
-        stepsList.add(MiBandStepsData(formatedDate, 0));
-      }
-      else {
-        var steps = stepsValues[i]["dataset"][0]["point"][0]["value"][0]["intVal"];
+    if (stepsValues == null) {
+      var formatedDate = DateFormat('EEE').format(DateTime.now());
+      stepsList.add(MiBandStepsData(formatedDate, 0));
+    }
+    else {
+      for (int i = 0; i < stepsValues.length; i++) {
+        var dateMili = int.parse(stepsValues[i]["startTimeMillis"]);
+        var formatedDate = DateFormat('EEE').format(DateTime.fromMillisecondsSinceEpoch(dateMili).add(Duration(hours: 8)));
+        if (stepsValues[i]["dataset"][0]["point"].length == 0) {
+          stepsList.add(MiBandStepsData(formatedDate, 0));
+        }
+        else {
+          var steps = stepsValues[i]["dataset"][0]["point"][0]["value"][0]["intVal"];
 
-        stepsList.add(MiBandStepsData(formatedDate, steps));
+          stepsList.add(MiBandStepsData(formatedDate, steps));
+        }
       }
     }
+
 
     var heartRateResponse = await http.post(
         'https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate',
@@ -173,7 +180,10 @@ class _MiBandPageState extends State<MiBandPage> {
     }
 
     setState(() {
-      if (stepsValues.last["dataset"][0]["point"].length == 0) {
+      if (stepsValues == null) {
+        todaySteps = 0;
+      }
+      else if (stepsValues.last["dataset"][0]["point"].length == 0) {
         todaySteps = 0;
       }
       else {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
-import 'package:summer_healthcare_app/home/user/monitoring/graph_page.dart';
+import 'package:summer_healthcare_app/home/user/monitoring/sugar_graph_page.dart';
 import 'package:summer_healthcare_app/widgets/widgets.dart';
 
 class SugarLevelPage extends StatefulWidget {
@@ -89,7 +89,7 @@ class _SugarLevelPageState extends State<SugarLevelPage>  with AutomaticKeepAliv
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => GraphPage(),
+                builder: (context) => SugarGraphPage(),
               ),
             );
           },

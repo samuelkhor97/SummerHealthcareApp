@@ -262,7 +262,7 @@ class _WeightPageState extends State<WeightPage> with AutomaticKeepAliveClientMi
                 ],
               ),
         floatingActionButton: FloatingActionButton(
-          tooltip: 'Add Weight',
+          tooltip: 'Show Graph',
           child: Icon(
             Icons.stacked_bar_chart,
             size: Dimensions.d_35,

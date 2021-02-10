@@ -49,11 +49,12 @@ class _MiBandPageState extends State<MiBandPage> {
     super.initState();
     print('here ${_googleSignIn.currentUser}');
     if (_googleSignIn.currentUser == null) {
-      _handleSignIn();
       _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
-        setState(() {
-          _currentUser = account;
-        });
+        if (mounted) {
+          setState(() {
+            _currentUser = account;
+          });
+        }
         if (_currentUser != null) {
           _getFitData();
         }
@@ -71,6 +72,7 @@ class _MiBandPageState extends State<MiBandPage> {
     var now = DateTime.now();
     List<MibandHeartRateData> heartRateList = [];
     List<MiBandStepsData> stepsList = [];
+
     var stepsBody = jsonEncode({
       "aggregateBy": [
         {
@@ -85,6 +87,7 @@ class _MiBandPageState extends State<MiBandPage> {
           .millisecondsSinceEpoch,
       "endTimeMillis": now.toUtc().millisecondsSinceEpoch
     });
+
 
     var heartRateBody = jsonEncode({
       "aggregateBy": [
@@ -108,6 +111,7 @@ class _MiBandPageState extends State<MiBandPage> {
     });
 
 
+
     GoogleSignInAuthentication googlesigninauthentication =
         await _currentUser.authentication;
 
@@ -124,9 +128,14 @@ class _MiBandPageState extends State<MiBandPage> {
     for (int i = 0; i < stepsValues.length; i++) {
       var dateMili = int.parse(stepsValues[i]["startTimeMillis"]);
       var formatedDate = DateFormat('EEE').format(DateTime.fromMillisecondsSinceEpoch(dateMili).add(Duration(hours: 8)));
-      var steps = stepsValues[i]["dataset"][0]["point"][0]["value"][0]["intVal"];
+      if (stepsValues[i]["dataset"][0]["point"].length == 0) {
+        stepsList.add(MiBandStepsData(formatedDate, 0));
+      }
+      else {
+        var steps = stepsValues[i]["dataset"][0]["point"][0]["value"][0]["intVal"];
 
-      stepsList.add(MiBandStepsData(formatedDate, steps));
+        stepsList.add(MiBandStepsData(formatedDate, steps));
+      }
     }
 
     var heartRateResponse = await http.post(
@@ -152,41 +161,33 @@ class _MiBandPageState extends State<MiBandPage> {
         body: sleepBody);
     var sleepOutput = jsonDecode(sleepResponse.body);
     var sleepValues = sleepOutput["bucket"][0]["dataset"][0]["point"];
+    var totalSleepMinutes = 0;
 
-    var sleepTime = sleepValues[0]["startTimeNanos"];
-    var wakeTime = sleepValues.last["endTimeNanos"];
-
-    var totalSleepMinutes = (DateTime.fromMicrosecondsSinceEpoch((int.parse(wakeTime) / 1000).round()).difference(DateTime.fromMicrosecondsSinceEpoch((int.parse(sleepTime) / 1000).round())).inMinutes);
-
-
-    /// SLEEP DATA FOR AWAKE, LIGHT SLEEP AND DEEP SLEEP (DATA IS NOT COMPLETELY RECORDED BY GOOGLE)
-    // var one = 0;
-    // var four = 0;
-    // var five = 0;
-    //
-    // for (int i = 0; i < sleepValues.length; i ++) {
-    //   var sleepStage = sleepValues[i]["value"][0]["intVal"];
-    //   var startStageTime = sleepValues[i]["startTimeNanos"];
-    //   var endStageTime = sleepValues[i]["endTimeNanos"];
-    //   if (sleepStage == 1) {
-    //     one += (DateTime.fromMicrosecondsSinceEpoch((int.parse(endStageTime) / 1000).round()).difference(DateTime.fromMicrosecondsSinceEpoch((int.parse(startStageTime) / 1000).round())).inMinutes);
-    //   }
-    //   else if (sleepStage == 4) {
-    //     four += (DateTime.fromMicrosecondsSinceEpoch((int.parse(endStageTime) / 1000).round()).difference(DateTime.fromMicrosecondsSinceEpoch((int.parse(startStageTime) / 1000).round())).inMinutes);
-    //   }
-    //   else if (sleepStage == 5) {
-    //     five += (DateTime.fromMicrosecondsSinceEpoch((int.parse(endStageTime) / 1000).round()).difference(DateTime.fromMicrosecondsSinceEpoch((int.parse(startStageTime) / 1000).round())).inMinutes);
-    //   }
-    // }
-
+    if (sleepValues.length == 0) {
+      totalSleepMinutes = 0;
+    }
+    else {
+      var sleepTime = sleepValues[0]["startTimeNanos"];
+      var wakeTime = sleepValues.last["endTimeNanos"];
+      totalSleepMinutes = (DateTime.fromMicrosecondsSinceEpoch((int.parse(wakeTime) / 1000).round()).difference(DateTime.fromMicrosecondsSinceEpoch((int.parse(sleepTime) / 1000).round())).inMinutes);
+    }
 
     setState(() {
-      // The integer after bucket is subject to change, to get today's step value, then it's 7
-      todaySteps = stepsValues.last["dataset"][0]["point"][0]["value"][0]["intVal"];
+      if (stepsValues.last["dataset"][0]["point"].length == 0) {
+        todaySteps = 0;
+      }
+      else {
+        todaySteps = stepsValues.last["dataset"][0]["point"][0]["value"][0]["intVal"];
+      }
       stepsData = stepsList;
 
       heartRateData = heartRateList;
-      currentBPM = heartRateValues[heartRateValues.length-1]["value"][0]["fpVal"];
+      if (heartRateValues.length == 0) {
+        currentBPM = 0;
+      }
+      else {
+        currentBPM = heartRateValues.last["value"][0]["fpVal"];
+      }
 
       sleepDuration = durationToString(totalSleepMinutes);
 
@@ -210,6 +211,25 @@ class _MiBandPageState extends State<MiBandPage> {
             title: Text(
               'Mi Band',
             ),
+            actions: [
+              (_googleSignIn.currentUser == null) ?
+              IconButton(
+                icon: Icon(Icons.login),
+                onPressed: _handleSignIn,
+                color: Colours.secondaryColour,
+                tooltip: "Google Sign In",
+              )
+                  :
+              IconButton(
+                icon: Icon(Icons.logout),
+                onPressed: () {
+                  handleSignOut();
+                  Navigator.pop(context);
+                },
+                color: Colours.secondaryColour,
+                tooltip: "Google Sign Out",
+              )
+            ],
             centerTitle: true,
             elevation: Dimensions.d_3,
           ),
@@ -378,10 +398,6 @@ class _MiBandPageState extends State<MiBandPage> {
                                 )
                               ],
                             )),
-                        // ElevatedButton(
-                        //   child: const Text('SIGN IN'),
-                        //   onPressed: _handleSignIn,
-                        // ),
                       ]
                     ),
                   ),

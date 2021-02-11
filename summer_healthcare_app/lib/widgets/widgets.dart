@@ -8,7 +8,7 @@ export 'package:summer_healthcare_app/widgets/input_field.dart';
 export 'package:summer_healthcare_app/widgets/show_loading_animation.dart';
 export 'package:summer_healthcare_app/widgets/sugar_container.dart';
 export 'package:summer_healthcare_app/widgets/sugar_list.dart';
-export 'package:summer_healthcare_app/widgets/user_outlined_button.dart';
+export 'package:summer_healthcare_app/widgets/user_monitoring_button.dart';
 export 'package:summer_healthcare_app/widgets/dot_indicators.dart';
 export 'package:summer_healthcare_app/widgets/weight_list.dart';
 export 'package:summer_healthcare_app/widgets/diary_card.dart';

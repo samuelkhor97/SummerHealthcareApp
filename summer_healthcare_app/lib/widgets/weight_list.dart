@@ -91,12 +91,12 @@ class _WeightListState extends State<WeightList> {
         style: TextStyle(fontSize: FontSizes.normalText),
       ),
       trailing: Text(
-        weight.text + ' kg',
+          double.parse(weight.text).toStringAsFixed(2) + ' kg',
         style: TextStyle(
             fontSize: FontSizes.biggerText,
-            color: int.parse(weight.text) > int.parse(widget.lastWeight)
+            color: double.parse(weight.text) > double.parse(widget.lastWeight)
                 ? Colours.red
-                : int.parse(weight.text) < int.parse(widget.lastWeight)
+                : double.parse(weight.text) < double.parse(widget.lastWeight)
                     ? Colours.green
                     : Colours.grey),
       ),

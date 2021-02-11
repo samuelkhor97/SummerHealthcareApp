@@ -23,6 +23,11 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
 );
 
 class MiBandPage extends StatefulWidget {
+  final bool appBar;
+  final String uid;
+
+  MiBandPage({@required this.appBar, this.uid});
+
   @override
   _MiBandPageState createState() => _MiBandPageState();
 }
@@ -47,28 +52,32 @@ class _MiBandPageState extends State<MiBandPage> {
   @override
   void initState() {
     super.initState();
-    print('here ${_googleSignIn.currentUser}');
-    if (_googleSignIn.currentUser == null) {
-      _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
-        if (mounted) {
-          setState(() {
-            _currentUser = account;
-          });
-        }
-        if (_currentUser != null) {
-          _getFitData();
-        }
-      });
+    // if uid is passed to current page, it means it is from Pharmacist View -> Patient Monitoring
+    if (widget.uid != null) {
+      _getFitDataFirestore(uid: widget.uid);
     } else {
-      _currentUser = _googleSignIn.currentUser;
-      _getFitData();
+      print('here ${_googleSignIn.currentUser}');
+      if (_googleSignIn.currentUser == null) {
+        _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
+          if (mounted) {
+            setState(() {
+              _currentUser = account;
+            });
+          }
+          if (_currentUser != null) {
+            _getFitDataGoogle();
+          }
+        });
+      } else {
+        _currentUser = _googleSignIn.currentUser;
+        _getFitDataGoogle();
+      }
+      currentBPM = heartRateData[heartRateData.length-1].heart_data;
+      _googleSignIn.signInSilently();
     }
-    currentBPM = heartRateData[heartRateData.length-1].heart_data;
-    _googleSignIn.signInSilently();
   }
 
-
-  Future<void> _getFitData() async {
+  Future<void> _getFitDataGoogle() async {
     var now = DateTime.now();
     List<MibandHeartRateData> heartRateList = [];
     List<MiBandStepsData> stepsList = [];
@@ -206,11 +215,63 @@ class _MiBandPageState extends State<MiBandPage> {
     saveToFirebase(showAllData);
   }
 
+  Future<void> _getFitDataFirestore({@required String uid}) async {
+    // code below is done out of hurry, please optimize when there is time
+    DateTime todayDate = DateTime.now().add(Duration(hours: 8));
+    // dates will be storing data in ascending order with respect to date (ie earliest date in front of list)
+    List<DateTime> dates = [];
+    for (int i = 7; i >= 0; i--) {
+      dates.add(DateTime(todayDate.year, todayDate.month, todayDate.day - i));
+    }
+
+    final List<store.QuerySnapshot> results = [];
+    for (DateTime date in dates) {
+      String strDate = DateFormat('dd-MM-yyyy').format(date);
+      store.QuerySnapshot result = await _firestore.collection("mi-band").doc(uid).collection(strDate).get();
+      results.add(result);
+    }
+    
+    List<MiBandStepsData> stepsList = [];
+    for (int i = 0; i < results.length; i++) {
+      // if length == 0, data for that day does not exist at firestore
+      var dayData = results[i].docs.length == 0 ? null : results[i].docs;
+      // not using 'day' field in dayData in case of non-existing record
+      var day = DateFormat('EEE').format(dates[i]);
+      int stepNumber = dayData == null ? 0 : dayData[2]['steps data'];
+      stepsList.add(MiBandStepsData(day, stepNumber));
+
+    }
+
+    List<MibandHeartRateData> heartRateList = [];
+    Map todayHeartRate = results.last.docs.length == 0 
+    ? {} 
+    : jsonDecode(results.last.docs[0]['heart rate']);
+
+    for (Map heartRate in todayHeartRate.values) {
+      DateTime parsedDateTime = DateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(heartRate['time']);
+      heartRateList.add(MibandHeartRateData(parsedDateTime, heartRate['value']));
+    }
+
+    setState(() {
+      todaySteps = stepsList.last.steps;
+      stepsData = stepsList;
+
+      heartRateData = heartRateList;
+      currentBPM = (heartRateList.length == 0) ? 0 : heartRateList.last.heart_data;
+
+      sleepDuration = results.last.docs.length == 0 
+      ? 'Not Available' 
+      : results.last.docs[1]['duration'];
+
+      showAllData = true;
+    });
+  }
+
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
           backgroundColor: Colours.primaryColour,
-          appBar: AppBar(
+          appBar: widget.appBar ? AppBar(
             backgroundColor: Colours.primaryColour,
             leading: IconButton(
               icon: Icon(Icons.arrow_back_ios, color: Colors.black),
@@ -242,7 +303,10 @@ class _MiBandPageState extends State<MiBandPage> {
             ],
             centerTitle: true,
             elevation: Dimensions.d_3,
-          ),
+          ) : PreferredSize(
+                child: Container(),
+                preferredSize: Size.zero,
+              ),
           body: (showAllData == false) ? Center(child: CircularProgressIndicator()):ListView(
             children: <Widget>[
               Padding(
@@ -443,10 +507,12 @@ class _MiBandPageState extends State<MiBandPage> {
   }
 
   _getStepsData() {
+    List<MiBandStepsData> stepsDataList = [...this.stepsData];
+    stepsDataList.removeLast();
     return <charts.Series<MiBandStepsData, String>> [
       charts.Series(
           id: "Number_of_steps",
-          data: this.stepsData,
+          data: stepsDataList,
           domainFn: (MiBandStepsData series, _) => series.day,
           measureFn: (MiBandStepsData series, _) => series.steps,
           colorFn: (MiBandStepsData series, _) => charts.MaterialPalette.blue.shadeDefault
@@ -482,8 +548,8 @@ class _MiBandPageState extends State<MiBandPage> {
 
     if (getAllData){
       for (var i = 0; i < heartRateData.length; i++) {
-        heartRateDic[i] = {
-          "time": heartRateData[i].time,
+        heartRateDic["$i"] = {
+          "time": heartRateData[i].time.toString(),
           "value": heartRateData[i].heart_data
         };
       }
@@ -497,7 +563,7 @@ class _MiBandPageState extends State<MiBandPage> {
 
       _firestore.collection("mi-band").doc(uid).collection(date).doc("heart").set({
         "name": 'heartRate',
-        "heart rate": heartRateDic.toString(),
+        "heart rate": jsonEncode(heartRateDic),
       });
 
       _firestore.collection("mi-band").doc(uid).collection(date).doc("sleep").set({

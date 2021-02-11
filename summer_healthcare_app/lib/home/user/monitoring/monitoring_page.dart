@@ -46,6 +46,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
                   builder: (context) => WeightPage(
                     appBar: true,
                     uid: uid,
+                    editable: true,
                   ),
                 ),
               );
@@ -57,7 +58,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
             text: 'Mi-Band',
             onClick: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => MiBandPage()));
+                  MaterialPageRoute(builder: (context) => MiBandPage(appBar: true)));
             },
             color: Colours.quaternaryColour,
             textColour: Colours.white,

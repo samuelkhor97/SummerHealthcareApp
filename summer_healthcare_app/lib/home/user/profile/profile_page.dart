@@ -74,7 +74,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: <Widget>[
+    return ListView(children: <Widget>[
       buildAvatar(),
       buildInputFields(title: 'Display Name', hintText: 'Jack'),
       Container(

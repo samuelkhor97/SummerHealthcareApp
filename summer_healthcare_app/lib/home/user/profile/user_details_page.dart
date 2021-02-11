@@ -24,7 +24,8 @@ class UserDetailsPage extends StatefulWidget {
   _UserDetailsPageState createState() => _UserDetailsPageState();
 }
 
-class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAliveClientMixin<UserDetailsPage> {
+class _UserDetailsPageState extends State<UserDetailsPage>
+    with AutomaticKeepAliveClientMixin<UserDetailsPage> {
   bool loadingUserDetails = true;
 
   String myUserId;
@@ -53,7 +54,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    
+
     return SafeArea(
       child: Scaffold(
         appBar: widget.appBar
@@ -92,8 +93,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
               )
             : ListView(
                 children: [
-                  // TODO: ensure synchronization of user details (between fireauth,
-                  // firestore and backend database) after enabling some fields for edit by user themselves
+                  // TODO: make input fields like marital status to take in limited options just
+                  // like in signuppage (hasnt been implemented as of now)
                   buildInputField(
                     readOnly: true,
                     labelText: 'Full Name',
@@ -110,9 +111,13 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
                     valueText: userDetails.weight,
                   ),
                   buildInputField(
-                    readOnly: true,
+                    readOnly: widget.pharmacistView,
                     labelText: 'Height (cm)',
                     valueText: userDetails.height,
+                    keyboardType: TextInputType.number,
+                    onChanged: (String newValue) {
+                      userDetails.height = newValue;
+                    },
                   ),
                   buildInputField(
                     readOnly: true,
@@ -130,8 +135,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
                     valueText: (userDetails.height != null &&
                             userDetails.weight != null)
                         ? calcBMI(
-                            height: int.tryParse(userDetails.height),
-                            weight: int.tryParse(userDetails.weight),
+                            height: double.tryParse(userDetails.height) ?? 1,
+                            weight: double.tryParse(userDetails.weight) ?? 0,
                           )
                         : '',
                   ),
@@ -141,24 +146,36 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
                     valueText: userDetails.ethnicity,
                   ),
                   buildInputField(
-                    readOnly: true,
+                    readOnly: widget.pharmacistView,
                     labelText: 'Education status',
                     valueText: userDetails.educationStatus,
+                    onChanged: (String newValue) {
+                      userDetails.educationStatus = newValue;
+                    },
                   ),
                   buildInputField(
-                    readOnly: true,
+                    readOnly: widget.pharmacistView,
                     labelText: 'Employment Status',
                     valueText: userDetails.employmentStatus,
+                    onChanged: (String newValue) {
+                      userDetails.employmentStatus = newValue;
+                    },
                   ),
                   buildInputField(
-                    readOnly: true,
+                    readOnly: widget.pharmacistView,
                     labelText: 'Occupation',
                     valueText: userDetails.occupation,
+                    onChanged: (String newValue) {
+                      userDetails.occupation = newValue;
+                    },
                   ),
                   buildInputField(
-                    readOnly: true,
+                    readOnly: widget.pharmacistView,
                     labelText: 'Marital Status',
                     valueText: userDetails.maritalStatus,
+                    onChanged: (String newValue) {
+                      userDetails.maritalStatus = newValue;
+                    },
                   ),
                   buildInputField(
                     readOnly: true,
@@ -166,9 +183,14 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
                     valueText: userDetails.smoker?.toString() ?? '',
                   ),
                   buildInputField(
-                    readOnly: true,
+                    readOnly: widget.pharmacistView,
                     labelText: 'Number of Cigarettes per Day',
                     valueText: userDetails.cigsPerDay?.toString() ?? '',
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    onChanged: (String newValue) {
+                      userDetails.cigsPerDay = int.tryParse(newValue) ?? 0;
+                    },
                   ),
                   buildInputField(
                     readOnly: true,
@@ -218,19 +240,17 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
                   ),
                   buildBiochemistryTable(
                       biochemistry: userDetails.biochemistry),
-                  widget.pharmacistView
-                      ? UserButton(
-                          text: 'Update',
-                          color: Colours.secondaryColour,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: Dimensions.d_65,
-                            vertical: Dimensions.d_10,
-                          ),
-                          onClick: () {
-                            updateData(user: userDetails);
-                          },
-                        )
-                      : Container(),
+                  UserButton(
+                    text: 'Update',
+                    color: Colours.secondaryColour,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Dimensions.d_65,
+                      vertical: Dimensions.d_10,
+                    ),
+                    onClick: () {
+                      updateData(user: userDetails);
+                    },
+                  )
                 ],
               ),
       ),
@@ -691,13 +711,15 @@ Padding buildInputField(
     bool readOnly,
     TextInputType keyboardType,
     Function onChanged,
-    EdgeInsetsGeometry paddings}) {
+    EdgeInsetsGeometry paddings,
+    List<TextInputFormatter> inputFormatters}) {
   String initialValue =
       (valueText == null || valueText.isEmpty) ? null : valueText;
 
   return Padding(
     padding: paddings ?? Paddings.all_10,
     child: TextFormField(
+      inputFormatters: inputFormatters,
       keyboardType: keyboardType,
       onChanged: onChanged,
       readOnly: readOnly,
@@ -715,7 +737,7 @@ Padding buildInputField(
   );
 }
 
-String calcBMI({int weight, int height}) {
+String calcBMI({double weight, double height}) {
   double bmiValue = weight / ((height / 100) * (height / 100));
   String bmiString = bmiValue.toStringAsFixed(1);
 

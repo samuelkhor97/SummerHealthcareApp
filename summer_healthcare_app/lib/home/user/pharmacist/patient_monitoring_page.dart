@@ -37,7 +37,7 @@ class _PatientMonitoringState extends State<PatientMonitoring> with AutomaticKee
     _pages = [
       SugarLevelPage(uid: widget.uid, appBar: false, editable: false),
       WeightPage(appBar: false, uid: widget.uid, editable: false),
-      MiBandPage(),
+      MiBandPage(appBar: false, uid: widget.uid),
     ];
   }
 

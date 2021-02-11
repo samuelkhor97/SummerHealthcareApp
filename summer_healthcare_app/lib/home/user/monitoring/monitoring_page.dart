@@ -68,7 +68,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
             text: 'Mi-Band',
             onClick: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => MiBandPage()));
+                  MaterialPageRoute(builder: (context) => MiBandPage(appBar: true)));
             },
             padding: EdgeInsets.symmetric(
                 horizontal: Dimensions.d_30, vertical: Dimensions.d_20),

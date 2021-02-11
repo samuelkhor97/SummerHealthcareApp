@@ -65,6 +65,7 @@ class Colours {
   static Color primaryColour = Color(0xFFF7F6F6);
   static Color secondaryColour = Color(0xFF2196f3);
   static Color tertiaryColour = Color(0xFFff8a89);
+  static Color quaternaryColour = Colors.orangeAccent[200];
   static Color grey = Color(0xFF707070);
   static Color black = Color(0xFF333333);
   static Color white = Colors.white;

@@ -16,14 +16,14 @@ class UserServices {
       'height': user.height.text,
       'dob': user.dob,
       'gender': user.gender,
-      'ethnicity': user.ethnicity.text,
-      'education_status': user.educationStatus.text,
+      'ethnicity': user.ethnicity,
+      'education_status': user.educationStatus,
       'employment_status': user.employmentStatus,
       'occupation': user.occupation.text,
-      'marital_status': user.maritalStatus.text,
+      'marital_status': user.maritalStatus,
       'smoker': user.smoke,
       'cigs_per_day': user.smokePerDay.text,
-      'e_cig': user.e_cig,
+      'e_cig': user.eCig,
       'weight': user.weight.text
     });
 

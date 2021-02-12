@@ -13,14 +13,17 @@ class UserDetails {
   TextEditingController weight = TextEditingController();
   TextEditingController height = TextEditingController();
   TextEditingController bmi = TextEditingController();
-  TextEditingController ethnicity = TextEditingController();
-  TextEditingController educationStatus = TextEditingController();
+  String ethnicity;
+  List<String> ethnicityList = ['Malay', 'Chinese', 'Indian'];
+  String educationStatus;
+  List<String> educationList = ['Primary', 'Secondary', 'Tertiary'];
   String employmentStatus;
   TextEditingController occupation = TextEditingController();
-  TextEditingController maritalStatus = TextEditingController();
+  String maritalStatus;
+  List<String> maritalStatusList = ['Single', 'Married', 'Divorced', 'Widower'];
   String smoke;
   TextEditingController smokePerDay = TextEditingController();
-  String e_cig;
+  String eCig;
 
   void disposeTexts() {
     fullName.dispose();
@@ -29,10 +32,7 @@ class UserDetails {
     weight.dispose();
     height.dispose();
     bmi.dispose();
-    ethnicity.dispose();
-    educationStatus.dispose();
     occupation.dispose();
-    maritalStatus.dispose();
     smokePerDay.dispose();
   }
 

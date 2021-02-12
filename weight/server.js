@@ -11,7 +11,7 @@ router.post('/add', async (req, res, next) => {
     try{
       await models.Weight
       .create({
-        uid: uid,
+        uid: body.uid,
         date: body.date,
         weight: body.weight
       });

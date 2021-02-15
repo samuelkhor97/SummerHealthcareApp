@@ -5,6 +5,7 @@ const serviceAccount = require('./serviceAccountKey.json');
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(serviceAccount),
   databaseURL: 'https://summerhealthcareapp.appspot.com/',
+  storageBucket: 'summerhealthcareapp.appspot.com'
 });
 
 module.exports = firebaseAdmin;

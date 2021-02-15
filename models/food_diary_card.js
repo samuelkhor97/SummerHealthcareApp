@@ -14,9 +14,6 @@ module.exports = (sequelize, DataTypes) => {
                 this.setDataValue('date', new Date(fieldName))
             }
         },
-        photo_url: {
-            type: DataTypes.STRING,
-        },
     }, {timestamps: false,});
 
     Food_Diary_Card.associate = models => {

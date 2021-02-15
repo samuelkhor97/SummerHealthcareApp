@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             primaryKey: true,
         },
+        photo_url: {
+            type: DataTypes.STRING,
+            allowNull: true
+        }
     }, {timestamps: false,});
 
     Food_Bridge.associate = models => {

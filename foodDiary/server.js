@@ -110,6 +110,19 @@ router.post('/add-food', async (req, res, next) => {
     }
 });
 
+router.get('/get-card', async (req, res, next) => {
+    const uid = res.locals.id;
+    const card_id = req.query.card_id;
+
+    const food_card = await models.Food_Diary_Card.findOne({
+        where: {
+            card_id: card_id
+        }
+    });
+
+    return res.status(200).json(food_card);
+});
+
 router.post('/food_pic', async (req, res) => {
     const uid = res.locals.id;
     const food_id = req.query.food_id;

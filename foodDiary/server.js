@@ -1,8 +1,11 @@
 let express = require('express');
 const {sequelize, models} = require('../models/index');
 let router = express.Router();
-const moment = require('moment');
-const Op = sequelize.Sequelize.Op;
+
+// imports for photo uploading
+const bucket = require('../firebase/storage');
+const formidable = require('formidable');
+const shortId = require('shortid');
 
 /**
  * GET api: Get all food info
@@ -105,6 +108,50 @@ router.post('/add-food', async (req, res, next) => {
     } catch (error) {
         return res.status(403).send(error);
     }
+});
+
+router.post('/food_pic', async (req, res) => {
+    const uid = res.locals.id;
+    const form = formidable();
+
+    // Event listeners for form.parse() below
+    // Add file extension to file path explicitly
+    form.on('fileBegin', (filename, file) => {
+        file.path = file.path + '.' + file.type.split('/').pop();
+    });
+
+    form.parse(req, async (error, fields, files) => {
+        if (error) {
+            return res.status(403).send(error.message);
+        }
+
+        try {
+        // Generate file name
+        const generatedFileName = `profile${shortId.generate()}.${files.image.name.split('.').pop()}`;
+
+        // Store image into Google Cloud Storage
+        await bucket.upload(files.image.path, {
+            gzip: true,
+            destination: generatedFileName,
+        });
+
+        // Update uri in db
+        await models.Food_Diary_Card.update(
+            {
+                photo_url: generatedFileName,
+            },
+            {
+                where: {
+                    uid: uid,
+                },
+            }
+        )
+
+        return res.status(200).send('Profile image successfully uploaded.');
+        } catch (error) {
+            return res.status(403).send(error.message);
+        }
+    });
 });
 
 module.exports = router;

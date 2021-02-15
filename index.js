@@ -9,6 +9,7 @@ const port = process.env.PORT
 const firebaseAdmin = require('./firebase/firebase-admin');
 
 function verifyUser(req, res, next){
+    console.log(req.headers.authorization)
     if (req.headers.authorization) {
         // admin tokens for debugging
         if (req.headers.authorization === 'adminuser') {

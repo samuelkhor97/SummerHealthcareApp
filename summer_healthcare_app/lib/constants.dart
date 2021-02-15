@@ -10,6 +10,7 @@ class Paddings {
   static EdgeInsetsGeometry vertical_5 = EdgeInsets.symmetric(vertical: 5.0);
   static EdgeInsetsGeometry vertical_15 = EdgeInsets.symmetric(vertical: 15.0);
   static EdgeInsetsGeometry vertical_35 = EdgeInsets.symmetric(vertical: 35.0);
+  static EdgeInsetsGeometry userDetails = EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0);
   static EdgeInsetsGeometry all_1 = EdgeInsets.all(1.0);
   static EdgeInsetsGeometry all_3 = EdgeInsets.all(3.0);
   static EdgeInsetsGeometry all_5 = EdgeInsets.all(5.0);

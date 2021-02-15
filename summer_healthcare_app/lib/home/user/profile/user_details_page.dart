@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
@@ -10,6 +9,7 @@ import 'package:summer_healthcare_app/home/user/pharmacist/biochemistry_history_
 import 'package:summer_healthcare_app/json/biochemistry.dart';
 import 'package:summer_healthcare_app/json/medical_history.dart';
 import 'package:summer_healthcare_app/json/user.dart';
+import 'package:summer_healthcare_app/landing/user_details.dart';
 import 'package:summer_healthcare_app/services/api/user_services.dart';
 import 'package:summer_healthcare_app/main.dart' show preferences;
 import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
@@ -138,10 +138,17 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                     labelText: 'Age',
                     valueText: userDetails.age?.toString() ?? '',
                   ),
-                  buildInputField(
-                    readOnly: true,
+                  buildBinaryRadioBtn(
+                    readOnly: widget.pharmacistView,
                     labelText: 'Gender',
-                    valueText: userDetails.gender,
+                    titles: ['Male', 'Female'],
+                    values: ['Male', 'Female'],
+                    groupValue: userDetails.gender,
+                    onChanged: (String newValue) {
+                      setState(() {
+                        userDetails.gender = newValue;
+                      });
+                    },
                   ),
                   buildInputField(
                     readOnly: true,
@@ -154,25 +161,40 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                           )
                         : '',
                   ),
-                  buildInputField(
-                    readOnly: true,
-                    labelText: 'Ethnicity',
-                    valueText: userDetails.ethnicity,
-                  ),
-                  buildInputField(
+                  buildDropDown(
                     readOnly: widget.pharmacistView,
-                    labelText: 'Education status',
-                    valueText: userDetails.educationStatus,
+                    labelText: 'Ethnicity',
+                    items: UserDetails.ethnicityList,
+                    value: userDetails.ethnicity,
+                    hint: 'Choose An Ethnicity',
                     onChanged: (String newValue) {
-                      userDetails.educationStatus = newValue;
+                      setState(() {
+                        userDetails.ethnicity = newValue;
+                      });
                     },
                   ),
-                  buildInputField(
+                  buildDropDown(
+                    readOnly: widget.pharmacistView,
+                    labelText: 'Education Status',
+                    items: UserDetails.educationList,
+                    value: userDetails.educationStatus,
+                    hint: 'Choose An Education Status',
+                    onChanged: (String newValue) {
+                      setState(() {
+                        userDetails.educationStatus = newValue;
+                      });
+                    },
+                  ),
+                  buildBinaryRadioBtn(
                     readOnly: widget.pharmacistView,
                     labelText: 'Employment Status',
-                    valueText: userDetails.employmentStatus,
+                    titles: ['Employed', 'Not Employed'],
+                    values: ['Employed', 'Not Employed'],
+                    groupValue: userDetails.employmentStatus,
                     onChanged: (String newValue) {
-                      userDetails.employmentStatus = newValue;
+                      setState(() {
+                        userDetails.employmentStatus = newValue;
+                      });
                     },
                   ),
                   buildInputField(
@@ -183,18 +205,29 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                       userDetails.occupation = newValue;
                     },
                   ),
-                  buildInputField(
+                  buildDropDown(
                     readOnly: widget.pharmacistView,
                     labelText: 'Marital Status',
-                    valueText: userDetails.maritalStatus,
+                    items: UserDetails.maritalStatusList,
+                    value: userDetails.maritalStatus,
+                    hint: 'Select A Marital Status',
                     onChanged: (String newValue) {
-                      userDetails.maritalStatus = newValue;
+                      setState(() {
+                        userDetails.maritalStatus = newValue;
+                      });
                     },
                   ),
-                  buildInputField(
-                    readOnly: true,
+                  buildBinaryRadioBtn(
+                    readOnly: widget.pharmacistView,
                     labelText: 'Smoker?',
-                    valueText: userDetails.smoker?.toString() ?? '',
+                    titles: ['Yes', 'No'],
+                    values: [true, false],
+                    groupValue: userDetails.smoker,
+                    onChanged: (bool newValue) {
+                      setState(() {
+                        userDetails.smoker = newValue;
+                      });
+                    },
                   ),
                   buildInputField(
                     readOnly: widget.pharmacistView,
@@ -206,10 +239,17 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                       userDetails.cigsPerDay = int.tryParse(newValue) ?? 0;
                     },
                   ),
-                  buildInputField(
-                    readOnly: true,
+                  buildBinaryRadioBtn(
+                    readOnly: widget.pharmacistView,
                     labelText: 'Using e-Cigarette?',
-                    valueText: userDetails.eCig?.toString() ?? '',
+                    titles: ['Yes', 'No'],
+                    values: [true, false],
+                    groupValue: userDetails.eCig,
+                    onChanged: (bool newValue) {
+                      setState(() {
+                        userDetails.eCig = newValue;
+                      });
+                    },
                   ),
                   Padding(
                     child: Text(
@@ -229,7 +269,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                       userDetails.bodyFatPercentage = newValue;
                     },
                     keyboardType: TextInputType.number,
-                    paddings: Paddings.all_15,
+                    padding: Paddings.all_15,
                   ),
                   Padding(
                     child: Text(
@@ -489,7 +529,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                 onChanged: (String newValue) {
                   medicalHistory.other = newValue;
                 },
-                paddings: Paddings.horizontal_10),
+                padding: Paddings.horizontal_10),
             flex: 12,
           ),
         ]),
@@ -695,7 +735,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
               valueText: value,
               readOnly: widget.pharmacistView ? false : true,
               onChanged: onChanged,
-              paddings: Paddings.horizontal_5,
+              padding: Paddings.horizontal_5,
               textAlign: TextAlign.center),
           flex: 3,
         ),
@@ -779,14 +819,14 @@ Padding buildInputField(
     bool readOnly,
     TextInputType keyboardType,
     Function onChanged,
-    EdgeInsetsGeometry paddings,
+    EdgeInsetsGeometry padding,
     TextAlign textAlign,
     List<TextInputFormatter> inputFormatters}) {
   String initialValue =
       (valueText == null || valueText.isEmpty) ? null : valueText;
 
   return Padding(
-    padding: paddings ?? Paddings.all_10,
+    padding: padding ?? Paddings.all_10,
     child: TextFormField(
       textAlign: textAlign ?? TextAlign.left,
       inputFormatters: inputFormatters,
@@ -803,6 +843,99 @@ Padding buildInputField(
         labelStyle: TextStyle(color: Colours.grey),
         border: readOnly ? InputBorder.none : null,
       ),
+    ),
+  );
+}
+
+Padding buildDropDown(
+    {EdgeInsetsGeometry padding,
+    String labelText,
+    List<String> items,
+    String value,
+    String hint,
+    Function onChanged,
+    bool readOnly}) {
+  return Padding(
+    padding: padding ?? Paddings.userDetails,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          labelText,
+          style: TextStyle(
+            fontWeight: FontWeight.w400,
+            color: Colours.grey,
+            fontSize: 13,
+          ),
+          textAlign: TextAlign.left,
+        ),
+        DropdownButton(
+          hint: Text(hint ?? '-'),
+          isExpanded: true,
+          value: value,
+          items: items.map((String itemVal) {
+            return DropdownMenuItem(
+              value: itemVal,
+              child: Text(itemVal),
+            );
+          }).toList(),
+          onChanged: readOnly ? null : onChanged,
+          disabledHint: Text(value),
+        ),
+      ],
+    ),
+  );
+}
+
+Padding buildBinaryRadioBtn(
+    {EdgeInsetsGeometry padding,
+    String labelText,
+    List<String> titles,
+    List<dynamic> values,
+    dynamic groupValue,
+    Function onChanged,
+    bool readOnly}) {
+  return Padding(
+    padding: padding ?? Paddings.userDetails,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          labelText,
+          style: TextStyle(
+            fontWeight: FontWeight.w400,
+            color: Colours.grey,
+            fontSize: 13,
+          ),
+          textAlign: TextAlign.left,
+        ),
+        Row(
+          children: <Widget>[
+            Flexible(
+              child: RadioListTile(
+                dense: true,
+                title: Text(
+                  titles[0],
+                ),
+                value: values[0],
+                groupValue: groupValue,
+                onChanged: readOnly ? null : (dynamic newValue) => onChanged(newValue),
+              ),
+            ),
+            Flexible(
+              child: RadioListTile(
+                dense: true,
+                title: Text(
+                  titles[1],
+                ),
+                value: values[1],
+                groupValue: groupValue,
+                onChanged: readOnly ? null : (dynamic newValue) => onChanged(newValue),
+              ),
+            ),
+          ],
+        ),
+      ],
     ),
   );
 }

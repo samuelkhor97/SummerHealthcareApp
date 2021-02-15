@@ -189,7 +189,7 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                     hint: Text('Choose An Ethnicity'),
                     isExpanded: true,
                     value: userDetails.ethnicity,
-                    items: userDetails.ethnicityList.map<DropdownMenuItem<String>>((String value) {
+                    items: UserDetails.ethnicityList.map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(value),
@@ -213,7 +213,7 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                     hint: Text('Choose An Education Status'),
                     isExpanded: true,
                     value: userDetails.educationStatus,
-                    items: userDetails.educationList.map<DropdownMenuItem<String>>((String value) {
+                    items: UserDetails.educationList.map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(value),
@@ -294,7 +294,7 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                       hint: Text('Select A Marital Status'),
                       isExpanded: true,
                       value: userDetails.maritalStatus,
-                      items: userDetails.maritalStatusList.map<DropdownMenuItem<String>>((String value) {
+                      items: UserDetails.maritalStatusList.map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Text(value),

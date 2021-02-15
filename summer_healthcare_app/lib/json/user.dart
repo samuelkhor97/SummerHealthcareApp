@@ -97,6 +97,7 @@ class User {
     data['marital_status'] = this.maritalStatus;
     data['smoker'] = this.smoker;
     data['cigs_per_day'] = this.cigsPerDay;
+    data['e_cig'] = this.eCig;
     data['weight'] = this.weight;
     data['body_fat_percentage'] = this.bodyFatPercentage;
     data['medical_history'] = this.medicalHistory.toJson();

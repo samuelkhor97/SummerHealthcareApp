@@ -14,13 +14,13 @@ class UserDetails {
   TextEditingController height = TextEditingController();
   TextEditingController bmi = TextEditingController();
   String ethnicity;
-  List<String> ethnicityList = ['Malay', 'Chinese', 'Indian'];
+  static List<String> ethnicityList = ['Malay', 'Chinese', 'Indian'];
   String educationStatus;
-  List<String> educationList = ['Primary', 'Secondary', 'Tertiary'];
+  static List<String> educationList = ['Primary', 'Secondary', 'Tertiary'];
   String employmentStatus;
   TextEditingController occupation = TextEditingController();
   String maritalStatus;
-  List<String> maritalStatusList = ['Single', 'Married', 'Divorced', 'Widower'];
+  static List<String> maritalStatusList = ['Single', 'Married', 'Divorced', 'Widower'];
   String smoke;
   TextEditingController smokePerDay = TextEditingController();
   String eCig;

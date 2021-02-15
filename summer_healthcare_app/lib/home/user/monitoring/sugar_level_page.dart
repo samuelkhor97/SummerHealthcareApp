@@ -32,12 +32,12 @@ class _SugarLevelPageState extends State<SugarLevelPage>  with AutomaticKeepAliv
       sugarLevelList = [
         SugarList(
           readings: 7,
-          date: DateTime.now(),
+          date: DateTime.now().add(Duration(hours: 8)),
           editable: widget.editable,
         ),
         SugarList(
           readings: 8.9,
-          date: DateTime.now(),
+          date: DateTime.now().add(Duration(hours: 8)),
           editable: widget.editable,
         ),
       ];

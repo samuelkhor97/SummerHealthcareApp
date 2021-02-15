@@ -56,8 +56,6 @@ class UserServices {
     if (response.statusCode == 200) {
       Map<String, dynamic> requestsBody = jsonDecode(response.body);
       user = User.fromJson(requestsBody);
-    } else {
-      return Future.error(response.body.toString());
     }
 
     return user;

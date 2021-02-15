@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:summer_healthcare_app/json/food_diary_card.dart';
 import 'package:summer_healthcare_app/json/food_item.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dio/dio.dart';
 
 final String backendUrl = env['backendUrl'];
 
@@ -43,6 +45,21 @@ class FoodDiaryServices {
     return foodCards;
   }
 
+  Future<FoodDiaryCard> getFoodCard(
+      {String headerToken, String cardId}) async {
+    var response = await http.get(
+        '$backendUrl/food-diary/get-card?card_id=$cardId',
+        headers: {'Authorization': headerToken});
+
+    FoodDiaryCard foodCard;
+    if (response.statusCode == 200) {
+      dynamic requestsBody = jsonDecode(response.body);
+      foodCard = FoodDiaryCard.fromJson(requestsBody);
+    }
+
+    return foodCard;
+  }
+
   Future<void> createCard(
       {String headerToken, String date, String cardName}) async {
     var response = await http.post(
@@ -70,5 +87,24 @@ class FoodDiaryServices {
     }
 
     return false;
+  }
+
+  Future<void> uploadFoodItemPicture({String headerToken, File image, String foodId, String date, String cardName}) async {
+    FormData formData = FormData.fromMap({
+      'image': await MultipartFile.fromFile(
+        image.path,
+      ),
+    });
+    print(date);
+    Dio dio = Dio();
+    var response = await dio.post('$backendUrl/food-diary/food_pic?food_id=$foodId&date=$date&card_name=$cardName',
+      data: formData,
+      options: Options(
+        headers: {
+          'Authorization': headerToken, // set content-length
+        },
+      ),);
+
+    print('Upload Profile Picture: ${response.statusCode}, body: ${response.data}');
   }
 }

@@ -128,7 +128,7 @@ router.post('/create', async (req, res, next) => {
       e_cig: body.e_cig,
       medical_history: {},
       medication: [],
-      biochemistry: {},
+      biochemistry: [],
     });
 
     await models.Weight.create({

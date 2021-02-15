@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 import 'package:summer_healthcare_app/constants.dart';
+import 'package:summer_healthcare_app/home/user/pharmacist/biochemistry_history_page.dart';
 import 'package:summer_healthcare_app/json/biochemistry.dart';
 import 'package:summer_healthcare_app/json/medical_history.dart';
 import 'package:summer_healthcare_app/json/user.dart';
@@ -54,6 +57,17 @@ class _UserDetailsPageState extends State<UserDetailsPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    // check for empty list, no previous biochemistry record
+    Biochemistry newBiochemistry;
+    if (!loadingUserDetails) {
+      if (userDetails.biochemistry.length == 0) {
+        newBiochemistry =
+            Biochemistry(date: DateFormat('dd-MM-yyyy').format(DateTime.now()));
+      } else {
+        newBiochemistry = Biochemistry.clone(userDetails.biochemistry.last);
+      }
+    }
 
     return SafeArea(
       child: Scaffold(
@@ -238,8 +252,25 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                     ),
                     padding: Paddings.all_15,
                   ),
-                  buildBiochemistryTable(
-                      biochemistry: userDetails.biochemistry),
+                  buildBiochemistryTable(biochemistry: newBiochemistry),
+                  UserButton(
+                    text: 'View Biochemistry History',
+                    color: Colours.secondaryColour,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Dimensions.d_65,
+                      vertical: Dimensions.d_10,
+                    ),
+                    onClick: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BiochemistryHistory(
+                            history: userDetails.biochemistry,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                   UserButton(
                     text: 'Update',
                     color: Colours.secondaryColour,
@@ -248,9 +279,12 @@ class _UserDetailsPageState extends State<UserDetailsPage>
                       vertical: Dimensions.d_10,
                     ),
                     onClick: () {
-                      updateData(user: userDetails);
+                      updateData(
+                        user: userDetails,
+                        newBiochemistry: newBiochemistry,
+                      );
                     },
-                  )
+                  ),
                 ],
               ),
       ),
@@ -547,7 +581,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
       SizedBox(
         height: Dimensions.d_10,
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'Fasting blood sugar',
         labParam: 'fastingBloodSugar',
         value: biochemistry.fastingBloodSugar,
@@ -555,7 +589,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
           biochemistry.fastingBloodSugar = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'Random blood sugar',
         labParam: 'randomBloodSugar',
         value: biochemistry.randomBloodSugar,
@@ -563,7 +597,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
           biochemistry.randomBloodSugar = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: '2-hr post prandial glucose',
         labParam: 'twoHrPostPrandialGlucose',
         value: biochemistry.twoHrPostPrandialGlucose,
@@ -571,7 +605,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
           biochemistry.twoHrPostPrandialGlucose = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'Creatinine',
         labParam: 'creatinine',
         value: biochemistry.creatinine,
@@ -579,7 +613,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
           biochemistry.creatinine = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'HDL',
         labParam: 'hdl',
         value: biochemistry.hdl,
@@ -587,7 +621,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
           biochemistry.hdl = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'LDL',
         labParam: 'ldl',
         value: biochemistry.ldl,
@@ -595,7 +629,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
           biochemistry.ldl = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'Triglyceride',
         labParam: 'triglyceride',
         value: biochemistry.triglyceride,
@@ -603,15 +637,15 @@ class _UserDetailsPageState extends State<UserDetailsPage>
           biochemistry.triglyceride = newValue;
         },
       ),
-      buildBiochesmitryRow(
-        label: 'HDL/LDL RATIO',
+      buildBiochemistryRow(
+        label: 'HDL/LDL Ratio',
         labParam: 'hdlLdlRatio',
         value: biochemistry.hdlLdlRatio,
         onChanged: (String newValue) {
           biochemistry.hdlLdlRatio = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'HbA1c',
         labParam: 'hba1c',
         value: biochemistry.hba1c,
@@ -619,7 +653,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
           biochemistry.hba1c = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'Total cholesterol',
         labParam: 'totalCholesterol',
         value: biochemistry.totalCholesterol,
@@ -647,7 +681,7 @@ class _UserDetailsPageState extends State<UserDetailsPage>
     );
   }
 
-  Row buildBiochesmitryRow(
+  Row buildBiochemistryRow(
       {String label, String labParam, String value, Function onChanged}) {
     return Row(
       children: [
@@ -661,13 +695,16 @@ class _UserDetailsPageState extends State<UserDetailsPage>
               valueText: value,
               readOnly: widget.pharmacistView ? false : true,
               onChanged: onChanged,
-              paddings: Paddings.horizontal_5),
+              paddings: Paddings.horizontal_5,
+              textAlign: TextAlign.center),
           flex: 3,
         ),
         Expanded(
           child: Container(
-            child: Text(Biochemistry.units[labParam]),
-            padding: EdgeInsets.only(left: 5),
+            child: Text(
+              Biochemistry.units[labParam],
+              textAlign: TextAlign.center,
+            ),
           ),
           flex: 2,
         ),
@@ -685,9 +722,40 @@ class _UserDetailsPageState extends State<UserDetailsPage>
     });
   }
 
-  void updateData({User user}) async {
+  void updateData({User user, Biochemistry newBiochemistry}) async {
+    if (widget.pharmacistView) {
+      bool allValueEmpty = true;
+      Map tempJson = newBiochemistry.toJson();
+      tempJson.remove('date');
+      for (String value in tempJson.values) {
+        if (value != null && value.isNotEmpty) {
+          allValueEmpty = false;
+        }
+      }
+      // only push the newBiochemistry into biochemistry list if not all of the
+      // values empty (at least one is not empty while excluding date field)
+      if (!allValueEmpty) {
+        String lastBiochemistryDate =
+            user.biochemistry.length == 0 ? null : user.biochemistry.last.date;
+        // ensure only one set of biochemistry record exists for each day
+        if (newBiochemistry.date == lastBiochemistryDate) {
+          user.biochemistry.last = newBiochemistry;
+        } else {
+          user.biochemistry.add(newBiochemistry);
+        }
+      }
+    }
     Map<String, dynamic> userJson = user.toJson();
     userJson.remove('uid');
+    userJson.remove('pharmacy_id');
+
+    if (!widget.pharmacistView) {
+      // if it is viewed by normal patient user, do not allow update of fields below
+      userJson.remove('body_fat_percentage');
+      userJson.remove('medical_history');
+      userJson.remove('medication');
+      userJson.remove('biochemistry');
+    }
 
     String authToken = await AuthService.getToken();
     UserServices.updateUserById(
@@ -712,6 +780,7 @@ Padding buildInputField(
     TextInputType keyboardType,
     Function onChanged,
     EdgeInsetsGeometry paddings,
+    TextAlign textAlign,
     List<TextInputFormatter> inputFormatters}) {
   String initialValue =
       (valueText == null || valueText.isEmpty) ? null : valueText;
@@ -719,6 +788,7 @@ Padding buildInputField(
   return Padding(
     padding: paddings ?? Paddings.all_10,
     child: TextFormField(
+      textAlign: textAlign ?? TextAlign.left,
       inputFormatters: inputFormatters,
       keyboardType: keyboardType,
       onChanged: onChanged,

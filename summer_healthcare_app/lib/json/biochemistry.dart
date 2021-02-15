@@ -9,6 +9,7 @@ class Biochemistry {
   String hdlLdlRatio;
   String hba1c;
   String totalCholesterol;
+  String date;
 
   static Map<String, String> units = {
     'fastingBloodSugar': 'mmol/L',
@@ -34,6 +35,7 @@ class Biochemistry {
     this.hdlLdlRatio,
     this.hba1c,
     this.totalCholesterol,
+    this.date,
   });
 
   Biochemistry.fromJson(Map<String, dynamic> json) {
@@ -47,6 +49,21 @@ class Biochemistry {
     hdlLdlRatio = json['hdlLdlRatio'];
     hba1c = json['hba1c'];
     totalCholesterol = json['totalCholesterol'];
+    date = json['date'];
+  }
+
+  Biochemistry.clone(Biochemistry original) {
+    fastingBloodSugar = original.fastingBloodSugar;
+    randomBloodSugar = original.randomBloodSugar;
+    twoHrPostPrandialGlucose = original.twoHrPostPrandialGlucose;
+    creatinine = original.creatinine;
+    hdl = original.hdl;
+    ldl = original.ldl;
+    triglyceride = original.triglyceride;
+    hdlLdlRatio = original.hdlLdlRatio;
+    hba1c = original.hba1c;
+    totalCholesterol = original.totalCholesterol;
+    date = original.date;
   }
 
   Map<String, dynamic> toJson() {
@@ -61,6 +78,7 @@ class Biochemistry {
     data['hdlLdlRatio'] = this.hdlLdlRatio;
     data['hba1c'] = this.hba1c;
     data['totalCholesterol'] = this.totalCholesterol;
+    data['date'] = this.date;
     return data;
   }
 }

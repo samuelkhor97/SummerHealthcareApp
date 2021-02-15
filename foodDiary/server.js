@@ -33,7 +33,6 @@ router.post('/create-card', async (req, res, next) => {
             uid: uid,
             date: body.date,
             card_name: body.card_name,
-            photo_url: "not yet"
         });
         return res.status(200).send('Successfully created a card!');
     } catch (error) {
@@ -62,7 +61,7 @@ router.get('/all-cards', async (req, res, next) => {
                     model: models.Food_Data,
                     attributes: ["food_id", "food_name", "calories"],
                     through: {
-                        attributes: [],
+                        attributes: ["photo_url"],
                     },
                 }
             ],
@@ -117,7 +116,16 @@ router.get('/get-card', async (req, res, next) => {
     const food_card = await models.Food_Diary_Card.findOne({
         where: {
             card_id: card_id
-        }
+        },
+        include: [
+            {
+                model: models.Food_Data,
+                attributes: ["food_id", "food_name", "calories"],
+                through: {
+                    attributes: ["photo_url"],
+                },
+            }
+        ],
     });
 
     return res.status(200).json(food_card);

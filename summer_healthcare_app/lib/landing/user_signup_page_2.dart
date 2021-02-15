@@ -43,6 +43,7 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
         userDetails.occupation.text.isNotEmpty &&
         userDetails.maritalStatus != null &&
         userDetails.smoke != null &&
+        userDetails.eCig != null &&
         userDetails.smokePerDay.text.isNotEmpty;
 
     return fieldCheck;

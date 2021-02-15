@@ -112,6 +112,12 @@ router.post('/add-food', async (req, res, next) => {
 
 router.post('/food_pic', async (req, res) => {
     const uid = res.locals.id;
+    const body = req.body;
+    const food_id = body.food_id;
+    const card_name = body.card_name;
+    const date = body.date;
+    const date_obj = new Date(date);
+
     const form = formidable();
 
     // Event listeners for form.parse() below
@@ -125,7 +131,17 @@ router.post('/food_pic', async (req, res) => {
             return res.status(403).send(error.message);
         }
 
-        try {
+        try { 
+        const food_card = await models.Food_Diary_Card.findOne({
+            where: {
+                uid: uid,
+                date: date_obj,
+                card_name: card_name
+            }
+        });
+
+        const card_id = food_card.card_id
+    
         // Generate file name
         const generatedFileName = `profile${shortId.generate()}.${files.image.name.split('.').pop()}`;
 
@@ -136,16 +152,17 @@ router.post('/food_pic', async (req, res) => {
         });
 
         // Update uri in db
-        await models.Food_Diary_Card.update(
+        await models.Food_Bridge.update(
             {
                 photo_url: generatedFileName,
             },
             {
                 where: {
-                    uid: uid,
+                    food_id: food_id,
+                    card_id: card_id
                 },
             }
-        )
+        );
 
         return res.status(200).send('Food image successfully uploaded.');
         } catch (error) {

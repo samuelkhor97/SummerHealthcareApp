@@ -112,10 +112,9 @@ router.post('/add-food', async (req, res, next) => {
 
 router.post('/food_pic', async (req, res) => {
     const uid = res.locals.id;
-    const body = req.body;
-    const food_id = body.food_id;
-    const card_name = body.card_name;
-    const date = body.date;
+    const food_id = req.query.food_id;
+    const card_name = req.query.card_name;
+    const date = req.query.date;
     const date_obj = new Date(date);
 
     const form = formidable();

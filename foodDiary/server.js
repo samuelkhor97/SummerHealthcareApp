@@ -147,11 +147,32 @@ router.post('/food_pic', async (req, res) => {
             }
         )
 
-        return res.status(200).send('Profile image successfully uploaded.');
+        return res.status(200).send('Food image successfully uploaded.');
         } catch (error) {
             return res.status(403).send(error.message);
         }
     });
 });
 
+router.get('/attachment', async (req, res) => {
+    const filename = req.query.filename;
+
+    try {
+        let stream = bucket.file(filename).createReadStream();
+
+        stream.on('data', function (data) {
+            res.write(data);
+        });
+    
+        stream.on('error', function (err) {
+            return res.status(403).send(err.message);
+        });
+    
+        stream.on('end', function () {
+            res.end();
+        });
+    } catch (error) {
+        return res.status(403).send(error.message);
+    }
+});
 module.exports = router;

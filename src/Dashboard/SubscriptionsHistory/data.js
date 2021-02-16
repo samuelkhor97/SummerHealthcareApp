@@ -1,4 +1,11 @@
 import theme from '../../_theme'
+import axios from "axios";
+
+async function getData(){  
+  const response = await axios.get(process.env.REACT_APP_BACKEND_URL+'/user/me', {headers: {Authorization: 'adminpharmacist'}});
+  console.log(response.data);
+}
+getData();
 
 export const subscriptionsItems = [
   { name: 'GitHub', ratio: 55.3, value: Math.round(55.3 * 144) },

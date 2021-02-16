@@ -43,34 +43,7 @@ const Subscriptions = props => {
             </div>
           </Grid>
           <Grid item xs={12} sm={4} md={3} className={classes.ratingBox}>
-            {subscriptionsItems.map(({ name, ratio, value }) => (
-              <div key={name}>
-                <Grid container>
-                  <Grid item xs>
-                    <Typography variant="body1">{name}</Typography>
-                  </Grid>
-                  <Grid item xs className={classes.ratingItemValueBox}>
-                    <Typography
-                      align="right"
-                      variant="body2"
-                      display="inline"
-                      className={classes.ratingItemValue}
-                    >
-                      {value}
-                    </Typography>
-                    <Typography
-                      align="left"
-                      variant="body2"
-                      color="textSecondary"
-                      className={classes.ratingItemRatio}
-                    >
-                      {ratio}%
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <LinearProgress variant="determinate" value={ratio} color="primary" />
-              </div>
-            ))}
+            
           </Grid>
         </Grid>
       </CardContent>

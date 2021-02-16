@@ -26,9 +26,9 @@ const AppHeader = ({ onToggleClick }) => {
         >
           <IconMenu />
         </IconButton>
-        <div className={classes.actions}>
+        {/* <div className={classes.actions}>
           <HeaderProfile />
-        </div>
+        </div> */}
       </Toolbar>
     </AppBar>
   )

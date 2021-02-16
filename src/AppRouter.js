@@ -3,7 +3,7 @@ import { HashRouter, BrowserRouter, Route, Redirect, Switch } from 'react-router
 
 import config from './_config'
 
-import DashboardLayout from '_layouts/DashboardLayout'
+import DashboardLayout from './_layouts/DashboardLayout'
 import { Auth } from './Auth'
 import { Dashboard } from './Dashboard'
 

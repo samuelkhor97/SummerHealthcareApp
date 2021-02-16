@@ -132,7 +132,7 @@ const DashboardLayout = (
 DashboardLayout.defaultProps = {
   header: AppHeader,
   sidebar: AppSidebar,
-  footer: AppFooter,
+  // footer: AppFooter,
 }
 
 DashboardLayout.propTypes = {

@@ -22,9 +22,9 @@ const Dashboard = () => {
         <Grid item xs={12}>
           <SubscriptionsHistory />
         </Grid>
-        <KeyNumbers />
+        {/* <KeyNumbers />
         <SubscriptionsRecent />
-        <SubscriptionsBreakdown />
+        <SubscriptionsBreakdown /> */}
       </Grid>
     </BasePageContainer>
   )

@@ -2,11 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 import 'package:summer_healthcare_app/constants.dart';
+import 'package:summer_healthcare_app/home/user/pharmacist/biochemistry_history_page.dart';
 import 'package:summer_healthcare_app/json/biochemistry.dart';
 import 'package:summer_healthcare_app/json/medical_history.dart';
 import 'package:summer_healthcare_app/json/user.dart';
+import 'package:summer_healthcare_app/landing/user_details.dart';
 import 'package:summer_healthcare_app/services/api/user_services.dart';
 import 'package:summer_healthcare_app/main.dart' show preferences;
 import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
@@ -24,7 +27,8 @@ class UserDetailsPage extends StatefulWidget {
   _UserDetailsPageState createState() => _UserDetailsPageState();
 }
 
-class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAliveClientMixin<UserDetailsPage> {
+class _UserDetailsPageState extends State<UserDetailsPage>
+    with AutomaticKeepAliveClientMixin<UserDetailsPage> {
   bool loadingUserDetails = true;
 
   String myUserId;
@@ -53,7 +57,18 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    
+
+    // check for empty list, no previous biochemistry record
+    Biochemistry newBiochemistry;
+    if (!loadingUserDetails) {
+      if (userDetails.biochemistry.length == 0) {
+        newBiochemistry =
+            Biochemistry(date: DateFormat('dd-MM-yyyy').format(DateTime.now()));
+      } else {
+        newBiochemistry = Biochemistry.clone(userDetails.biochemistry.last);
+      }
+    }
+
     return SafeArea(
       child: Scaffold(
         appBar: widget.appBar
@@ -92,8 +107,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
               )
             : ListView(
                 children: [
-                  // TODO: ensure synchronization of user details (between fireauth,
-                  // firestore and backend database) after enabling some fields for edit by user themselves
+                  // TODO: make input fields like marital status to take in limited options just
+                  // like in signuppage (hasnt been implemented as of now)
                   buildInputField(
                     readOnly: true,
                     labelText: 'Full Name',
@@ -110,19 +125,30 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
                     valueText: userDetails.weight,
                   ),
                   buildInputField(
-                    readOnly: true,
+                    readOnly: widget.pharmacistView,
                     labelText: 'Height (cm)',
                     valueText: userDetails.height,
+                    keyboardType: TextInputType.number,
+                    onChanged: (String newValue) {
+                      userDetails.height = newValue;
+                    },
                   ),
                   buildInputField(
                     readOnly: true,
                     labelText: 'Age',
                     valueText: userDetails.age?.toString() ?? '',
                   ),
-                  buildInputField(
-                    readOnly: true,
+                  buildBinaryRadioBtn(
+                    readOnly: widget.pharmacistView,
                     labelText: 'Gender',
-                    valueText: userDetails.gender,
+                    titles: ['Male', 'Female'],
+                    values: ['Male', 'Female'],
+                    groupValue: userDetails.gender,
+                    onChanged: (String newValue) {
+                      setState(() {
+                        userDetails.gender = newValue;
+                      });
+                    },
                   ),
                   buildInputField(
                     readOnly: true,
@@ -130,50 +156,100 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
                     valueText: (userDetails.height != null &&
                             userDetails.weight != null)
                         ? calcBMI(
-                            height: int.tryParse(userDetails.height),
-                            weight: int.tryParse(userDetails.weight),
+                            height: double.tryParse(userDetails.height) ?? 1,
+                            weight: double.tryParse(userDetails.weight) ?? 0,
                           )
                         : '',
                   ),
-                  buildInputField(
-                    readOnly: true,
+                  buildDropDown(
+                    readOnly: widget.pharmacistView,
                     labelText: 'Ethnicity',
-                    valueText: userDetails.ethnicity,
+                    items: UserDetails.ethnicityList,
+                    value: userDetails.ethnicity,
+                    hint: 'Choose An Ethnicity',
+                    onChanged: (String newValue) {
+                      setState(() {
+                        userDetails.ethnicity = newValue;
+                      });
+                    },
                   ),
-                  buildInputField(
-                    readOnly: true,
-                    labelText: 'Education status',
-                    valueText: userDetails.educationStatus,
+                  buildDropDown(
+                    readOnly: widget.pharmacistView,
+                    labelText: 'Education Status',
+                    items: UserDetails.educationList,
+                    value: userDetails.educationStatus,
+                    hint: 'Choose An Education Status',
+                    onChanged: (String newValue) {
+                      setState(() {
+                        userDetails.educationStatus = newValue;
+                      });
+                    },
                   ),
-                  buildInputField(
-                    readOnly: true,
+                  buildBinaryRadioBtn(
+                    readOnly: widget.pharmacistView,
                     labelText: 'Employment Status',
-                    valueText: userDetails.employmentStatus,
+                    titles: ['Employed', 'Not Employed'],
+                    values: ['Employed', 'Not Employed'],
+                    groupValue: userDetails.employmentStatus,
+                    onChanged: (String newValue) {
+                      setState(() {
+                        userDetails.employmentStatus = newValue;
+                      });
+                    },
                   ),
                   buildInputField(
-                    readOnly: true,
+                    readOnly: widget.pharmacistView,
                     labelText: 'Occupation',
                     valueText: userDetails.occupation,
+                    onChanged: (String newValue) {
+                      userDetails.occupation = newValue;
+                    },
                   ),
-                  buildInputField(
-                    readOnly: true,
+                  buildDropDown(
+                    readOnly: widget.pharmacistView,
                     labelText: 'Marital Status',
-                    valueText: userDetails.maritalStatus,
+                    items: UserDetails.maritalStatusList,
+                    value: userDetails.maritalStatus,
+                    hint: 'Select A Marital Status',
+                    onChanged: (String newValue) {
+                      setState(() {
+                        userDetails.maritalStatus = newValue;
+                      });
+                    },
                   ),
-                  buildInputField(
-                    readOnly: true,
+                  buildBinaryRadioBtn(
+                    readOnly: widget.pharmacistView,
                     labelText: 'Smoker?',
-                    valueText: userDetails.smoker?.toString() ?? '',
+                    titles: ['Yes', 'No'],
+                    values: [true, false],
+                    groupValue: userDetails.smoker,
+                    onChanged: (bool newValue) {
+                      setState(() {
+                        userDetails.smoker = newValue;
+                      });
+                    },
                   ),
                   buildInputField(
-                    readOnly: true,
+                    readOnly: widget.pharmacistView,
                     labelText: 'Number of Cigarettes per Day',
                     valueText: userDetails.cigsPerDay?.toString() ?? '',
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    onChanged: (String newValue) {
+                      userDetails.cigsPerDay = int.tryParse(newValue) ?? 0;
+                    },
                   ),
-                  buildInputField(
-                    readOnly: true,
+                  buildBinaryRadioBtn(
+                    readOnly: widget.pharmacistView,
                     labelText: 'Using e-Cigarette?',
-                    valueText: userDetails.eCig?.toString() ?? '',
+                    titles: ['Yes', 'No'],
+                    values: [true, false],
+                    groupValue: userDetails.eCig,
+                    onChanged: (bool newValue) {
+                      setState(() {
+                        userDetails.eCig = newValue;
+                      });
+                    },
                   ),
                   Padding(
                     child: Text(
@@ -193,7 +269,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
                       userDetails.bodyFatPercentage = newValue;
                     },
                     keyboardType: TextInputType.number,
-                    paddings: Paddings.all_15,
+                    padding: Paddings.all_15,
                   ),
                   Padding(
                     child: Text(
@@ -216,21 +292,39 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
                     ),
                     padding: Paddings.all_15,
                   ),
-                  buildBiochemistryTable(
-                      biochemistry: userDetails.biochemistry),
-                  widget.pharmacistView
-                      ? UserButton(
-                          text: 'Update',
-                          color: Colours.secondaryColour,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: Dimensions.d_65,
-                            vertical: Dimensions.d_10,
+                  buildBiochemistryTable(biochemistry: newBiochemistry),
+                  UserButton(
+                    text: 'View Biochemistry History',
+                    color: Colours.secondaryColour,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Dimensions.d_65,
+                      vertical: Dimensions.d_10,
+                    ),
+                    onClick: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BiochemistryHistory(
+                            history: userDetails.biochemistry,
                           ),
-                          onClick: () {
-                            updateData(user: userDetails);
-                          },
-                        )
-                      : Container(),
+                        ),
+                      );
+                    },
+                  ),
+                  UserButton(
+                    text: 'Update',
+                    color: Colours.secondaryColour,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Dimensions.d_65,
+                      vertical: Dimensions.d_10,
+                    ),
+                    onClick: () {
+                      updateData(
+                        user: userDetails,
+                        newBiochemistry: newBiochemistry,
+                      );
+                    },
+                  ),
                 ],
               ),
       ),
@@ -435,7 +529,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
                 onChanged: (String newValue) {
                   medicalHistory.other = newValue;
                 },
-                paddings: Paddings.horizontal_10),
+                padding: Paddings.horizontal_10),
             flex: 12,
           ),
         ]),
@@ -527,7 +621,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
       SizedBox(
         height: Dimensions.d_10,
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'Fasting blood sugar',
         labParam: 'fastingBloodSugar',
         value: biochemistry.fastingBloodSugar,
@@ -535,7 +629,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
           biochemistry.fastingBloodSugar = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'Random blood sugar',
         labParam: 'randomBloodSugar',
         value: biochemistry.randomBloodSugar,
@@ -543,7 +637,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
           biochemistry.randomBloodSugar = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: '2-hr post prandial glucose',
         labParam: 'twoHrPostPrandialGlucose',
         value: biochemistry.twoHrPostPrandialGlucose,
@@ -551,7 +645,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
           biochemistry.twoHrPostPrandialGlucose = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'Creatinine',
         labParam: 'creatinine',
         value: biochemistry.creatinine,
@@ -559,7 +653,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
           biochemistry.creatinine = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'HDL',
         labParam: 'hdl',
         value: biochemistry.hdl,
@@ -567,7 +661,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
           biochemistry.hdl = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'LDL',
         labParam: 'ldl',
         value: biochemistry.ldl,
@@ -575,7 +669,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
           biochemistry.ldl = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'Triglyceride',
         labParam: 'triglyceride',
         value: biochemistry.triglyceride,
@@ -583,15 +677,15 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
           biochemistry.triglyceride = newValue;
         },
       ),
-      buildBiochesmitryRow(
-        label: 'HDL/LDL RATIO',
+      buildBiochemistryRow(
+        label: 'HDL/LDL Ratio',
         labParam: 'hdlLdlRatio',
         value: biochemistry.hdlLdlRatio,
         onChanged: (String newValue) {
           biochemistry.hdlLdlRatio = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'HbA1c',
         labParam: 'hba1c',
         value: biochemistry.hba1c,
@@ -599,7 +693,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
           biochemistry.hba1c = newValue;
         },
       ),
-      buildBiochesmitryRow(
+      buildBiochemistryRow(
         label: 'Total cholesterol',
         labParam: 'totalCholesterol',
         value: biochemistry.totalCholesterol,
@@ -627,7 +721,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
     );
   }
 
-  Row buildBiochesmitryRow(
+  Row buildBiochemistryRow(
       {String label, String labParam, String value, Function onChanged}) {
     return Row(
       children: [
@@ -641,13 +735,16 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
               valueText: value,
               readOnly: widget.pharmacistView ? false : true,
               onChanged: onChanged,
-              paddings: Paddings.horizontal_5),
+              padding: Paddings.horizontal_5,
+              textAlign: TextAlign.center),
           flex: 3,
         ),
         Expanded(
           child: Container(
-            child: Text(Biochemistry.units[labParam]),
-            padding: EdgeInsets.only(left: 5),
+            child: Text(
+              Biochemistry.units[labParam],
+              textAlign: TextAlign.center,
+            ),
           ),
           flex: 2,
         ),
@@ -665,9 +762,40 @@ class _UserDetailsPageState extends State<UserDetailsPage> with AutomaticKeepAli
     });
   }
 
-  void updateData({User user}) async {
+  void updateData({User user, Biochemistry newBiochemistry}) async {
+    if (widget.pharmacistView) {
+      bool allValueEmpty = true;
+      Map tempJson = newBiochemistry.toJson();
+      tempJson.remove('date');
+      for (String value in tempJson.values) {
+        if (value != null && value.isNotEmpty) {
+          allValueEmpty = false;
+        }
+      }
+      // only push the newBiochemistry into biochemistry list if not all of the
+      // values empty (at least one is not empty while excluding date field)
+      if (!allValueEmpty) {
+        String lastBiochemistryDate =
+            user.biochemistry.length == 0 ? null : user.biochemistry.last.date;
+        // ensure only one set of biochemistry record exists for each day
+        if (newBiochemistry.date == lastBiochemistryDate) {
+          user.biochemistry.last = newBiochemistry;
+        } else {
+          user.biochemistry.add(newBiochemistry);
+        }
+      }
+    }
     Map<String, dynamic> userJson = user.toJson();
     userJson.remove('uid');
+    userJson.remove('pharmacy_id');
+
+    if (!widget.pharmacistView) {
+      // if it is viewed by normal patient user, do not allow update of fields below
+      userJson.remove('body_fat_percentage');
+      userJson.remove('medical_history');
+      userJson.remove('medication');
+      userJson.remove('biochemistry');
+    }
 
     String authToken = await AuthService.getToken();
     UserServices.updateUserById(
@@ -691,13 +819,17 @@ Padding buildInputField(
     bool readOnly,
     TextInputType keyboardType,
     Function onChanged,
-    EdgeInsetsGeometry paddings}) {
+    EdgeInsetsGeometry padding,
+    TextAlign textAlign,
+    List<TextInputFormatter> inputFormatters}) {
   String initialValue =
       (valueText == null || valueText.isEmpty) ? null : valueText;
 
   return Padding(
-    padding: paddings ?? Paddings.all_10,
+    padding: padding ?? Paddings.all_10,
     child: TextFormField(
+      textAlign: textAlign ?? TextAlign.left,
+      inputFormatters: inputFormatters,
       keyboardType: keyboardType,
       onChanged: onChanged,
       readOnly: readOnly,
@@ -715,7 +847,100 @@ Padding buildInputField(
   );
 }
 
-String calcBMI({int weight, int height}) {
+Padding buildDropDown(
+    {EdgeInsetsGeometry padding,
+    String labelText,
+    List<String> items,
+    String value,
+    String hint,
+    Function onChanged,
+    bool readOnly}) {
+  return Padding(
+    padding: padding ?? Paddings.userDetails,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          labelText,
+          style: TextStyle(
+            fontWeight: FontWeight.w400,
+            color: Colours.grey,
+            fontSize: 13,
+          ),
+          textAlign: TextAlign.left,
+        ),
+        DropdownButton(
+          hint: Text(hint ?? '-'),
+          isExpanded: true,
+          value: value,
+          items: items.map((String itemVal) {
+            return DropdownMenuItem(
+              value: itemVal,
+              child: Text(itemVal),
+            );
+          }).toList(),
+          onChanged: readOnly ? null : onChanged,
+          disabledHint: Text(value),
+        ),
+      ],
+    ),
+  );
+}
+
+Padding buildBinaryRadioBtn(
+    {EdgeInsetsGeometry padding,
+    String labelText,
+    List<String> titles,
+    List<dynamic> values,
+    dynamic groupValue,
+    Function onChanged,
+    bool readOnly}) {
+  return Padding(
+    padding: padding ?? Paddings.userDetails,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          labelText,
+          style: TextStyle(
+            fontWeight: FontWeight.w400,
+            color: Colours.grey,
+            fontSize: 13,
+          ),
+          textAlign: TextAlign.left,
+        ),
+        Row(
+          children: <Widget>[
+            Flexible(
+              child: RadioListTile(
+                dense: true,
+                title: Text(
+                  titles[0],
+                ),
+                value: values[0],
+                groupValue: groupValue,
+                onChanged: readOnly ? null : (dynamic newValue) => onChanged(newValue),
+              ),
+            ),
+            Flexible(
+              child: RadioListTile(
+                dense: true,
+                title: Text(
+                  titles[1],
+                ),
+                value: values[1],
+                groupValue: groupValue,
+                onChanged: readOnly ? null : (dynamic newValue) => onChanged(newValue),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+String calcBMI({double weight, double height}) {
   double bmiValue = weight / ((height / 100) * (height / 100));
   String bmiString = bmiValue.toStringAsFixed(1);
 

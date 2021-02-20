@@ -10,6 +10,7 @@ class Paddings {
   static EdgeInsetsGeometry vertical_5 = EdgeInsets.symmetric(vertical: 5.0);
   static EdgeInsetsGeometry vertical_15 = EdgeInsets.symmetric(vertical: 15.0);
   static EdgeInsetsGeometry vertical_35 = EdgeInsets.symmetric(vertical: 35.0);
+  static EdgeInsetsGeometry userDetails = EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0);
   static EdgeInsetsGeometry all_1 = EdgeInsets.all(1.0);
   static EdgeInsetsGeometry all_3 = EdgeInsets.all(3.0);
   static EdgeInsetsGeometry all_5 = EdgeInsets.all(5.0);
@@ -65,6 +66,7 @@ class Colours {
   static Color primaryColour = Color(0xFFF7F6F6);
   static Color secondaryColour = Color(0xFF2196f3);
   static Color tertiaryColour = Color(0xFFff8a89);
+  static Color quaternaryColour = Colors.orangeAccent[200];
   static Color grey = Color(0xFF707070);
   static Color black = Color(0xFF333333);
   static Color white = Colors.white;

@@ -13,14 +13,14 @@ class MonitoringPage extends StatefulWidget {
 }
 
 class _MonitoringPageState extends State<MonitoringPage> {
-  List<UserOutlinedButton> monitorButtons;
+  List<MonitoringButton> monitorButtons;
   String uid = preferences.getString('id');
 
   @override
   Widget build(BuildContext context) {
     if (monitorButtons == null) {
       monitorButtons = [
-        UserOutlinedButton(
+        MonitoringButton(
             text: 'Sugar Level',
             onClick: () {
               Navigator.push(
@@ -34,15 +34,10 @@ class _MonitoringPageState extends State<MonitoringPage> {
                 ),
               );
             },
-            padding: EdgeInsets.symmetric(
-                horizontal: Dimensions.d_30, vertical: Dimensions.d_20),
-            color: Colours.primaryColour,
-            textColour: Colours.secondaryColour,
-            outlineColor: Colours.secondaryColour,
-            height: Dimensions.d_100,
-            foregroundColor: Colours.secondaryColour,
-            buttonRadius: BorderRadius.circular(Dimensions.d_10)),
-        UserOutlinedButton(
+            color: Colours.secondaryColour,
+            textColour: Colours.white,
+            icon: Icons.emoji_nature_outlined,),
+        MonitoringButton(
             text: 'Weight',
             onClick: () {
               Navigator.push(
@@ -56,28 +51,18 @@ class _MonitoringPageState extends State<MonitoringPage> {
                 ),
               );
             },
-            padding: EdgeInsets.symmetric(
-                horizontal: Dimensions.d_30, vertical: Dimensions.d_20),
-            color: Colours.primaryColour,
-            textColour: Colours.secondaryColour,
-            outlineColor: Colours.secondaryColour,
-            height: Dimensions.d_100,
-            foregroundColor: Colours.secondaryColour,
-            buttonRadius: BorderRadius.circular(Dimensions.d_10)),
-        UserOutlinedButton(
+            color: Colours.tertiaryColour,
+            textColour: Colours.white,
+            icon: Icons.fitness_center_outlined,),
+        MonitoringButton(
             text: 'Mi-Band',
             onClick: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => MiBandPage(appBar: true)));
             },
-            padding: EdgeInsets.symmetric(
-                horizontal: Dimensions.d_30, vertical: Dimensions.d_20),
-            color: Colours.primaryColour,
-            textColour: Colours.secondaryColour,
-            outlineColor: Colours.secondaryColour,
-            height: Dimensions.d_100,
-            foregroundColor: Colours.secondaryColour,
-            buttonRadius: BorderRadius.circular(Dimensions.d_10))
+            color: Colours.quaternaryColour,
+            textColour: Colours.white,
+            icon: Icons.watch_outlined,)
       ];
     }
     return Scaffold(
@@ -85,7 +70,7 @@ class _MonitoringPageState extends State<MonitoringPage> {
       body: ListView(
         children: <Widget>[
           SizedBox(
-            height: Dimensions.d_10,
+            height: Dimensions.d_1,
           ),
           ListView.builder(
             physics: NeverScrollableScrollPhysics(),

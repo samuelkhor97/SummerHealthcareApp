@@ -1,31 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:summer_healthcare_app/constants.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:summer_healthcare_app/services/firebase/auth_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+final String backendUrl = env['backendUrl'];
 
 class FoodDiaryItem extends StatefulWidget {
   final String name;
   final String calories;
   final String picture;
+  final Function onImageTap;
 
-  FoodDiaryItem({this.name, this.calories, this.picture});
+  FoodDiaryItem({this.name, this.calories, this.picture, this.onImageTap});
 
   @override
   _FoodDiaryItemState createState() => _FoodDiaryItemState();
 }
 
 class _FoodDiaryItemState extends State<FoodDiaryItem> {
+  String authToken;
+
+  @override
+  void initState() {
+    super.initState();
+    setToken();
+  }
+
+  void setToken() async {
+    authToken = await AuthService.getToken();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: IconButton(
-        icon: Icon(Icons.fastfood_outlined),
-        onPressed: () {
-          getImage(context: context, imageSource: ImageSource.camera);
+      leading: GestureDetector(
+        onTap: () {
+          widget.onImageTap();
         },
-        color: Colours.secondaryColour,
+        child: CircleAvatar(
+          child: widget.picture == null ? Icon(Icons.fastfood_outlined) : GetCachedNetworkImage(
+            authToken: authToken,
+            foodPicture: widget.picture,)
+        ),
       ),
       title: Text(
         widget.name,
@@ -35,37 +53,31 @@ class _FoodDiaryItemState extends State<FoodDiaryItem> {
       ),
     );
   }
+}
 
+class GetCachedNetworkImage extends StatelessWidget {
+  final String foodPicture;
+  final String authToken;
+  final double dimensions;
 
-  Future getImage({BuildContext context, ImageSource imageSource}) async {
-    ImagePicker imagePicker = ImagePicker();
-    PickedFile pickedFile;
+  GetCachedNetworkImage({this.foodPicture, this.authToken, this.dimensions});
 
-    pickedFile = await imagePicker.getImage(source: imageSource);
-
-    if (pickedFile != null) {
-      // String fileName =
-      //     'images/groups/$groupId/users/$id/${DateTime.now().toString()}';
-
-      File imageFile = File(pickedFile.path);
-      // showLoadingAnimation(context: context);
-      File compressedFile = await compressFile(file: imageFile);
-      // await uploadFile(file: compressedFile ?? imageFile, fileName: fileName);
-      // Navigator.pop(context);
-    }
-  }
-
-  Future<File> compressFile({File file}) async {
-    final filePath = file.absolute.path;
-    final lastIndex = filePath.lastIndexOf('.');
-    final splitted = filePath.substring(0, lastIndex);
-    final outPath = "${splitted}_compressed${filePath.substring(lastIndex)}";
-    File result = await FlutterImageCompress.compressAndGetFile(
-      file.absolute.path,
-      outPath,
-      quality: 25,
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(Dimensions.d_45),
+      child: CachedNetworkImage(
+        imageUrl:
+        '$backendUrl/food-diary/attachment?filename=$foodPicture',
+        httpHeaders: {'Authorization': authToken},
+        progressIndicatorBuilder: (context, url, downloadProgress) => Center(
+            child: CircularProgressIndicator(value: downloadProgress.progress)),
+        errorWidget: (context, url, error) => Icon(Icons.error),
+        width: dimensions ?? Dimensions.d_35,
+        height: dimensions ?? Dimensions.d_35,
+        fit: BoxFit.fitHeight,
+      ),
     );
-
-    return result;
   }
 }
+

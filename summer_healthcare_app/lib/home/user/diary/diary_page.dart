@@ -91,12 +91,14 @@ class _DiaryPageState extends State<DiaryPage> {
             onTap: () async {
               DateTime selectedDate = await _pickDate(currentDate);
               if (selectedDate != null) {
+                showLoadingAnimation(context: context);
                 foodDiaries = await FoodDiaryServices().getAllCards(
                     headerToken: authToken,
                     date: _getFormattedDate(selectedDate));
                 setState(() {
                   _refreshCards();
                   currentDate = selectedDate;
+                  Navigator.pop(context);
                 });
               }
             },
@@ -134,6 +136,7 @@ class _DiaryPageState extends State<DiaryPage> {
                 child: Text('Add'),
                 onPressed: () async {
                   Navigator.of(alertContext).pop();
+                  showLoadingAnimation(context: context);
                   await FoodDiaryServices().createCard(
                     headerToken: authToken,
                     date: _getFormattedDate(currentDate),
@@ -144,6 +147,7 @@ class _DiaryPageState extends State<DiaryPage> {
                       date: _getFormattedDate(currentDate));
                   setState(() {
                     _refreshCards();
+                    Navigator.of(context).pop();
                   });
                 },
               ),

@@ -37,12 +37,13 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
 
   bool allFieldsFilled() {
     bool fieldCheck = userDetails.bmi.text.isNotEmpty &&
-        userDetails.ethnicity.text.isNotEmpty &&
-        userDetails.educationStatus.text.isNotEmpty &&
+        userDetails.ethnicity != null &&
+        userDetails.educationStatus != null &&
         userDetails.employmentStatus != null &&
         userDetails.occupation.text.isNotEmpty &&
-        userDetails.maritalStatus.text.isNotEmpty &&
+        userDetails.maritalStatus != null &&
         userDetails.smoke != null &&
+        userDetails.eCig != null &&
         userDetails.smokePerDay.text.isNotEmpty;
 
     return fieldCheck;
@@ -177,29 +178,55 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                       });
                     },
                   ),
-                  InputField(
-                    hintText: 'Malay/Chinese/Indian/Others',
-                    controller: userDetails.ethnicity,
-                    labelText: 'Ethnicity',
-                    onChanged: (String text) {
+                  Padding(
+                    padding: EdgeInsets.only(top: Dimensions.d_15),
+                    child: Text(
+                      'Ethnicity',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                  DropdownButton(
+                    hint: Text('Choose An Ethnicity'),
+                    isExpanded: true,
+                    value: userDetails.ethnicity,
+                    items: UserDetails.ethnicityList.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String newValue) {
                       setState(() {
+                        userDetails.ethnicity = newValue;
                         checkAllInformationFilled(checkBox: userDetails
                             .termsAndConditions);
                       });
-                    },
+                    }),
+                  Padding(
+                    padding: EdgeInsets.only(top: Dimensions.d_25),
+                    child: Text(
+                      'Education Status',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
                   ),
-                  InputField(
-                    hintText: 'Primary/Secondary/Tertiary',
-                    controller: userDetails.educationStatus,
-                    labelText: 'Education status',
-                    onChanged: (String text) {
+                  DropdownButton(
+                    hint: Text('Choose An Education Status'),
+                    isExpanded: true,
+                    value: userDetails.educationStatus,
+                    items: UserDetails.educationList.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String newValue) {
                       setState(() {
+                        userDetails.educationStatus = newValue;
                         checkAllInformationFilled(checkBox: userDetails
                             .termsAndConditions);
                       });
-                    },
-                  ),
-                  SizedBox(height: Dimensions.d_15),
+                    }),
+                  SizedBox(height: Dimensions.d_25),
                   Padding(
                     padding: Paddings.vertical_5,
                     child: Text(
@@ -256,18 +283,42 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                       });
                     },
                   ),
-                  InputField(
-                    hintText: 'Single/Married/Divorced/Widower',
-                    controller: userDetails.maritalStatus,
-                    labelText: 'Marital Status',
-                    onChanged: (String text) {
-                      setState(() {
-                        checkAllInformationFilled(checkBox: userDetails
-                            .termsAndConditions);
-                      });
-                    },
+                  Padding(
+                    padding: EdgeInsets.only(top: Dimensions.d_15),
+                    child: Text(
+                      'Marital Status',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
                   ),
-                  SizedBox(height: Dimensions.d_15),
+                  DropdownButton(
+                      hint: Text('Select A Marital Status'),
+                      isExpanded: true,
+                      value: userDetails.maritalStatus,
+                      items: UserDetails.maritalStatusList.map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (String newValue) {
+                        setState(() {
+                          userDetails.maritalStatus = newValue;
+                          checkAllInformationFilled(checkBox: userDetails
+                              .termsAndConditions);
+                        });
+                      }),
+                  // InputField(
+                  //   hintText: 'Single/Married/Divorced/Widower',
+                  //   controller: userDetails.maritalStatus,
+                  //   labelText: 'Marital Status',
+                  //   onChanged: (String text) {
+                  //     setState(() {
+                  //       checkAllInformationFilled(checkBox: userDetails
+                  //           .termsAndConditions);
+                  //     });
+                  //   },
+                  // ),
+                  SizedBox(height: Dimensions.d_25),
                   Padding(
                     padding: Paddings.vertical_5,
                     child: Text(
@@ -343,10 +394,10 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                               'Yes',
                             ),
                             value: 'Yes',
-                            groupValue: userDetails.e_cig,
+                            groupValue: userDetails.eCig,
                             onChanged: (String value) {
                               setState(() {
-                                userDetails.e_cig = value;
+                                userDetails.eCig = value;
                                 checkAllInformationFilled(
                                     checkBox: userDetails.termsAndConditions);
                               });
@@ -360,10 +411,10 @@ class _UserSignUpPage2State extends State<UserSignUpPage2> {
                               'No',
                             ),
                             value: 'No',
-                            groupValue: userDetails.e_cig,
+                            groupValue: userDetails.eCig,
                             onChanged: (String value) {
                               setState(() {
-                                userDetails.e_cig = value;
+                                userDetails.eCig = value;
                                 checkAllInformationFilled(
                                     checkBox: userDetails.termsAndConditions);
                               });

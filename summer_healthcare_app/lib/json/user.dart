@@ -23,7 +23,7 @@ class User {
   String bodyFatPercentage;
   MedicalHistory medicalHistory;
   List<Medication> medication;
-  Biochemistry biochemistry;
+  List<Biochemistry> biochemistry;
 
   User(
       {this.uid,
@@ -73,7 +73,11 @@ class User {
         (med) => Medication.fromJson(med),
       ),
     );
-    biochemistry = Biochemistry.fromJson(json['biochemistry']);
+    biochemistry = List<Biochemistry>.from(
+      json['biochemistry'].map(
+        (bio) => Biochemistry.fromJson(bio),
+      ),
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -93,13 +97,16 @@ class User {
     data['marital_status'] = this.maritalStatus;
     data['smoker'] = this.smoker;
     data['cigs_per_day'] = this.cigsPerDay;
+    data['e_cig'] = this.eCig;
     data['weight'] = this.weight;
     data['body_fat_percentage'] = this.bodyFatPercentage;
     data['medical_history'] = this.medicalHistory.toJson();
     data['medication'] = List<Map<String, dynamic>>.from(
       this.medication.map((med) => med.toJson()),
     );
-    data['biochemistry'] = this.biochemistry.toJson();
+    data['biochemistry'] = List<Map<String, dynamic>>.from(
+      this.biochemistry.map((bio) => bio.toJson()),
+    );
     return data;
   }
 }

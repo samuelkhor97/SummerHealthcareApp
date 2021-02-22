@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-const {models, sequelize} = require('./models/index');
+const { models, sequelize } = require('./models/index');
 const express = require('express')
 const cors = require('cors')
 const app = express();
@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 const port = process.env.PORT
 const firebaseAdmin = require('./firebase/firebase-admin');
 
-function verifyUser(req, res, next){
+function verifyUser(req, res, next) {
     console.log(req.headers.authorization)
     if (req.headers.authorization) {
         // admin tokens for debugging
@@ -16,7 +16,7 @@ function verifyUser(req, res, next){
             let uid = 1;
             res.locals.id = uid.toString();
             next();
-        } else if (req.headers.authorization === "adminpharmacist"){
+        } else if (req.headers.authorization === "adminpharmacist") {
             let phar_id = 100;
             res.locals.id = phar_id.toString();
             next();
@@ -38,7 +38,7 @@ function verifyUser(req, res, next){
 }
 
 // api routes
-// const adminRoutes = require('./admin/server');
+const adminRoutes = require('./admin/server');
 const chatroomRoutes = require('./chatroom/server');
 const foodDiaryRoutes = require('./foodDiary/server');
 const pharmacistRoutes = require('./pharmacist/server');
@@ -55,7 +55,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/', verifyUser);
-// app.use('/admin', adminRoutes);
+app.use('/admin', adminRoutes);
 app.use('/chat', chatroomRoutes);
 app.use('/food-diary', foodDiaryRoutes);
 app.use('/pharmacist', pharmacistRoutes);
@@ -67,13 +67,14 @@ app.use('/mi-band', mibandRoutes);
 initialize();
 
 async function initialize() {
-    // if (process.env.DB_SYNC === 'true')
-    await sequelize.sync(
-        // {
-        //     force:true
-        // }
-    );
+    if (process.env.DB_SYNC === 'true') {
+        await sequelize.sync(
+            {
+                force: true
+            }
+        );
+    }
     app.listen(port, () => {
         console.log(`Listening at port: ${port}`)
-    }); 
+    });
 }

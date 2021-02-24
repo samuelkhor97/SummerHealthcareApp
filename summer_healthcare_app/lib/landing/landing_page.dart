@@ -107,13 +107,6 @@ class _LandingPageState extends State<LandingPage> {
                           ));
                     },
                   ),
-                  UserButton(
-                    text: 'Sign Up As Pharmacist',
-                    height: Dimensions.buttonHeight,
-                    color: Colours.tertiaryColour,
-                    onClick: () {
-                    },
-                  ),
                 ],
               ),
             ),

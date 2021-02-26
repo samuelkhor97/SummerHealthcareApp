@@ -67,7 +67,7 @@ class _WeightPageState extends State<WeightPage> with AutomaticKeepAliveClientMi
         lastWeight: allWeights[ind].weight,
         editable: widget.editable,
         callback:
-            initializePage, // pass this function as callback in order to refresh current/start weight if edited
+            this.initializePage, // pass this function as callback in order to refresh current/start weight if edited
       );
 
       // push the widget into array and update
@@ -125,7 +125,9 @@ class _WeightPageState extends State<WeightPage> with AutomaticKeepAliveClientMi
                   weight: weight,
                   lastWeight: allWeights[allWeights.length - 1].weight,
                 ));
-                setState(() {});
+                setState(() {
+                  allWeights.add(Weight(weight: weight.text));
+                });
                 String token = await AuthService.getToken();
                 await WeightServices.addWeight(
                     headerToken: token,
